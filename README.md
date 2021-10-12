@@ -14,6 +14,11 @@ details of attendees for an event.
 3. run `npm install` in terminal
 4. run `npm start` in terminal
 
+#### Dev and Test
+
+- Run `npm run dev` to start the server with hot reload
+- Run `npm test` to run jest test suites
+
 #### Requirements for running locally
 
 - NodeJs
