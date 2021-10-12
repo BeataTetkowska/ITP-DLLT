@@ -1,8 +1,12 @@
 const express = require("express");
-const app = express();
+const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
+const compression = require("compression");
 
 const logger = require("./middleware/logger");
 const eventRouter = require("./routes/event");
+
+const app = express();
 
 //Middleware
 //Logging with winston used as middleware to log all requests made to backend
