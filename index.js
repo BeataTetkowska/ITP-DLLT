@@ -1,8 +1,7 @@
-require('dotenv').config()
-const express = require('express')
-const app = express()
-const port = process.env.HTTPPORT
+require("dotenv").config();
+const app = require("./app/app");
 
-app.get('/', (req, res) => res.send('Hello World!'))
+const log = require("./app/utils/winstonLogger");
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+const port = process.env.HTTPPORT || 8080;
+app.listen(port, () => log.info(`Example app listening on port ${port}!`));
