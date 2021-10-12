@@ -9,6 +9,7 @@ currentEventExample = {
 };
 
 //Example route for sending only the JSON data for a single event
+//The function defined here will run when a request is made to /event
 router.get("/", (req, res) => {
   res.json(currentEventExample);
 });
