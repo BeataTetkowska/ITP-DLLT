@@ -1,2 +1,8 @@
+# This file functions in a similar manner to .gitignore
+# Files names contained in this file will be ignored by docker 
+# when building containers. This is particularly important to ensure
+# the built versions of node_modules do not get copied into the container
+# This would contaminate the build.
+
 **/node_modules
 .env

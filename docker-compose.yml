@@ -1,9 +1,20 @@
+# This file specifies the parameters for running a group of docker containers.
+# At the moment it is only being used to specify the parameters for the single 
+# container which hosts our node app. 
+# In future this file will orchestrate the app container and the database container 
+# so that they are able to communicate consistently. 
 version: '3.7'
 services:
   app:
+    # Specifies which directory contains the Dockerfile to be built
     build: .
     init: true
     container_name: dlltApp
+    # Specifies that the container should be restart if the app crashes
     restart: always
+    # Specifies port forwarding rules for the container
+    # HTTPPORT is a variable which should be pulled from the docker.env file
+    # ${HTTPPORT:-8080} specifies to use the value of HTTPPORT, or if HTTPPORT is empty
+    # use 8080 as default
     ports:
       - "${HTTPPORT:-8080}:${HTTPPORT:-8080}"
