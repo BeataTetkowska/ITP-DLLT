@@ -1,0 +1,9 @@
+version: '3.7'
+services:
+  app:
+    build: .
+    init: true
+    container_name: dlltApp
+    restart: always
+    ports:
+      - "${HTTPPORT:-8080}:${HTTPPORT:-8080}"
