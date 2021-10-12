@@ -8,11 +8,13 @@ describe("/event", () => {
       .expect("Content-Type", /json/)
       .expect(200)
       .then((res) => {
-        expect(res.body).toEqual(expect.objectContaining({
-          id: expect.any(Number),
-          ts: expect.any(String),
-          location: expect.any(String)
-        }));
+        expect(res.body).toEqual(
+          expect.objectContaining({
+            id: expect.any(Number),
+            ts: expect.any(String),
+            location: expect.any(String),
+          })
+        );
       });
   });
 });
