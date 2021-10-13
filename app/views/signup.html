@@ -4,7 +4,7 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="/js/signup.js"></script>
+    <script src="/js/signup.js" type="module"></script>
     <style>
       * {
         box-sizing: border-box;
@@ -67,6 +67,11 @@
         flex-grow: 0;
         margin-right: auto;
       }
+
+      .formGroup__input--error {
+        color: red;
+        border: 1px solid red;
+      }
     </style>
   </head>
 
@@ -84,6 +89,10 @@
         <input id="password" type="password" />
       </div>
       <div class="formGroup">
+        <lable for="confirmPassword">Confirm Password</lable>
+        <input id="confirmPassword" type="password" />
+      </div>
+      <div class="formGroup">
         <lable for="fist-name">First Name</lable>
         <input id="first-name" />
       </div>
@@ -92,7 +101,7 @@
         <input id="last-name" />
       </div>
       <div class="formGroup">
-        <button>Signup</button>
+        <button id="signup">Signup</button>
       </div>
     </div>
   </body>
