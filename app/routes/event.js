@@ -1,17 +1,22 @@
 const express = require("express");
-var router = express.Router();
+var viewRouter = express.Router();
+var apiRouter = express.Router();
 
-//An example of what data may be included within a single event
-currentEventExample = {
-  id: 1,
-  ts: new Date().toISOString(),
-  location: "Cruyff Court",
-};
+var events = require("../db/event");
 
-//Example route for sending only the JSON data for a single event
-//The function defined here will run when a request is made to /event
-router.get("/", (req, res) => {
-  res.json(currentEventExample);
+//GET /event -> returns html for event page
+viewRouter.get("/", (req, res) => {
+  //TODO send html
+  res.send("Events page");
 });
 
-module.exports = router;
+//GET /api/event -> returns json data for next event
+apiRouter.get("/", (req, res) => {
+  //TODO find next event
+  res.json(events[0]);
+});
+
+module.exports = {
+  view: viewRouter,
+  api: apiRouter,
+};
