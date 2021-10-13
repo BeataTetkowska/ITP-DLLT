@@ -30,6 +30,7 @@ if (process.env.NODE_ENV !== "production") {
     new transports.Console({
       level: "debug",
       format: format.combine(format.colorize(), logFormat),
+      silent: process.argv.indexOf("--silent") >= 0,
     })
   );
 }
