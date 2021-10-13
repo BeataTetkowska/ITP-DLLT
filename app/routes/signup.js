@@ -14,13 +14,21 @@ router.get("/", (req, res) => {
 //POST /signup -> creates user
 router.post("/", parseSignUpRequest, checkIfUserExists, createUser);
 
-//Parses variables sent from frontend
+//Parses variables sent from frontend into response object
 async function parseSignUpRequest(req, res, next) {
   var { password } = req.body;
 
   password = await bcrypt.hash(password, 10);
 
-  res.locals.user = { ...req.body, password: res.locals.password };
+  res.locals.user = {
+    name: {
+      first: req.body.firstName,
+      last: req.body.lastName,
+    },
+    email: req.body.email,
+    password: password,
+  };
+
   next();
 }
 

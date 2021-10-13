@@ -4,10 +4,14 @@ $(function () {
   $("#signup").click((e) => handleSignup(e));
 });
 
+//Validates form input and sends form data to server to create user
 function handleSignup(e) {
   e.preventDefault();
 
   var formData = validateSignUpForm();
+  if (!formData) {
+    return;
+  }
 
   var url = "/signup";
   $.post({
@@ -32,11 +36,16 @@ function handleSignup(e) {
     });
 }
 
+//Prepares formfield validation metadata and validates form fields
 function validateSignUpForm() {
   var fields = [
     {
-      selector: "#signUpName",
-      id: "name",
+      selector: "#firstName",
+      id: "firstName",
+    },
+    {
+      selector: "#lastName",
+      id: "lastName",
     },
     {
       selector: "#email",
@@ -57,12 +66,12 @@ function validateSignUpForm() {
   var formData = validateForm(fields);
 
   if (!formData.isValid) {
-    return;
+    return false;
   }
 
   if (formData.confirmPassword != formData.password) {
     $("#confirmPassword").addClass("input--error");
-    return;
+    return false;
   }
 
   return formData;
