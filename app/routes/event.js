@@ -1,3 +1,4 @@
+const path = require("path");
 const express = require("express");
 var viewRouter = express.Router();
 var apiRouter = express.Router();
@@ -7,7 +8,7 @@ var events = require("../db/event");
 //GET /event -> returns html for event page
 viewRouter.get("/", (_, res) => {
   //TODO send html
-  res.send("Events page");
+  res.sendFile(path.join(__dirname, "../views/event.html"));
 });
 
 //GET /api/event -> returns json data for next event

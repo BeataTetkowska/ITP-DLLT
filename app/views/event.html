@@ -1,0 +1,57 @@
+<!-- This is just a bad example frontend for the event page. Only for showing the API functionality -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="/js/event.js"></script>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        line-height: 2;
+      }
+
+      html,
+      body {
+        height: 100%;
+        width: 100%;
+      }
+
+      .content {
+        position: absolute;
+        top: 10%;
+        left: 10%;
+      }
+
+      .container {
+        height: 100%;
+        width: 100%;
+      }
+
+      button {
+        background: none;
+        color: #333;
+        border: 1px solid #333;
+        border-radius: 6px;
+        font-size: 16px;
+        padding: 15px 30px;
+        text-decoration: none;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="content">
+      <h3>Street Sport</h3>
+      <h1 id="location"></h1>
+      <p id="time"></p>
+      <p id="day"></p>
+      <button>Register</button>
+    </div>
+  </body>
+</html>
