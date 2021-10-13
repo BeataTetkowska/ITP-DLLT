@@ -25,11 +25,6 @@ module.exports = {
   api: apiRouter,
 };
 
-module.exports = {
-  view: viewRouter,
-  api: apiRouter,
-};
-
 //Searches through the list of events to find any events on today
 //Returns false if no events can be found that are on today
 function getNextEventToday(time) {
