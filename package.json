@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest --silent --watchAll",
+    "test": "jest --verbose --silent --watchAll",
     "start": "node index.js",
     "dev": "nodemon --inspect -e js,mjs,json,css"
   },
