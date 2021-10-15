@@ -11,6 +11,7 @@
   "author": "Noah Van Brabant, Joaquim Gomez, Sam Spence, Liam Kellock, Rhyse Cardy, Beata Tetkowska",
   "license": "MIT",
   "dependencies": {
+    "bcrypt": "^5.0.1",
     "body-parser": "^1.19.0",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.5",

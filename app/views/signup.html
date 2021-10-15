@@ -1,0 +1,108 @@
+<!-- This is just a bad example frontend for the signup page. Only for showing the API functionality -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="/js/signup.js" type="module"></script>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        line-height: 2;
+      }
+
+      html,
+      body {
+        height: 100%;
+        width: 100%;
+      }
+
+      button,
+      input {
+        background: none;
+        color: #333;
+        border: 1px solid #333;
+        border-radius: 6px;
+        font-size: 16px;
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+      input {
+        padding: 10px;
+      }
+
+      button {
+        cursor: pointer;
+        padding: 15px 30px;
+      }
+
+      .content {
+        position: absolute;
+        top: 10%;
+        left: 10%;
+      }
+
+      .container {
+        height: 100%;
+        width: 100%;
+      }
+
+      .formGroup {
+        display: flex;
+        flex-direction: column;
+        justify-content: left;
+      }
+
+      .formGroup + .formGroup {
+        margin-top: 20px;
+      }
+
+      .formGroup > input {
+        flex-grow: 0;
+        margin-right: auto;
+      }
+
+      .formGroup__input--error {
+        color: red;
+        border: 1px solid red;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="content">
+      <h3>Street Sport</h3>
+      <h1>Signup</h1>
+
+      <div class="formGroup">
+        <lable for="email">Email</lable>
+        <input id="email" type="email" />
+      </div>
+      <div class="formGroup">
+        <lable for="password">Password</lable>
+        <input id="password" type="password" />
+      </div>
+      <div class="formGroup">
+        <lable for="confirmPassword">Confirm Password</lable>
+        <input id="confirmPassword" type="password" />
+      </div>
+      <div class="formGroup">
+        <lable for="firstName">First Name</lable>
+        <input id="firstName" />
+      </div>
+      <div class="formGroup">
+        <lable for="lastName">Last Name</lable>
+        <input id="lastName" />
+      </div>
+      <div class="formGroup">
+        <button id="signup">Signup</button>
+      </div>
+    </div>
+  </body>
+</html>
