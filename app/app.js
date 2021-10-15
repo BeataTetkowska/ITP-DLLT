@@ -1,3 +1,4 @@
+const path = require("path");
 const express = require("express");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
@@ -22,12 +23,15 @@ app.use(bodyParser.json());
 //Cookie parser
 app.use(cookieParser());
 //Public folder for images, css and js files
-app.use(express.static("public"));
+app.use(express.static(path.join(__dirname, "public")));
 //Compress files before sending
 app.use(compression());
 
+app.set("views", path.join(__dirname, "views"));
+
 //Routers
-app.use("/event", eventRouter);
+app.use("/event", eventRouter.view);
+app.use("/api/event", eventRouter.api);
 
 app.get("/", (req, res) => res.send("Hello World!"));
 
