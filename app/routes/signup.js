@@ -18,7 +18,7 @@ router.post("/", parseSignUpRequest, checkIfUserExists, createUser);
 async function parseSignUpRequest(req, res, next) {
   var { password } = req.body;
 
-  password = await bcrypt.hash(password, 10);
+  let hash = await bcrypt.hash(password, 10);
 
   res.locals.user = {
     name: {
@@ -26,7 +26,7 @@ async function parseSignUpRequest(req, res, next) {
       last: req.body.lastName,
     },
     email: req.body.email,
-    password: password,
+    hash: hash,
   };
 
   next();
@@ -46,6 +46,7 @@ function checkIfUserExists(_, res, next) {
 function createUser(_, res) {
   var success = false;
   if (res.locals.userExists === false) {
+    res.locals.user._id = users.length + 1;
     users.push(res.locals.user);
     success = true;
   }
