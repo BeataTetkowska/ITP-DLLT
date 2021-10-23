@@ -7,6 +7,7 @@ const compression = require("compression");
 const logger = require("./middleware/logger");
 const eventRouter = require("./routes/event");
 const signupRouter = require("./routes/signup");
+const userRouter = require("./routes/user");
 
 const app = express();
 
@@ -35,6 +36,7 @@ app.use("/event", eventRouter.view);
 app.use("/api/event", eventRouter.api);
 
 app.use("/signup", signupRouter);
+app.use("/api/users", userRouter);
 
 app.get("/", (req, res) => res.send("Hello World!"));
 

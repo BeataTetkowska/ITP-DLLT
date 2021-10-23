@@ -4,7 +4,7 @@ var router = express.Router();
 const log = require("../utils/winstonLogger");
 const bcrypt = require("bcrypt");
 
-const users = require("../db/users");
+const user = require("../models/user");
 
 //GET /signup -> returns html for signup page
 router.get("/", (req, res) => {
@@ -35,19 +35,28 @@ async function parseSignUpRequest(req, res, next) {
 //Tests to ensure that a user with the same email does not already exist
 function checkIfUserExists(_, res, next) {
   res.locals.userExists = false;
-  if (users.filter((user) => user.email === res.locals.user.email).length > 0) {
-    res.locals.userExists = true;
-  }
 
-  next();
+  user.findOne({ email: res.locals.user.email }, (err, data) => {
+    if (err) {
+      next(err);
+    }
+
+    if (data !== null) {
+      res.locals.userExists = true;
+    }
+
+    next();
+  });
 }
 
 //Attempts to create the user and responds with status
 function createUser(_, res) {
   var success = false;
+  res.statusCode = 409;
   if (res.locals.userExists === false) {
-    users.push(res.locals.user);
     success = true;
+    res.statusCode = 201;
+    user.create(res.locals.user);
   }
 
   res.locals.response = {
@@ -57,7 +66,7 @@ function createUser(_, res) {
     },
   };
 
-  res.statusCode = 201;
+  log.debug(res.locals.response);
   res.json(res.locals.response);
 }
 
