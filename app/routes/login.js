@@ -1,8 +1,7 @@
 const path = require("path");
 const express = require("express");
 var router = express.Router();
-
-var events = require("../db/event");
+const passport = require("../middleware/passport");
 
 //GET /login -> returns html for login page
 router.get("/", (_, res) => {
@@ -10,8 +9,42 @@ router.get("/", (_, res) => {
 });
 
 //POST /login -> checks if credentials are accurate and logs the user in
-router.get("/", (_, res) => {
-  res.send("To be Implemented");
+router.post("/", async (req, res, next) => {
+  passport.authenticate("local", (err, user, info) => {
+    if (err) {
+      next(err);
+      return;
+    }
+
+    var formResponse = {
+      result: {
+        badPassword: null,
+        bademail: null,
+        success: false,
+      },
+    };
+
+    if (!user) {
+      if (info.errorCode === 2) {
+        formResponse.result.badPassword = true;
+      }
+      if (info.errorCode === 1) {
+        formResponse.result.bademail = true;
+      }
+      res.json(formResponse);
+      return;
+    }
+
+    req.login(user, (err) => {
+      if (err) {
+        next(err);
+        return;
+      }
+      formResponse.result.success = true;
+      res.json(formResponse);
+      return;
+    });
+  })(req, res, next);
 });
 
 module.exports = router;
