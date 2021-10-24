@@ -1,5 +1,6 @@
 const request = require("supertest");
 const app = require("../../app/app");
+const { getNextEvent, getNextEventToday } = require("../../app/routes/event");
 
 const toBeWithinRange = require("../matchers/toBeWithinRange");
 expect.extend(toBeWithinRange);
@@ -11,19 +12,28 @@ expect.extend(toBeWithinRange);
 //Checks for the HTTP code to be 200
 //Checks for the body in the response to consist of an object with
 //a specific set of fields
-describe("/event", () => {
-  it("GET /event -> event page html", async () => {
-    return request(app)
-      .get("/event")
-      .expect("Content-type", /text\/html/)
-      .expect(200);
+describe("/event API", () => {
+  it("GET /event -> HTTP 200", async () => {
+    return request(app).get("/event").expect(200);
   });
 
-  it("GET /api/event -> current event json", async () => {
+  it("GET /event -> Content Type HTML", async () => {
+    return request(app)
+      .get("/event")
+      .expect("Content-type", /text\/html/);
+  });
+
+  it("GET /api/event -> HTTP 200", async () => {
+    return request(app).get("/api/event").expect(200);
+  });
+
+  it("GET /api/event -> Content Type JSON", async () => {
+    return request(app).get("/api/event").expect("Content-Type", /json/);
+  });
+
+  it("GET /api/event -> event fields", async () => {
     return request(app)
       .get("/api/event")
-      .expect("Content-Type", /json/)
-      .expect(200)
       .then((res) => {
         expect(res.body).toEqual(
           expect.objectContaining({
@@ -40,5 +50,79 @@ describe("/event", () => {
           })
         );
       });
+  });
+});
+
+describe("/event Functions", () => {
+  it("getNextEventToday Sunday Night", () => {
+    var sundayMidnight = new Date(2021, 9, 24);
+    expect(getNextEventToday(sundayMidnight)).toEqual(false);
+  });
+
+  it("getNextEventToday Monday Morning", () => {
+    var mondayMorning = new Date(2021, 9, 25, 9);
+    expect(getNextEventToday(mondayMorning)).toEqual(false);
+  });
+
+  it("getNextEventToday Tuesday Morning", () => {
+    var tuesdayMorning = new Date(2021, 9, 26, 9);
+    var result = getNextEventToday(tuesdayMorning);
+    expect(result.day).toBe(2);
+    expect(result.start.hours).toBe(18);
+    expect(result.end.hours).toBe(19);
+  });
+
+  it("getNextEventToday Tuesday evening", () => {
+    var tuesdayEvening = new Date(2021, 9, 26, 19);
+    var result = getNextEventToday(tuesdayEvening);
+    expect(result.day).toBe(2);
+    expect(result.start.hours).toBe(19);
+    expect(result.end.hours).toBe(21);
+  });
+
+  it("getNextEventToday Tuesday night", () => {
+    var tuesdayNight = new Date(2021, 9, 26, 23);
+    expect(getNextEventToday(tuesdayNight)).toEqual(false);
+  });
+
+  //GetNextEvent
+  it("getNextEvent Sunday Night", () => {
+    var sundayMidnight = new Date(2021, 9, 24);
+    var result = getNextEvent(sundayMidnight);
+    expect(result.day).toBe(2);
+    expect(result.start.hours).toBe(18);
+    expect(result.end.hours).toBe(19);
+  });
+
+  it("getNextEvent Monday Morning", () => {
+    var mondayMorning = new Date(2021, 9, 25, 9);
+    var result = getNextEvent(mondayMorning);
+    expect(result.day).toBe(2);
+    expect(result.start.hours).toBe(18);
+    expect(result.end.hours).toBe(19);
+  });
+
+  it("getNextEvent Tuesday Morning", () => {
+    var tuesdayMorning = new Date(2021, 9, 26, 9);
+    var result = getNextEvent(tuesdayMorning);
+    expect(result.day).toBe(2);
+    expect(result.start.hours).toBe(18);
+    expect(result.end.hours).toBe(19);
+  });
+
+  it("getNextEvent Tuesday evening", () => {
+    var tuesdayEvening = new Date(2021, 9, 26, 19);
+    var result = getNextEvent(tuesdayEvening);
+    expect(result.day).toBe(2);
+    expect(result.start.hours).toBe(19);
+    expect(result.end.hours).toBe(21);
+  });
+
+  it("getNextEvent Tuesday night", () => {
+    var tuesdayNight = new Date(2021, 9, 26, 23);
+    var result = getNextEvent(tuesdayNight);
+    expect(result.day).toBe(3);
+    expect(result.start.hours).toBe(16);
+    expect(result.end.hours).toBe(17);
   });
 });

@@ -21,22 +21,17 @@ apiRouter.get("/", (_, res) => {
   res.json(nextEvent);
 });
 
-module.exports = {
-  view: viewRouter,
-  api: apiRouter,
-};
-
 //Searches through the list of events to find any events on today
 //Returns false if no events can be found that are on today
 function getNextEventToday(time) {
   var upcomingEventsToday = events
     .filter((event) => time.getUTCDay() == event.day)
-    .filter((event) => time.getHours() < event.start.hours);
+    .filter((event) => time.getHours() <= event.start.hours);
 
   var nextEvent;
   if (upcomingEventsToday.length > 0) {
     nextEvent = upcomingEventsToday.reduce((prev, current) =>
-      prev.hours < current.hours ? prev : current
+      prev.start.hours < current.start.hours ? prev : current
     );
     return nextEvent;
   } else {
@@ -53,8 +48,15 @@ function getNextEvent(time) {
     return nextEventToday;
   } else {
     time.setDate(time.getDate() + 1);
-    time.setHours(0);
+    time.setHours(1);
     nextEvent = getNextEvent(time);
   }
   return nextEvent;
 }
+
+module.exports = {
+  view: viewRouter,
+  api: apiRouter,
+  getNextEvent,
+  getNextEventToday,
+};
