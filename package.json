@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --verbose --silent --watchAll --runInBand",
+    "testNotSilent": "jest --verbose --watchAll --runInBand",
     "start": "node index.js",
     "dev": "nodemon --inspect -e js,mjs,json,css"
   },
