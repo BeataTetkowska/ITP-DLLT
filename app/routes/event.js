@@ -2,7 +2,7 @@ const path = require("path");
 const express = require("express");
 var viewRouter = express.Router();
 var apiRouter = express.Router();
-const {v4 : uuidv4} = require("uuid");
+const { v4: uuidv4 } = require("uuid");
 const log = require("../utils/winstonLogger");
 
 var eventSchedule = require("../db/event");
@@ -51,25 +51,24 @@ apiRouter.post("/register", (req, res, next) => {
       return false;
     }
     if (event.start.hours < req.body.hours) {
-      return false
+      return false;
     }
     return true;
   });
 
-
   if (matchingEvent.length === 0) {
-    res.json({ result: { success: false, message: "No event found for today" } });
-  }
-  else if (matchingEvent.length === 1) {
+    res.json({
+      result: { success: false, message: "No event found for today" },
+    });
+  } else if (matchingEvent.length === 1) {
     //TODO push actual user id when login functionality is operational
     matchingEvent[0].attendance.push(uuidv4());
     log.info(matchingEvent);
     res.json({ result: { success: true, message: "User has registered" } });
-  }
-  else {
-    var error = "More than one matching event found"
+  } else {
+    var error = "More than one matching event found";
     log.error(error);
-    next(error)
+    next(error);
   }
 });
 
@@ -83,7 +82,7 @@ module.exports = {
 function getNextEventToday(time) {
   var upcomingEventsToday = eventSchedule
     .filter((event) => time.getUTCDay() == event.day)
-    .filter((event) => time.getHours() < event.start.hours);
+    .filter((event) => time.getHours() <= event.start.hours);
 
   var nextEvent;
   if (upcomingEventsToday.length > 0) {
