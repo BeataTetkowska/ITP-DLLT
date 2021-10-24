@@ -36,7 +36,7 @@ function getNextEventToday(time) {
   var nextEvent;
   if (upcomingEventsToday.length > 0) {
     nextEvent = upcomingEventsToday.reduce((prev, current) =>
-      prev.hours < current.hours ? prev : current
+      prev.start.hours < current.start.hours ? prev : current
     );
     return nextEvent;
   } else {
@@ -53,8 +53,7 @@ function getNextEvent(time) {
     return nextEventToday;
   } else {
     time.setDate(time.getDate() + 1);
-    time.setHours(0);
-    nextEvent = getNextEvent(time);
+    time.setHours(1);
+    return getNextEvent(time);
   }
-  return nextEvent;
 }

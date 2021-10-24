@@ -26,7 +26,7 @@ const { v4: uuidv4 } = require("uuid");
 // }
 module.exports = () => {
   var now = new Date();
-  now.setDate(now.getDate() - now.getDay());
+  now.setDate(now.getDate() - now.getUTCDay());
   var startOfWeek = now.toISOString();
 
   return eventSchedule.map((event) => {
