@@ -22,6 +22,8 @@ $(function () {
       } - ${data.end.hours}:${data.end.minutes != 0 ? data.end.minutes : "00"}`
     );
     $("#day").text(days[data.day]);
+    //TODO disable register button unless event is less than 30 minutes in the future
+
   });
 
   $("#register").on("click", registerEvent);
@@ -33,16 +35,19 @@ function registerEvent() {
   var now = new Date();
 
   var url = "/api/event/register";
-  $.post({
+  $.ajax({
     type: "POST",
     url: url,
-    data: {
+    data: JSON.stringify({
       scheduleId,
+      minutes: now.getMinutes(),
+      hours: now.getHours(),
       date: now.getDate(),
       month: now.getMonth(),
       year: now.getYear(),
-    },
+    }),
     dataType: "json",
+    contentType: "application/json"
   })
     .done((response) => {
       //Notify user if registration was succesful
@@ -53,7 +58,7 @@ function registerEvent() {
       //If user is not signed in, notify user
       else {
         //TODO Navigate user to the sign in page, or request more information
-        alert("User is not signed in");
+        alert(response.result.message);
       }
     })
     .fail(() => {

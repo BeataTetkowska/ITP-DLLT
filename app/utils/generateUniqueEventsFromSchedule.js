@@ -25,9 +25,9 @@ const { v4: uuidv4 } = require("uuid");
 //   location:
 // }
 module.exports = () => {
-  var now = new Date();
-  now.setDate(now.getDate() - now.getUTCDay());
-  var startOfWeek = now.toISOString();
+  var startOfWeek = new Date();
+  startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getUTCDay());
+  var startOfWeek = startOfWeek.toISOString();
 
   return eventSchedule.map((event) => {
     var eventDate = new Date(startOfWeek);
@@ -36,6 +36,7 @@ module.exports = () => {
 
     return {
       _id: uuidv4(),
+      attendance: [],
       isoString: eventDateIsoString,
       date: eventDate.getDate(),
       month: eventDate.getMonth(),
