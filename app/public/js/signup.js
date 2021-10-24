@@ -61,6 +61,22 @@ function validateSignUpForm() {
       selector: "#confirmPassword",
       id: "confirmPassword",
     },
+    {
+      selector:"#dateofBirth",
+      id: "#dateofBirth",
+    },
+    {
+      selector: "#postcode",
+      id: "#postcode",
+    },
+    {
+      selector: "#emergencyname",
+      id:  "#emergencyname",
+    },
+    {
+      selector: "#phonenumber",
+      id: "#phonenumber",
+    },
   ];
 
   var formData = validateForm(fields);
