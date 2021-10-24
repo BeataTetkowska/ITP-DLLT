@@ -63,19 +63,19 @@ function validateSignUpForm() {
     },
     {
       selector:"#dateofBirth",
-      id: "#dateofBirth",
+      id: "dateOfBirth",
     },
     {
       selector: "#postcode",
-      id: "#postcode",
+      id: "postcode",
     },
     {
       selector: "#emergencyname",
-      id:  "#emergencyname",
+      id:  "emergencyname",
     },
     {
       selector: "#phonenumber",
-      id: "#phonenumber",
+      id: "phonenumber",
     },
   ];
 
