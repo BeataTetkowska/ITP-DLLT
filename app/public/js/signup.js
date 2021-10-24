@@ -63,7 +63,7 @@ function validateSignUpForm() {
     },
     {
       selector:"#dateofBirth",
-      id: "dateOfBirth",
+      id: "dateofBirth",
     },
     {
       selector: "#postcode",
@@ -76,7 +76,7 @@ function validateSignUpForm() {
     {
       selector: "#phonenumber",
       id: "phonenumber",
-    },
+    }, 
   ];
 
   var formData = validateForm(fields);
