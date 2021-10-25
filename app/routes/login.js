@@ -21,6 +21,7 @@ router.post("/", async (req, res, next) => {
         badPassword: null,
         bademail: null,
         success: false,
+        isAdmin: false,
       },
     };
 
@@ -40,6 +41,7 @@ router.post("/", async (req, res, next) => {
         next(err);
         return;
       }
+      formResponse.result.isAdmin = user.isAdmin;
       formResponse.result.success = true;
       res.json(formResponse);
       return;

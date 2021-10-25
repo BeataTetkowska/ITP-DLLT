@@ -2,9 +2,11 @@ const path = require("path");
 const express = require("express");
 var viewRouter = express.Router();
 var apiRouter = express.Router();
-const { v4: uuidv4 } = require("uuid");
+var adminViewRouter = express.Router();
+var adminApiRouter = express.Router();
 const log = require("../utils/winstonLogger");
 
+var users = require("../db/users");
 var eventSchedule = require("../db/event");
 
 var uniqueEvents = require("../utils/generateUniqueEventsFromSchedule")(
@@ -13,7 +15,6 @@ var uniqueEvents = require("../utils/generateUniqueEventsFromSchedule")(
 
 //GET /event -> returns html for event page
 viewRouter.get("/", (_, res) => {
-  //TODO send html
   res.sendFile(path.join(__dirname, "../views/event.html"));
 });
 
@@ -27,12 +28,35 @@ apiRouter.get("/", (_, res) => {
   res.json(nextEvent);
 });
 
-//POST /api/event/register
-//-> takes information about the current date
-//registers user for event if a matching event exists
-apiRouter.post("/register", (req, res, next) => {
+// GET /admin/event -> event html with attendance
+adminViewRouter.get("/", (req, res, next) => {
   if (!req.user) {
-    res.json({ result: { success: false, message: "User is not signed in" } });
+    //TODO set 401 unauthorised flag
+    next("User is not logged in");
+  }
+  if (!req.user.isAdmin) {
+    next("User is not admin");
+  }
+
+  res.sendFile(path.join(__dirname, "../views/adminEvent.html"));
+});
+
+// GET /admin/event/attendance
+// -> find users attending current event and return name and emergency contact
+// Takes
+//      scheduleId,
+//      minutes:
+//      hours:
+//      date:
+//      month:
+//      year:
+adminApiRouter.post("/attendance", (req, res, next) => {
+  if (!req.user) {
+    //TODO set 401 unauthorised flag
+    next("User is not logged in");
+  }
+  if (!req.user.isAdmin) {
+    next("User is not admin");
   }
 
   var matchingEvent = uniqueEvents.filter((event) => {
@@ -61,8 +85,72 @@ apiRouter.post("/register", (req, res, next) => {
       result: { success: false, message: "No event found for today" },
     });
   } else if (matchingEvent.length === 1) {
-    //TODO push actual user id when login functionality is operational
-    matchingEvent[0].attendance.push(uuidv4());
+    var matchingUserDetails = [];
+    matchingEvent[0].attendance.forEach((userID) => {
+      let user = users.find((user) => {
+        if (user._id === userID) {
+          return true;
+        }
+      });
+      if (user) {
+        matchingUserDetails.push({
+          _id: user._id,
+          name: user.name,
+          emergency: user.emergency,
+        });
+      }
+    });
+
+    res.json({
+      result: {
+        success: true,
+        message: "Event found, returning registered users",
+        users: matchingUserDetails,
+      },
+    });
+  } else {
+    var error = "More than one matching event found";
+    log.error(error);
+    next(error);
+  }
+});
+
+//POST /api/event/register
+//-> takes information about the current date
+//registers user for event if a matching event exists
+apiRouter.post("/register", (req, res, next) => {
+  if (!req.user) {
+    res.json({ result: { success: false, message: "User is not signed in" } });
+    return;
+  }
+
+  var matchingEvent = uniqueEvents.filter((event) => {
+    //Check minute, hour, date, year and month, scheduleID
+    //TODO - Check event starts in less than 30 minutes
+    if (event.date !== req.body.date) {
+      return false;
+    }
+    if (event.month !== req.body.month) {
+      return false;
+    }
+    if (event.year !== req.body.year) {
+      return false;
+    }
+    if (event._id !== req.body.scheduleId) {
+      return false;
+    }
+    if (event.start.hours < req.body.hours) {
+      return false;
+    }
+    return true;
+  });
+
+  if (matchingEvent.length === 0) {
+    res.json({
+      result: { success: false, message: "No event found for today" },
+    });
+  } else if (matchingEvent.length === 1) {
+    matchingEvent[0].attendance.push(req.user._id);
     log.info(matchingEvent);
     res.json({ result: { success: true, message: "User has registered" } });
   } else {
@@ -75,6 +163,8 @@ apiRouter.post("/register", (req, res, next) => {
 module.exports = {
   view: viewRouter,
   api: apiRouter,
+  adminView: adminViewRouter,
+  adminApi: adminApiRouter,
 };
 
 //Searches through the list of events to find any events on today
