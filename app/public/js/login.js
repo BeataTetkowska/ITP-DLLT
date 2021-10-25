@@ -23,7 +23,11 @@ function handleSignup(e) {
     .done((response) => {
       //Redirect to event page if user logged in
       if (response.result.success === true) {
-        window.location.href = "/event";
+        if (response.result.isAdmin) {
+          window.location.href = "/admin/event";
+        } else {
+          window.location.href = "/event";
+        }
       } else {
         alert("Credentials are invalid");
         $("#email").addClass("input--error");
