@@ -1,7 +1,6 @@
 const path = require("path");
 const express = require("express");
 var viewRouter = express.Router();
-const { v4: uuidv4 } = require("uuid");
 var apiRouter = express.Router();
 var adminViewRouter = express.Router();
 var adminApiRouter = express.Router();
@@ -44,7 +43,6 @@ adminViewRouter.get("/", (req, res) => {
 //      month:
 //      year:
 adminApiRouter.post("/attendance", (req, res) => {
-  uniqueEvents = testUniqueEvent;
   var matchingEvent = uniqueEvents.filter((event) => {
     //Check minute, hour, date, year and month, scheduleID
     //TODO - Check event starts in less than 30 minutes
@@ -90,7 +88,7 @@ adminApiRouter.post("/attendance", (req, res) => {
     res.json({
       result: {
         success: true,
-        message: "User has registered",
+        message: "Event found, returning registered users",
         data: matchingUserDetails,
       },
     });
@@ -135,31 +133,7 @@ apiRouter.post("/register", (req, res, next) => {
       result: { success: false, message: "No event found for today" },
     });
   } else if (matchingEvent.length === 1) {
-    var matchingUserDetails = [];
-    matchingEvent[0].attendance.forEach((userID) => {
-      let user = users.find((user) => {
-        if (user._id === userID) {
-          return true;
-        }
-      });
-      if (user) {
-        matchingUserDetails.push({
-          _id: user._id,
-          name: user.name,
-          emergency: user.emergency,
-        });
-      }
-    });
-
-    res.json({
-      result: {
-        success: true,
-        message: "User has registered",
-        data: matchingUserDetails,
-      },
-    });
-    //TODO push actual user id when login functionality is operational
-    matchingEvent[0].attendance.push(uuidv4());
+    matchingEvent[0].attendance.push(req.user._id);
     log.info(matchingEvent);
     res.json({ result: { success: true, message: "User has registered" } });
   } else {
