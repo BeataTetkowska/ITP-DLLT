@@ -41,7 +41,6 @@ router.post("/", async (req, res, next) => {
         next(err);
         return;
       }
-      console.log(user);
       formResponse.result.isAdmin = user.isAdmin;
       formResponse.result.success = true;
       res.json(formResponse);
