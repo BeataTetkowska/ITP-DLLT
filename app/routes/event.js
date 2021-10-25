@@ -5,6 +5,8 @@ var apiRouter = express.Router();
 var adminViewRouter = express.Router();
 var adminApiRouter = express.Router();
 
+const log = require("../utils/winstonLogger");
+
 var events = require("../db/event");
 var users = require("../db/users");
 
@@ -30,15 +32,69 @@ adminViewRouter.get("/", (req, res) => {
 
 // GET /admin/event/attendance
 // -> find users attending current event and return name and emergency contact
-adminApiRouter.get("/attendance", (req, res) => {
-  //TODO find event which is currently on
-  //This should be informed by the current time and information sent
-  //from the frontend for confirmation
-  //
-  //TODO Check if there are any users which have registered for this event
-  //Filter the results to only include the name and emergency contact
-  //send the results as json
-  res.send("Not Implemented");
+// Takes
+//      scheduleId,
+//      minutes:
+//      hours:
+//      date:
+//      month:
+//      year:
+adminApiRouter.post("/attendance", (req, res) => {
+  uniqueEvents = testUniqueEvent;
+  var matchingEvent = uniqueEvents.filter((event) => {
+    //Check minute, hour, date, year and month, scheduleID
+    //TODO - Check event starts in less than 30 minutes
+    if (event.date !== req.body.date) {
+      return false;
+    }
+    if (event.month !== req.body.month) {
+      return false;
+    }
+    if (event.year !== req.body.year) {
+      return false;
+    }
+    if (event._id !== req.body.scheduleId) {
+      return false;
+    }
+    if (event.start.hours < req.body.hours) {
+      return false;
+    }
+    return true;
+  });
+
+  if (matchingEvent.length === 0) {
+    res.json({
+      result: { success: false, message: "No event found for today" },
+    });
+  } else if (matchingEvent.length === 1) {
+    var matchingUserDetails = [];
+    matchingEvent[0].attendance.forEach((userID) => {
+      let user = users.find((user) => {
+        if (user._id === userID) {
+          return true;
+        }
+      });
+      if (user) {
+        matchingUserDetails.push({
+          _id: user._id,
+          name: user.name,
+          emergency: user.emergency,
+        });
+      }
+    });
+
+    res.json({
+      result: {
+        success: true,
+        message: "User has registered",
+        data: matchingUserDetails,
+      },
+    });
+  } else {
+    var error = "More than one matching event found";
+    log.error(error);
+    next(error);
+  }
 });
 
 module.exports = {
