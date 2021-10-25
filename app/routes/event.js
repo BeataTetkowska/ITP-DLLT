@@ -29,7 +29,15 @@ apiRouter.get("/", (_, res) => {
 });
 
 // GET /admin/event -> event html with attendance
-adminViewRouter.get("/", (req, res) => {
+adminViewRouter.get("/", (req, res, next) => {
+  if (!req.user) {
+    //TODO set 401 unauthorised flag
+    next("User is not logged in");
+  }
+  if (!req.user.isAdmin) {
+    next("User is not admin");
+  }
+
   res.sendFile(path.join(__dirname, "../views/adminEvent.html"));
 });
 
@@ -42,7 +50,15 @@ adminViewRouter.get("/", (req, res) => {
 //      date:
 //      month:
 //      year:
-adminApiRouter.post("/attendance", (req, res) => {
+adminApiRouter.post("/attendance", (req, res, next) => {
+  if (!req.user) {
+    //TODO set 401 unauthorised flag
+    next("User is not logged in");
+  }
+  if (!req.user.isAdmin) {
+    next("User is not admin");
+  }
+
   var matchingEvent = uniqueEvents.filter((event) => {
     //Check minute, hour, date, year and month, scheduleID
     //TODO - Check event starts in less than 30 minutes
