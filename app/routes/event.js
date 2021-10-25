@@ -105,7 +105,7 @@ adminApiRouter.post("/attendance", (req, res, next) => {
       result: {
         success: true,
         message: "Event found, returning registered users",
-        data: matchingUserDetails,
+        users: matchingUserDetails,
       },
     });
   } else {

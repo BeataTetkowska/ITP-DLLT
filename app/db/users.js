@@ -8,6 +8,7 @@ module.exports = [
       last: "taken",
     },
     email: "email@taken.com",
+    //Password matches email
     hash: "$2b$10$.SVUqjvFqedVuqVjl4eeNORvlOkkaiWqM4WjlZxmPsJPq9zTImfOK",
     dob: "27-10-21",
     postcode: "AB106SP",

@@ -43,6 +43,60 @@
         text-decoration: none;
         cursor: pointer;
       }
+      
+      
+      table {
+        width: 100%;
+        margin: 40px 0;
+        font-size: 1rem;
+        color: #333;
+        font-weight: 700;
+        border: 1px solid #333;
+        background-color: #fff;
+        text-align: center;
+        border-collapse: separate;
+        border-spacing: 0;
+        border-radius: 15px;
+        overflow: hidden;
+      }
+
+      table td,
+        table th {
+        padding: .5em;
+        height: 60px;
+        vertical-align: middle;
+        border-right: 1px solid #333;
+        border-bottom: 1px solid #333;
+      }
+
+      table td:last-child,
+          table th:last-child {
+        border-right: none;
+      }
+
+      table th {
+        background: #333;
+      }
+
+      table td {
+        background: #fff;
+      }
+
+      table thead {
+        background-color: #333;
+      }
+
+      table thead th {
+        color: #fff;
+        font-size: 2rem;
+        letter-spacing: .2em;
+      }
+
+      table tbody tr:last-child td,
+        table tbody tr:last-child th {
+        border-bottom: none;
+      }
+      
     </style>
   </head>
 
@@ -53,6 +107,17 @@
       <p id="time"></p>
       <p id="day"></p>
       <button id="getAttendance">View Registered Users</button>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Emergency Contact</th>
+            <th>Emergency Contact Number</th>
+          </tr>
+        </thead>
+        <tbody id="attendanceTable">
+        </tbody>
+      </table>
     </div>
   </body>
 </html>

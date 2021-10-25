@@ -34,7 +34,7 @@ $(function () {
         scheduleId,
         minutes: now.getMinutes(),
         hours: now.getHours(),
-        date: now.getDate(),
+        date: now.getDate() +1,
         month: now.getMonth(),
         year: now.getYear(),
       }),
@@ -42,9 +42,30 @@ $(function () {
       contentType: "application/json",
     })
       .done((data) => {
-        $data = $("<pre></pre>").text(JSON.stringify(data, null, 2));
-        $("div.content").append($data);
-        //TODO parse this data and display as table
+        if (data.result.users.length === 0) {
+          return;
+        }
+        else {
+          data.result.users.forEach(user => {
+            var $table = $("#attendanceTable");
+            var $row = $("<tr></tr>")
+
+            var $tdName = $("<td></td>")
+            $tdName.text(`${user.name.first} ${user.name.last}`)
+            $row.append($tdName)
+
+            $tdEmergencyName = $("<td></td>")
+            $tdEmergencyName.text(user.emergency.name)
+            $row.append($tdEmergencyName)
+
+            $tdEmergencyPhone = $("<td></td>")
+            $tdEmergencyPhone.text(user.emergency.phone)
+            $row.append($tdEmergencyPhone)
+            
+            $table.append($row)
+          });
+        }
+
       })
       .fail(() => {
         //TODO handle server failure
