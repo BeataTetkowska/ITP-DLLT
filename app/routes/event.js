@@ -121,6 +121,7 @@ adminApiRouter.post("/attendance", (req, res, next) => {
 apiRouter.post("/register", (req, res, next) => {
   if (!req.user) {
     res.json({ result: { success: false, message: "User is not signed in" } });
+    return;
   }
 
   var matchingEvent = uniqueEvents.filter((event) => {
