@@ -34,8 +34,7 @@ $(function () {
         scheduleId,
         minutes: now.getMinutes(),
         hours: now.getHours(),
-        //TODO ----------------------------------- REMOVE + 1
-        date: now.getDate() + 1,
+        date: now.getDate(),
         month: now.getMonth(),
         year: now.getYear(),
       }),
