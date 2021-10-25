@@ -53,6 +53,8 @@ app.set("views", path.join(__dirname, "views"));
 //Routers
 app.use("/event", eventRouter.view);
 app.use("/api/event", eventRouter.api);
+app.use("/admin/event", eventRouter.adminView);
+app.use("/api/admin/event", eventRouter.adminApi);
 
 app.use("/signup", signupRouter);
 app.use("/login", loginRouter);

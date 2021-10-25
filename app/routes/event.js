@@ -2,12 +2,14 @@ const path = require("path");
 const express = require("express");
 var viewRouter = express.Router();
 var apiRouter = express.Router();
+var adminViewRouter = express.Router();
+var adminApiRouter = express.Router();
 
 var events = require("../db/event");
+var users = require("../db/users");
 
 //GET /event -> returns html for event page
 viewRouter.get("/", (_, res) => {
-  //TODO send html
   res.sendFile(path.join(__dirname, "../views/event.html"));
 });
 
@@ -21,9 +23,29 @@ apiRouter.get("/", (_, res) => {
   res.json(nextEvent);
 });
 
+// GET /admin/event -> event html with attendance
+adminViewRouter.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "../views/adminEvent.html"));
+});
+
+// GET /admin/event/attendance
+// -> find users attending current event and return name and emergency contact
+adminApiRouter.get("/attendance", (req, res) => {
+  //TODO find event which is currently on
+  //This should be informed by the current time and information sent
+  //from the frontend for confirmation
+  //
+  //TODO Check if there are any users which have registered for this event
+  //Filter the results to only include the name and emergency contact
+  //send the results as json
+  res.send("Not Implemented");
+});
+
 module.exports = {
   view: viewRouter,
   api: apiRouter,
+  adminView: adminViewRouter,
+  adminApi: adminApiRouter,
 };
 
 //Searches through the list of events to find any events on today
