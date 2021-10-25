@@ -40,20 +40,21 @@ $(function () {
           return;
         } else {
           data.result.users.forEach((user) => {
-            var $table = $("#attendanceTable");
+            var userTableDetails = [
+              `${user.name.first} ${user.name.last}`,
+              user.emergency.name,
+              user.emergency.phone,
+            ];
+
+            var $table = $("#attendanceTableBody");
             var $row = $("<tr></tr>");
+            var $td;
 
-            var $tdName = $("<td></td>");
-            $tdName.text(`${user.name.first} ${user.name.last}`);
-            $row.append($tdName);
-
-            $tdEmergencyName = $("<td></td>");
-            $tdEmergencyName.text(user.emergency.name);
-            $row.append($tdEmergencyName);
-
-            $tdEmergencyPhone = $("<td></td>");
-            $tdEmergencyPhone.text(user.emergency.phone);
-            $row.append($tdEmergencyPhone);
+            userTableDetails.forEach((detail) => {
+              $td = $("<td></td>");
+              $td.text(detail);
+              $row.append($td);
+            });
 
             $table.append($row);
           });
