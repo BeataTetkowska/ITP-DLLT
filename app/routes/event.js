@@ -31,9 +31,9 @@ apiRouter.get("/", (_, res) => {
 //-> takes information about the current date
 //registers user for event if a matching event exists
 apiRouter.post("/register", (req, res, next) => {
-  // if (!req.user) {
-  //   res.json({ result: { success: false, message: "User is not signed in" } });
-  // }
+  if (!req.user) {
+    res.json({ result: { success: false, message: "User is not signed in" } });
+  }
 
   var matchingEvent = uniqueEvents.filter((event) => {
     //Check minute, hour, date, year and month, scheduleID
