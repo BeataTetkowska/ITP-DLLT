@@ -148,8 +148,10 @@ module.exports = {
 //Searches through the list of events to find any events on today
 //Returns false if no events can be found that are on today
 function getNextEventToday(time) {
-  var upcomingEventsToday = eventSchedule
-    .filter((event) => time.getUTCDay() == event.day)
+  var upcomingEventsToday = uniqueEvents
+    .filter((event) => time.getYear() === event.year)
+    .filter((event) => time.getMonth() === event.month)
+    .filter((event) => time.getDate() === event.date)
     .filter((event) => time.getHours() <= event.start.hours);
 
   var nextEvent;
