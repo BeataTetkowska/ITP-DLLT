@@ -17,7 +17,7 @@ router.post("/", parseSignUpRequest, checkIfUserExists, createUser);
 //Parses variables sent from frontend into response object
 async function parseSignUpRequest(req, res, next) {
   var { password } = req.body;
-  log.debug(req.body)
+  log.debug(req.body);
 
   let hash = await bcrypt.hash(password, 10);
 
@@ -28,7 +28,15 @@ async function parseSignUpRequest(req, res, next) {
     },
     email: req.body.email,
     hash: hash,
+    dob: req.body.dateOfBirth,
+    postcode: req.body.postcode,
+    emergency: {
+      phone: req.body.emergencyName,
+      name: req.body.phoneNumber,
+    },
   };
+
+  log.debug(res.locals.user);
 
   next();
 }
