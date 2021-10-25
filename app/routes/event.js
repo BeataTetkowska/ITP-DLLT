@@ -5,6 +5,7 @@ var apiRouter = express.Router();
 var adminViewRouter = express.Router();
 var adminApiRouter = express.Router();
 const log = require("../utils/winstonLogger");
+const userIs = require("../middleware/userIs");
 
 var users = require("../db/users");
 var eventSchedule = require("../db/event");
@@ -29,36 +30,13 @@ apiRouter.get("/", (_, res) => {
 });
 
 // GET /admin/event -> event html with attendance
-adminViewRouter.get("/", (req, res, next) => {
-  if (!req.user) {
-    //TODO set 401 unauthorised flag
-    next("User is not logged in");
-  }
-  if (!req.user.isAdmin) {
-    next("User is not admin");
-  }
-
+adminViewRouter.get("/", userIs.admin, (_, res) => {
   res.sendFile(path.join(__dirname, "../views/adminEvent.html"));
 });
 
 // GET /admin/event/attendance
 // -> find users attending current event and return name and emergency contact
-// Takes
-//      scheduleId,
-//      minutes:
-//      hours:
-//      date:
-//      month:
-//      year:
-adminApiRouter.post("/attendance", (req, res, next) => {
-  if (!req.user) {
-    //TODO set 401 unauthorised flag
-    next("User is not logged in");
-  }
-  if (!req.user.isAdmin) {
-    next("User is not admin");
-  }
-
+adminApiRouter.post("/attendance", userIs.admin, (req, res, next) => {
   var matchingEvent = uniqueEvents.filter((event) => {
     //Check minute, hour, date, year and month, scheduleID
     //TODO - Check event starts in less than 30 minutes
