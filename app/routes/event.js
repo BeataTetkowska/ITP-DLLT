@@ -34,63 +34,47 @@ adminViewRouter.get("/", userIs.admin, (_, res) => {
   res.sendFile(path.join(__dirname, "../views/adminEvent.html"));
 });
 
-// GET /admin/event/attendance
+// POST /admin/event/attendance
 // -> find users attending current event and return name and emergency contact
 adminApiRouter.post("/attendance", userIs.admin, (req, res, next) => {
-  var matchingEvent = uniqueEvents.filter((event) => {
-    //Check minute, hour, date, year and month, scheduleID
-    //TODO - Check event starts in less than 30 minutes
-    if (event.date !== req.body.date) {
-      return false;
-    }
-    if (event.month !== req.body.month) {
-      return false;
-    }
-    if (event.year !== req.body.year) {
-      return false;
-    }
-    if (event._id !== req.body.scheduleId) {
-      return false;
-    }
-    if (event.start.hours < req.body.hours) {
-      return false;
-    }
-    return true;
-  });
+  var matchingEvent = uniqueEvents.find(
+    (event) => event._id === req.body.eventId
+  );
 
-  if (matchingEvent.length === 0) {
-    res.json({
-      result: { success: false, message: "No event found for today" },
-    });
-  } else if (matchingEvent.length === 1) {
-    var matchingUserDetails = [];
-    matchingEvent[0].attendance.forEach((userID) => {
-      let user = users.find((user) => {
-        if (user._id === userID) {
-          return true;
-        }
-      });
-      if (user) {
-        matchingUserDetails.push({
-          _id: user._id,
-          name: user.name,
-          emergency: user.emergency,
-        });
-      }
-    });
-
+  if (!matchingEvent) {
     res.json({
       result: {
-        success: true,
-        message: "Event found, returning registered users",
-        users: matchingUserDetails,
+        success: false,
+        message: "No event found with matching ID",
+        users: [],
       },
     });
-  } else {
-    var error = "More than one matching event found";
-    log.error(error);
-    next(error);
+    return next();
   }
+
+  var matchingUserDetails = [];
+  matchingEvent.attendance.forEach((userID) => {
+    let user = users.find((user) => {
+      if (user._id === userID) {
+        return true;
+      }
+    });
+    if (user) {
+      matchingUserDetails.push({
+        _id: user._id,
+        name: user.name,
+        emergency: user.emergency,
+      });
+    }
+  });
+
+  res.json({
+    result: {
+      success: true,
+      message: "Event found, returning registered users",
+      users: matchingUserDetails,
+    },
+  });
 });
 
 //POST /api/event/register
@@ -102,40 +86,20 @@ apiRouter.post("/register", (req, res, next) => {
     return;
   }
 
-  var matchingEvent = uniqueEvents.filter((event) => {
-    //Check minute, hour, date, year and month, scheduleID
-    //TODO - Check event starts in less than 30 minutes
-    if (event.date !== req.body.date) {
-      return false;
-    }
-    if (event.month !== req.body.month) {
-      return false;
-    }
-    if (event.year !== req.body.year) {
-      return false;
-    }
-    if (event._id !== req.body.scheduleId) {
-      return false;
-    }
-    if (event.start.hours < req.body.hours) {
-      return false;
-    }
-    return true;
-  });
+  var matchingEvent = uniqueEvents.find(
+    (event) => event._id === req.body.eventId
+  );
 
-  if (matchingEvent.length === 0) {
+  if (!matchingEvent) {
     res.json({
-      result: { success: false, message: "No event found for today" },
+      result: { success: false, message: "No event found with matching ID" },
     });
-  } else if (matchingEvent.length === 1) {
-    matchingEvent[0].attendance.push(req.user._id);
-    log.info(matchingEvent);
-    res.json({ result: { success: true, message: "User has registered" } });
-  } else {
-    var error = "More than one matching event found";
-    log.error(error);
-    next(error);
+    return next();
   }
+
+  //TODO check if event has passed or starts more than 30 minutes in the future
+  matchingEvent.attendance.push(req.user._id);
+  res.json({ result: { success: true, message: "User has registered" } });
 });
 
 module.exports = {
