@@ -11,7 +11,7 @@ $(function () {
     "Saturday",
   ];
 
-  //Get JSON data about the currently on event 
+  //Get JSON data about the currently on event
   //Parse data into html
   $.getJSON(url, function (data) {
     scheduleId = data._id;
@@ -23,7 +23,6 @@ $(function () {
     );
     $("#day").text(days[data.day]);
     //TODO disable register button unless event is less than 30 minutes in the future
-
   });
 
   $("#register").on("click", registerEvent);
@@ -47,13 +46,14 @@ function registerEvent() {
       year: now.getYear(),
     }),
     dataType: "json",
-    contentType: "application/json"
+    contentType: "application/json",
   })
     .done((response) => {
       //Notify user if registration was succesful
       if (response.result.success === true) {
-        $("#register").css({color: "green", "border-color":"green"})
-          .text("Registered")
+        $("#register")
+          .css({ color: "green", "border-color": "green" })
+          .text("Registered");
       }
       //If user is not signed in, notify user
       else {
