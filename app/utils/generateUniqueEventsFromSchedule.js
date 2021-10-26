@@ -4,7 +4,6 @@ const { v4: uuidv4 } = require("uuid");
 //Generate a list of unique events for this week which can be stored in the database
 //Unique events are required in order to attribute user attendance data
 //to individual events.
-//Individual events have the following structure
 // Unique event schema is as follows
 // {
 //   _id:
@@ -35,6 +34,8 @@ module.exports = () => {
     eventDateIsoString = eventDate.toISOString();
 
     return {
+      //TODO when implementing this using the database, don't generate an id
+      //MongoDB will generate the id for us
       _id: uuidv4(),
       attendance: [],
       isoString: eventDateIsoString,
