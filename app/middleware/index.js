@@ -42,12 +42,12 @@ module.exports = () => {
   //Cookie parser
   app.use(cookieParser());
   //Public folder for images, css and js files
-  app.use(express.static(path.join(__dirname, "public")));
+  app.use(express.static(path.join(__dirname, "../public")));
   //Compress files before sending
   app.use(compression());
 
   //Folder for html/ejs views
-  app.set("views", path.join(__dirname, "views"));
+  app.set("views", path.join(__dirname, "../views"));
 
   return app;
 };
