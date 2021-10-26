@@ -26,6 +26,7 @@ apiRouter.get("/", (_, res) => {
 
   nextEvent = getNextEvent(now);
 
+  //TODO remove attendance data from response
   res.json(nextEvent);
 });
 
@@ -34,7 +35,7 @@ adminViewRouter.get("/", userIs.admin, (_, res) => {
   res.sendFile(path.join(__dirname, "../views/adminEvent.html"));
 });
 
-// POST /admin/event/attendance
+// POST /api/admin/event/attendance
 // -> find users attending current event and return name and emergency contact
 // Takes an event ID
 adminApiRouter.post("/attendance", userIs.admin, (req, res, next) => {
@@ -83,6 +84,7 @@ adminApiRouter.post("/attendance", userIs.admin, (req, res, next) => {
 //registers user for event if a matching event exists
 apiRouter.post("/register", (req, res, next) => {
   if (!req.user) {
+    res.status(401);
     res.json({ result: { success: false, message: "User is not signed in" } });
     return;
   }

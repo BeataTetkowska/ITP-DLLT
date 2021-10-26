@@ -79,8 +79,8 @@ describe("/admin/event as admin", () => {
 });
 
 describe("/admin/event as standard user", () => {
-  var email = "test@example.com";
-  var password = "test@example.com";
+  var email = "email@taken.com";
+  var password = "email@taken.com";
 
   beforeAll(async () => {
     await server.post("/login").send({
@@ -90,7 +90,7 @@ describe("/admin/event as standard user", () => {
   });
 
   it("GET /admin/event -> HTTP 401", async () => {
-    return server.get("/admin/event");
+    return server.get("/admin/event").expect(401);
   });
 
   it("GET /admin/event -> Content Type HTML", async () => {
@@ -104,7 +104,7 @@ describe("/admin/event as standard user", () => {
 
 describe("/admin/event without auth", () => {
   it("GET /admin/event -> HTTP 401", async () => {
-    return server.get("/admin/event");
+    return server.get("/admin/event").expect(401);
   });
 
   it("GET /admin/event -> Content Type HTML", async () => {
@@ -112,9 +112,197 @@ describe("/admin/event without auth", () => {
   });
 });
 
-//TODO /event/register
+async function loginAndRegisterUser(email, password) {
+  var eventId = null;
+  await loginUser(email, password);
+  await server.get("/api/event").then((data) => {
+    eventId = data.body._id;
+  });
+  await server.post("/api/event/register").send({ eventId });
+  await server.get("/logout");
+  return eventId;
+}
 
-//TODO /admin/event/attendance
+async function loginUser(email, password) {
+  await server.post("/login").send({
+    email: email,
+    password: password,
+  });
+}
+
+describe("/api/admin/event/attendance no auth", () => {
+  it("/api/admin/event/attendance HTTP 401", async () => {
+    return server
+      .post("/api/admin/event/attendance")
+      .send({ eventId: 1 })
+      .expect(401);
+  });
+
+  it("/api/admin/event/attendance content html", async () => {
+    return server
+      .post("/api/admin/event/attendance")
+      .send({ eventId: 1 })
+      .expect("Content-type", /text\/html/);
+  });
+});
+
+describe("/api/admin/event/attendance no registered users", () => {
+  var eventId = null;
+
+  var email = "admin@admin.admin";
+  var password = "admin@admin.admin";
+
+  beforeAll(async () => {
+    await server.post("/login").send({
+      email: email,
+      password: password,
+    });
+    await server.get("/api/event").then((data) => {
+      eventId = data.body._id;
+    });
+  });
+
+  it("/api/admin/event/attendance HTTP 200", async () => {
+    return server
+      .post("/api/admin/event/attendance")
+      .send({ eventId })
+      .expect(200);
+  });
+
+  it("/api/admin/event/attendance content html", async () => {
+    return server
+      .post("/api/admin/event/attendance")
+      .send({ eventId })
+      .expect("Content-type", /json/);
+  });
+
+  it("/api/admin/event/attendance content html", async () => {
+    return server
+      .post("/api/admin/event/attendance")
+      .send({ eventId })
+      .then((res) => expect(res.body.result.users.length).toBe(0));
+  });
+
+  afterAll(async () => {
+    await server.get("/logout");
+  });
+});
+
+describe("/api/admin/event/attendance one user", () => {
+  var eventId = null;
+
+  var email = "admin@admin.admin";
+  var password = "admin@admin.admin";
+
+  beforeAll(async () => {
+    eventId = await loginAndRegisterUser(email, password);
+    await loginUser(email, password);
+  });
+
+  it("/api/admin/event/attendance length is 1", async () => {
+    return server
+      .post("/api/admin/event/attendance")
+      .send({ eventId })
+      .then((res) => expect(res.body.result.users.length).toBe(1));
+  });
+
+  it("/api/admin/event/attendance HTTP 200", async () => {
+    return server
+      .post("/api/admin/event/attendance")
+      .send({ eventId })
+      .expect(200);
+  });
+
+  afterAll(async () => {
+    await server.get("/logout");
+  });
+});
+
+describe("/api/admin/event/attendance 3 users", () => {
+  var eventId = null;
+
+  var adminEmail = "admin@admin.admin";
+  var adminPassword = "admin@admin.admin";
+
+  var userEmail = "email@taken.com";
+  var userPassword = "email@taken.com";
+
+  beforeAll(async () => {
+    await loginAndRegisterUser(adminEmail, adminPassword);
+    eventId = await loginAndRegisterUser(userEmail, userPassword);
+    await loginUser(adminEmail, adminPassword);
+  });
+
+  it("/api/admin/event/attendance length 3", async () => {
+    return server
+      .post("/api/admin/event/attendance")
+      .send({ eventId })
+      .then((res) => expect(res.body.result.users.length).toBe(3));
+  });
+
+  it("/api/admin/event/attendance HTTP 200", async () => {
+    return server
+      .post("/api/admin/event/attendance")
+      .send({ eventId })
+      .expect(200);
+  });
+
+  afterAll(async () => {
+    await server.get("/logout");
+  });
+});
+
+describe("/api/event/register with auth", () => {
+  var eventId = null;
+
+  var email = "email@taken.com";
+  var password = "email@taken.com";
+  beforeAll(async () => {
+    await server.post("/login").send({
+      email: email,
+      password: password,
+    });
+    await server.get("/api/event").then((data) => {
+      eventId = data.body._id;
+    });
+  });
+
+  it("/api/event/register HTTP 200", async () => {
+    return server.post("/api/event/register").send({ eventId }).expect(200);
+  });
+
+  it("/api/event/register register successful", async () => {
+    return server
+      .post("/api/event/register")
+      .send({ eventId })
+      .then((res) => expect(res.body.result.success).toBe(true));
+  });
+
+  afterAll(async () => {
+    await server.get("/logout");
+  });
+});
+
+describe("/api/event/register without auth", () => {
+  var eventId = null;
+
+  beforeAll(async () => {
+    await server.get("/api/event").then((data) => {
+      eventId = data.body._id;
+    });
+  });
+
+  it("/api/event/register register unsuccessful", async () => {
+    return server
+      .post("/api/event/register")
+      .send({ eventId })
+      .then((res) => expect(res.body.result.success).toBe(false));
+  });
+
+  it("/api/event/register HTTP 401", async () => {
+    return server.post("/api/event/register").send({ eventId }).expect(401);
+  });
+});
 
 describe("/event Functions", () => {
   it("getNextEventToday Sunday Night", () => {
