@@ -1,5 +1,6 @@
 const request = require("supertest");
 const app = require("../../app/app");
+const server = request.agent(app);
 const { getNextEvent, getNextEventToday } = require("../../app/routes/event");
 
 const toBeWithinRange = require("../matchers/toBeWithinRange");
@@ -52,6 +53,68 @@ describe("/event API", () => {
       });
   });
 });
+
+describe("/admin/event as admin", () => {
+  var adminEmail = "admin@admin.admin";
+  var adminPassword = "admin@admin.admin";
+
+  beforeAll(async () => {
+    await server.post("/login").send({
+      email: adminEmail,
+      password: adminPassword,
+    });
+  });
+
+  it("GET /admin/event -> HTTP 200", async () => {
+    return server.get("/admin/event").expect(200);
+  });
+
+  it("GET /admin/event -> Content Type HTML", async () => {
+    return server.get("/admin/event").expect("Content-type", /text\/html/);
+  });
+
+  afterAll(async () => {
+    await server.get("/logout");
+  });
+});
+
+describe("/admin/event as standard user", () => {
+  var email = "test@example.com";
+  var password = "test@example.com";
+
+  beforeAll(async () => {
+    await server.post("/login").send({
+      email: email,
+      password: password,
+    });
+  });
+
+  it("GET /admin/event -> HTTP 401", async () => {
+    return server.get("/admin/event");
+  });
+
+  it("GET /admin/event -> Content Type HTML", async () => {
+    return server.get("/admin/event").expect("Content-type", /text\/html/);
+  });
+
+  afterAll(async () => {
+    await server.get("/logout");
+  });
+});
+
+describe("/admin/event without auth", () => {
+  it("GET /admin/event -> HTTP 401", async () => {
+    return server.get("/admin/event");
+  });
+
+  it("GET /admin/event -> Content Type HTML", async () => {
+    return server.get("/admin/event").expect("Content-type", /text\/html/);
+  });
+});
+
+//TODO /event/register
+
+//TODO /admin/event/attendance
 
 describe("/event Functions", () => {
   it("getNextEventToday Sunday Night", () => {

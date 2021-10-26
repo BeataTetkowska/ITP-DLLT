@@ -1,6 +1,7 @@
 const eventRouter = require("./routes/event");
 const signupRouter = require("./routes/signup");
 const loginRouter = require("./routes/login");
+const logoutRouter = require("./routes/logout");
 
 //Prepare appliation with middleware
 const getAppWithMiddleware = require("./middleware");
@@ -14,6 +15,7 @@ app.use("/api/admin/event", eventRouter.adminApi);
 
 app.use("/signup", signupRouter);
 app.use("/login", loginRouter);
+app.use("/logout", logoutRouter);
 
 app.get("/", (req, res) => res.send("Hello World!"));
 

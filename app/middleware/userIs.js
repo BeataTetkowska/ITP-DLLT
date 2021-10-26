@@ -2,7 +2,7 @@
 const loggedIn = (req, res) => {
   if (!req.user) {
     res.status(401);
-    next("User is not logged in");
+    return next("User is not logged in");
   }
   next();
 };
@@ -11,11 +11,11 @@ const loggedIn = (req, res) => {
 const admin = (req, res, next) => {
   if (!req.user) {
     res.status(401);
-    next("User is not logged in");
+    return next("User is not logged in");
   }
   if (!req.user.isAdmin) {
     res.status(401);
-    next("User is not admin");
+    return next("User is not admin");
   }
   next();
 };

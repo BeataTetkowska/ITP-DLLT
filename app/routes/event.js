@@ -36,6 +36,7 @@ adminViewRouter.get("/", userIs.admin, (_, res) => {
 
 // POST /admin/event/attendance
 // -> find users attending current event and return name and emergency contact
+// Takes an event ID
 adminApiRouter.post("/attendance", userIs.admin, (req, res, next) => {
   var matchingEvent = uniqueEvents.find(
     (event) => event._id === req.body.eventId
@@ -78,7 +79,7 @@ adminApiRouter.post("/attendance", userIs.admin, (req, res, next) => {
 });
 
 //POST /api/event/register
-//-> takes information about the current date
+//-> takes an event ID registers user for that event
 //registers user for event if a matching event exists
 apiRouter.post("/register", (req, res, next) => {
   if (!req.user) {
