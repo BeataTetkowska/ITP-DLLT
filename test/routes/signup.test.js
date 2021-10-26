@@ -7,16 +7,47 @@ expect.extend(toBeTrue);
 expect.extend(toBeFalse);
 
 describe("/signup", () => {
-  it("GET /signup -> signup page html", async () => {
+  it("GET /signup -> HTTP 200", async () => {
+    return request(app).get("/signup").expect(200);
+  });
+
+  it("GET /signup -> Content Type HTML", async () => {
     return request(app)
       .get("/signup")
-      .expect("Content-type", /text\/html/)
-      .expect(200);
+      .expect("Content-type", /text\/html/);
+  });
+
+  it("POST /signup -> Create user HTTP 201", async () => {
+    return request(app)
+      .post("/signup")
+      .send({
+        name: {
+          first: "test",
+          last: "example",
+        },
+        email: `${Math.round(Math.random() * 1000)}@test.com`,
+        password: "password",
+      })
+      .expect(201);
+  });
+
+  it("POST /signup -> Create User - Content Type JSON", async () => {
+    return request(app)
+      .post("/signup")
+      .send({
+        name: {
+          first: "test",
+          last: "example",
+        },
+        email: `${Math.round(Math.random() * 1000)}@test.com`,
+        password: "password",
+      })
+      .expect("Content-Type", /json/);
   });
 
   var email = "test@example.com";
 
-  it("POST /signup -> create user", async () => {
+  it("POST /signup -> create user response check", async () => {
     return request(app)
       .post("/signup")
       .send({
@@ -27,8 +58,6 @@ describe("/signup", () => {
         email: email,
         password: "password",
       })
-      .expect(201)
-      .expect("Content-Type", /json/)
       .then((res) => {
         expect(res.body).toEqual(
           expect.objectContaining({
@@ -41,8 +70,24 @@ describe("/signup", () => {
       });
   });
 
-  it("POST /signup -> Attempt to create user with duplicate email", async () => {
-    var email = "test@example.com";
+  it("POST /signup -> Duplicate email HTTP 201", async () => {
+    return (
+      request(app)
+        .post("/signup")
+        .send({
+          name: {
+            first: "test",
+            last: "example",
+          },
+          email: email,
+          password: "password",
+        })
+        //TODO should change to 409
+        .expect(201)
+    );
+  });
+
+  it("POST /signup -> Duplicate email content type JSON ", async () => {
     return request(app)
       .post("/signup")
       .send({
@@ -53,8 +98,20 @@ describe("/signup", () => {
         email: email,
         password: "password",
       })
-      .expect(201)
-      .expect("Content-Type", /json/)
+      .expect("Content-Type", /json/);
+  });
+
+  it("POST /signup -> Duplicate email Response check", async () => {
+    return request(app)
+      .post("/signup")
+      .send({
+        name: {
+          first: "test",
+          last: "example",
+        },
+        email: email,
+        password: "password",
+      })
       .then((res) => {
         expect(res.body).toEqual(
           expect.objectContaining({

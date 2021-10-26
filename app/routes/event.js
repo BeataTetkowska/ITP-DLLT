@@ -102,13 +102,6 @@ apiRouter.post("/register", (req, res, next) => {
   res.json({ result: { success: true, message: "User has registered" } });
 });
 
-module.exports = {
-  view: viewRouter,
-  api: apiRouter,
-  adminView: adminViewRouter,
-  adminApi: adminApiRouter,
-};
-
 //Searches through the list of events to find any events on today
 //Returns false if no events can be found that are on today
 function getNextEventToday(time) {
@@ -142,3 +135,12 @@ function getNextEvent(time) {
     return getNextEvent(time);
   }
 }
+
+module.exports = {
+  view: viewRouter,
+  api: apiRouter,
+  adminView: adminViewRouter,
+  adminApi: adminApiRouter,
+  getNextEvent,
+  getNextEventToday,
+};
