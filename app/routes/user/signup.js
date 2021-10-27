@@ -57,6 +57,7 @@ function createUser(_, res) {
     success = true;
     //TODO sign user in
   }
+  //TODO change statuscode for failed user signup
 
   res.locals.response = {
     email: res.locals.user.email,
