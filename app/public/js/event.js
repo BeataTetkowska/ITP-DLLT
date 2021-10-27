@@ -1,6 +1,5 @@
-var eventId;
 $(function () {
-  var url = "/api/event";
+  var url = window.location.pathnam;
   var days = [
     "Sunday",
     "Monday",
@@ -13,37 +12,33 @@ $(function () {
 
   //Get JSON data about the currently on event
   //Parse data into html
-  $.getJSON(url, function (data) {
-    eventId = data._id;
-    $("#location").text(data.location);
+  $.getJSON(url, function (res) {
+    $("#location").text(res.location);
     $("#time").text(
-      `${data.start.hours}:${
-        data.start.minutes != 0 ? data.start.minutes : "00"
-      } - ${data.end.hours}:${data.end.minutes != 0 ? data.end.minutes : "00"}`
+      `${res.start.hours}:${
+        res.start.minutes != 0 ? res.start.minutes : "00"
+      } - ${res.end.hours}:${res.end.minutes != 0 ? res.end.minutes : "00"}`
     );
-    $("#day").text(days[data.day]);
+    $("#day").text(days[res.day]);
     //TODO disable register button unless event is less than 30 minutes in the future
+    $register = $("#register");
+    $register.removeClass("disabled");
+    $register.on("click", () => registerEvent(res._id));
   });
-
-  $("#register").on("click", registerEvent);
 });
 
 //Sends data about the current event to the server to attempt to register
 //the currently logged in user for the event
-function registerEvent() {
-  var url = "/api/event/register";
+function registerEvent(eventId) {
+  var url = `/event/${eventId}/register`;
   $.ajax({
-    type: "POST",
+    type: "PUT",
     url: url,
-    data: JSON.stringify({
-      eventId,
-    }),
-    dataType: "json",
     contentType: "application/json",
   })
-    .done((response) => {
+    .done((res) => {
       //Notify user if registration was succesful
-      if (response.result.success === true) {
+      if (res.success === true) {
         $("#register")
           .css({ color: "green", "border-color": "green" })
           .text("Registered");
@@ -51,10 +46,10 @@ function registerEvent() {
       //If user is not signed in, notify user
       else {
         //TODO Navigate user to the sign in page, or request more information
-        alert(response.result.message);
+        alert(res.message);
       }
     })
-    .fail(() => {
-      //TODO handle server failure
+    .fail((res) => {
+      alert(res.responseJSON.message);
     });
 }
