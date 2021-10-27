@@ -20,10 +20,11 @@ router.get("/", (req, res) => {
 
 //GET /event/:eventId -> returns event JSON data for a given eventId
 router.get("/:eventId", parseEventId, getEventById, (req, res) => {
+  var eventCopy = Object.assign({}, res.locals.matchingEvent);
   if (!req.user || !req.user.isAdmin) {
-    res.locals.matchingEvent.attendance = [];
+    eventCopy = null;
   }
-  res.json(res.locals.matchingEvent);
+  res.json(eventCopy);
 });
 
 //PUT /event/:eventId/register
@@ -36,6 +37,7 @@ router.put(
   getEventById,
   (req, res) => {
     //TODO check if event has passed or starts more than 30 minutes in the future
+    //TODO check if user is already registered for this event
     res.locals.matchingEvent.attendance.push(req.user._id);
     res.json({ success: true, message: "User has registered" });
   }

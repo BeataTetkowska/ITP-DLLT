@@ -1,25 +1,25 @@
 const request = require("supertest");
-const app = require("../../app/app");
+const app = require("../../../app/app");
 
-const toBeTrue = require("../matchers/toBeTrue");
-const toBeFalse = require("../matchers/toBeFalse");
+const toBeTrue = require("../../matchers/toBeTrue");
+const toBeFalse = require("../../matchers/toBeFalse");
 expect.extend(toBeTrue);
 expect.extend(toBeFalse);
 
-describe("/signup", () => {
+describe("/user/signup", () => {
   it("GET /signup -> HTTP 200", async () => {
-    return request(app).get("/signup").expect(200);
+    return request(app).get("/user/signup").expect(200);
   });
 
   it("GET /signup -> Content Type HTML", async () => {
     return request(app)
-      .get("/signup")
+      .get("/user/signup")
       .expect("Content-type", /text\/html/);
   });
 
   it("POST /signup -> Create user HTTP 201", async () => {
     return request(app)
-      .post("/signup")
+      .post("/user/signup")
       .send({
         name: {
           first: "test",
@@ -33,7 +33,7 @@ describe("/signup", () => {
 
   it("POST /signup -> Create User - Content Type JSON", async () => {
     return request(app)
-      .post("/signup")
+      .post("/user/signup")
       .send({
         name: {
           first: "test",
@@ -49,7 +49,7 @@ describe("/signup", () => {
 
   it("POST /signup -> create user response check", async () => {
     return request(app)
-      .post("/signup")
+      .post("/user/signup")
       .send({
         name: {
           first: "test",
@@ -73,7 +73,7 @@ describe("/signup", () => {
   it("POST /signup -> Duplicate email HTTP 201", async () => {
     return (
       request(app)
-        .post("/signup")
+        .post("/user/signup")
         .send({
           name: {
             first: "test",
@@ -89,7 +89,7 @@ describe("/signup", () => {
 
   it("POST /signup -> Duplicate email content type JSON ", async () => {
     return request(app)
-      .post("/signup")
+      .post("/user/signup")
       .send({
         name: {
           first: "test",
@@ -103,7 +103,7 @@ describe("/signup", () => {
 
   it("POST /signup -> Duplicate email Response check", async () => {
     return request(app)
-      .post("/signup")
+      .post("/user/signup")
       .send({
         name: {
           first: "test",

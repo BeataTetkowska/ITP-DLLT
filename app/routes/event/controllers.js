@@ -20,10 +20,10 @@ function getEventNowHTML(req, res) {
 //Removes attendance data before sending if user is not admin
 function getEventNowJSON(req, res) {
   var now = new Date();
-  nextEvent = getNextEvent(now);
+  nextEvent = Object.assign({}, getNextEvent(now));
 
   if (!req.user || !req.user.isAdmin) {
-    nextEvent.attendance = [];
+    nextEvent.attendance = null;
   }
 
   res.json(nextEvent);
@@ -103,4 +103,6 @@ module.exports = {
   getEventNowHTML,
   parseEventId,
   getEventById,
+  getNextEvent,
+  getNextEventToday,
 };
