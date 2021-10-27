@@ -5,6 +5,7 @@ var apiRouter = express.Router();
 var adminViewRouter = express.Router();
 var adminApiRouter = express.Router();
 const log = require("../utils/winstonLogger");
+const userIs = require("../middleware/userIs");
 
 var users = require("../db/users");
 var eventSchedule = require("../db/event");
@@ -25,153 +26,92 @@ apiRouter.get("/", (_, res) => {
 
   nextEvent = getNextEvent(now);
 
+  //TODO remove attendance data from response
   res.json(nextEvent);
 });
 
 // GET /admin/event -> event html with attendance
-adminViewRouter.get("/", (req, res, next) => {
-  if (!req.user) {
-    //TODO set 401 unauthorised flag
-    next("User is not logged in");
-  }
-  if (!req.user.isAdmin) {
-    next("User is not admin");
-  }
-
+adminViewRouter.get("/", userIs.admin, (_, res) => {
   res.sendFile(path.join(__dirname, "../views/adminEvent.html"));
 });
 
-// GET /admin/event/attendance
+// POST /api/admin/event/attendance
 // -> find users attending current event and return name and emergency contact
-// Takes
-//      scheduleId,
-//      minutes:
-//      hours:
-//      date:
-//      month:
-//      year:
-adminApiRouter.post("/attendance", (req, res, next) => {
-  if (!req.user) {
-    //TODO set 401 unauthorised flag
-    next("User is not logged in");
-  }
-  if (!req.user.isAdmin) {
-    next("User is not admin");
-  }
+// Takes an event ID
+adminApiRouter.post("/attendance", userIs.admin, (req, res, next) => {
+  var matchingEvent = uniqueEvents.find(
+    (event) => event._id === req.body.eventId
+  );
 
-  var matchingEvent = uniqueEvents.filter((event) => {
-    //Check minute, hour, date, year and month, scheduleID
-    //TODO - Check event starts in less than 30 minutes
-    if (event.date !== req.body.date) {
-      return false;
-    }
-    if (event.month !== req.body.month) {
-      return false;
-    }
-    if (event.year !== req.body.year) {
-      return false;
-    }
-    if (event._id !== req.body.scheduleId) {
-      return false;
-    }
-    if (event.start.hours < req.body.hours) {
-      return false;
-    }
-    return true;
-  });
-
-  if (matchingEvent.length === 0) {
-    res.json({
-      result: { success: false, message: "No event found for today" },
-    });
-  } else if (matchingEvent.length === 1) {
-    var matchingUserDetails = [];
-    matchingEvent[0].attendance.forEach((userID) => {
-      let user = users.find((user) => {
-        if (user._id === userID) {
-          return true;
-        }
-      });
-      if (user) {
-        matchingUserDetails.push({
-          _id: user._id,
-          name: user.name,
-          emergency: user.emergency,
-        });
-      }
-    });
-
+  if (!matchingEvent) {
     res.json({
       result: {
-        success: true,
-        message: "Event found, returning registered users",
-        users: matchingUserDetails,
+        success: false,
+        message: "No event found with matching ID",
+        users: [],
       },
     });
-  } else {
-    var error = "More than one matching event found";
-    log.error(error);
-    next(error);
+    return next();
   }
+
+  var matchingUserDetails = [];
+  matchingEvent.attendance.forEach((userID) => {
+    let user = users.find((user) => {
+      if (user._id === userID) {
+        return true;
+      }
+    });
+    if (user) {
+      matchingUserDetails.push({
+        _id: user._id,
+        name: user.name,
+        emergency: user.emergency,
+      });
+    }
+  });
+
+  res.json({
+    result: {
+      success: true,
+      message: "Event found, returning registered users",
+      users: matchingUserDetails,
+    },
+  });
 });
 
 //POST /api/event/register
-//-> takes information about the current date
+//-> takes an event ID registers user for that event
 //registers user for event if a matching event exists
 apiRouter.post("/register", (req, res, next) => {
   if (!req.user) {
+    res.status(401);
     res.json({ result: { success: false, message: "User is not signed in" } });
     return;
   }
 
-  var matchingEvent = uniqueEvents.filter((event) => {
-    //Check minute, hour, date, year and month, scheduleID
-    //TODO - Check event starts in less than 30 minutes
-    if (event.date !== req.body.date) {
-      return false;
-    }
-    if (event.month !== req.body.month) {
-      return false;
-    }
-    if (event.year !== req.body.year) {
-      return false;
-    }
-    if (event._id !== req.body.scheduleId) {
-      return false;
-    }
-    if (event.start.hours < req.body.hours) {
-      return false;
-    }
-    return true;
-  });
+  var matchingEvent = uniqueEvents.find(
+    (event) => event._id === req.body.eventId
+  );
 
-  if (matchingEvent.length === 0) {
+  if (!matchingEvent) {
     res.json({
-      result: { success: false, message: "No event found for today" },
+      result: { success: false, message: "No event found with matching ID" },
     });
-  } else if (matchingEvent.length === 1) {
-    matchingEvent[0].attendance.push(req.user._id);
-    log.info(matchingEvent);
-    res.json({ result: { success: true, message: "User has registered" } });
-  } else {
-    var error = "More than one matching event found";
-    log.error(error);
-    next(error);
+    return next();
   }
-});
 
-module.exports = {
-  view: viewRouter,
-  api: apiRouter,
-  adminView: adminViewRouter,
-  adminApi: adminApiRouter,
-};
+  //TODO check if event has passed or starts more than 30 minutes in the future
+  matchingEvent.attendance.push(req.user._id);
+  res.json({ result: { success: true, message: "User has registered" } });
+});
 
 //Searches through the list of events to find any events on today
 //Returns false if no events can be found that are on today
 function getNextEventToday(time) {
-  var upcomingEventsToday = eventSchedule
-    .filter((event) => time.getUTCDay() == event.day)
+  var upcomingEventsToday = uniqueEvents
+    .filter((event) => time.getYear() === event.year)
+    .filter((event) => time.getMonth() === event.month)
+    .filter((event) => time.getDate() === event.date)
     .filter((event) => time.getHours() <= event.start.hours);
 
   var nextEvent;
@@ -198,3 +138,12 @@ function getNextEvent(time) {
     return getNextEvent(time);
   }
 }
+
+module.exports = {
+  view: viewRouter,
+  api: apiRouter,
+  adminView: adminViewRouter,
+  adminApi: adminApiRouter,
+  getNextEvent,
+  getNextEventToday,
+};

@@ -1,4 +1,4 @@
-var scheduleId;
+var eventId;
 $(function () {
   var eventUrl = "/api/event";
   var attendanceUrl = "/api/admin/event/attendance";
@@ -15,7 +15,7 @@ $(function () {
   //Get JSON data about the currently on event
   //Parse data into html
   $.getJSON(eventUrl, function (data) {
-    scheduleId = data._id;
+    eventId = data._id;
     $("#location").text(data.location);
     $("#time").text(
       `${data.start.hours}:${
@@ -26,17 +26,11 @@ $(function () {
   });
 
   $("#getAttendance").on("click", () => {
-    var now = new Date();
     $.ajax({
       type: "POST",
       url: attendanceUrl,
       data: JSON.stringify({
-        scheduleId,
-        minutes: now.getMinutes(),
-        hours: now.getHours(),
-        date: now.getDate() +1,
-        month: now.getMonth(),
-        year: now.getYear(),
+        eventId,
       }),
       dataType: "json",
       contentType: "application/json",
@@ -44,28 +38,27 @@ $(function () {
       .done((data) => {
         if (data.result.users.length === 0) {
           return;
-        }
-        else {
-          data.result.users.forEach(user => {
-            var $table = $("#attendanceTable");
-            var $row = $("<tr></tr>")
+        } else {
+          data.result.users.forEach((user) => {
+            var userTableDetails = [
+              `${user.name.first} ${user.name.last}`,
+              user.emergency.name,
+              user.emergency.phone,
+            ];
 
-            var $tdName = $("<td></td>")
-            $tdName.text(`${user.name.first} ${user.name.last}`)
-            $row.append($tdName)
+            var $table = $("#attendanceTableBody");
+            var $row = $("<tr></tr>");
+            var $td;
 
-            $tdEmergencyName = $("<td></td>")
-            $tdEmergencyName.text(user.emergency.name)
-            $row.append($tdEmergencyName)
+            userTableDetails.forEach((detail) => {
+              $td = $("<td></td>");
+              $td.text(detail);
+              $row.append($td);
+            });
 
-            $tdEmergencyPhone = $("<td></td>")
-            $tdEmergencyPhone.text(user.emergency.phone)
-            $row.append($tdEmergencyPhone)
-            
-            $table.append($row)
+            $table.append($row);
           });
         }
-
       })
       .fail(() => {
         //TODO handle server failure
