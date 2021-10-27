@@ -13,7 +13,7 @@ function handleSignup(e) {
     return;
   }
 
-  var url = "/login";
+  var url = "/user/login";
   $.post({
     type: "POST",
     url: url,
@@ -23,11 +23,7 @@ function handleSignup(e) {
     .done((response) => {
       //Redirect to event page if user logged in
       if (response.result.success === true) {
-        if (response.result.isAdmin) {
-          window.location.href = "/admin/event";
-        } else {
-          window.location.href = "/event";
-        }
+        window.location.href = "/event";
       } else {
         alert("Credentials are invalid");
         $("#email").addClass("input--error");

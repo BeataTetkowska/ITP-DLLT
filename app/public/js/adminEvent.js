@@ -1,7 +1,7 @@
 var eventId;
-$(function () {
-  var eventUrl = "/api/event";
-  var attendanceUrl = "/api/admin/event/attendance";
+$(async function () {
+  var eventUrl = window.location.pathname;
+  var attendanceUrl = "/event:/attendance";
   var days = [
     "Sunday",
     "Monday",
@@ -14,54 +14,57 @@ $(function () {
 
   //Get JSON data about the currently on event
   //Parse data into html
-  $.getJSON(eventUrl, function (data) {
-    eventId = data._id;
-    $("#location").text(data.location);
+  $.getJSON(eventUrl, function (res) {
+    eventId = res._id;
+    attendanceUrl = `/event/${eventId}/attendance`;
+    $("#location").text(res.location);
     $("#time").text(
-      `${data.start.hours}:${
-        data.start.minutes != 0 ? data.start.minutes : "00"
-      } - ${data.end.hours}:${data.end.minutes != 0 ? data.end.minutes : "00"}`
+      `${res.start.hours}:${
+        res.start.minutes != 0 ? res.start.minutes : "00"
+      } - ${res.end.hours}:${res.end.minutes != 0 ? res.end.minutes : "00"}`
     );
-    $("#day").text(days[data.day]);
-  });
+    $("#day").text(days[res.day]);
 
-  $("#getAttendance").on("click", () => {
-    $.ajax({
-      type: "POST",
-      url: attendanceUrl,
-      data: JSON.stringify({
-        eventId,
-      }),
-      dataType: "json",
-      contentType: "application/json",
-    })
-      .done((data) => {
-        if (data.result.users.length === 0) {
-          return;
-        } else {
-          data.result.users.forEach((user) => {
-            var userTableDetails = [
-              `${user.name.first} ${user.name.last}`,
-              user.emergency.name,
-              user.emergency.phone,
-            ];
-
-            var $table = $("#attendanceTableBody");
-            var $row = $("<tr></tr>");
-            var $td;
-
-            userTableDetails.forEach((detail) => {
-              $td = $("<td></td>");
-              $td.text(detail);
-              $row.append($td);
-            });
-
-            $table.append($row);
+    $("#getAttendance")
+      .removeClass("disabled")
+      .on("click", () => {
+        $.ajax({
+          type: "GET",
+          url: attendanceUrl,
+          contentType: "application/json",
+        })
+          .done((res) => parseAttendanceRecords(res))
+          .fail(() => {
+            //TODO handle server failure
           });
-        }
-      })
-      .fail(() => {
-        //TODO handle server failure
       });
   });
 });
+
+function parseAttendanceRecords(res) {
+  if (res.users.length === 0) {
+    alert("No users registered for event");
+    return;
+  } else {
+    res.users.forEach((user) => {
+      var userTableDetails = [
+        `${user.name.first} ${user.name.last}`,
+        user.emergency.name,
+        user.emergency.phone,
+      ];
+
+      var $table = $("#attendanceTableBody");
+      var $row = $("<tr></tr>");
+      var $td;
+
+      $table.empty();
+      userTableDetails.forEach((detail) => {
+        $td = $("<td></td>");
+        $td.text(detail);
+        $row.append($td);
+      });
+
+      $table.append($row);
+    });
+  }
+}

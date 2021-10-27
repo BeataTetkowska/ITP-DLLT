@@ -1,11 +1,11 @@
 const path = require("path");
 const express = require("express");
 var router = express.Router();
-const passport = require("../middleware/passport");
+const passport = require("../../middleware/passport");
 
 //GET /login -> returns html for login page
 router.get("/", (_, res) => {
-  res.sendFile(path.join(__dirname, "../views/login.html"));
+  res.sendFile(path.join(__dirname, "../../views/login.html"));
 });
 
 //POST /login -> checks if credentials are accurate and logs the user in
@@ -32,6 +32,7 @@ router.post("/", async (req, res, next) => {
       if (info.errorCode === 1) {
         formResponse.result.bademail = true;
       }
+      res.status(401);
       res.json(formResponse);
       return;
     }

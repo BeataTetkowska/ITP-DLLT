@@ -44,6 +44,12 @@
         cursor: pointer;
       }
 
+      button.disabled {
+        color: #bbb;
+        border: 1px solid #bbb;
+        cursor: default;
+      }
+
       table {
         width: 100%;
         margin: 40px 0;
@@ -87,8 +93,6 @@
 
       table thead th {
         color: #fff;
-        font-size: 2rem;
-        letter-spacing: 0.2em;
       }
 
       table tbody tr:last-child td,
@@ -104,7 +108,7 @@
       <h1 id="location"></h1>
       <p id="time"></p>
       <p id="day"></p>
-      <button id="getAttendance">View Registered Users</button>
+      <button class="disabled" id="getAttendance">View Registered Users</button>
       <table>
         <thead>
           <tr>

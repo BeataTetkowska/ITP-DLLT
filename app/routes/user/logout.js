@@ -5,9 +5,9 @@ var router = require("express").Router();
 router.get("/", (req, res) => {
   if (req.user) {
     req.logout();
-    res.json({ result: { success: true, message: "logout successful" } });
+    res.json({ success: true, message: "logout successful" });
   } else {
-    res.json({ result: { success: false, message: "User not signed in" } });
+    res.json({ success: false, message: "User not signed in" });
   }
 });
 

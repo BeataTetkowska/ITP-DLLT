@@ -1,10 +1,29 @@
 const request = require("supertest");
 const app = require("../../app/app");
 const server = request.agent(app);
-const { getNextEvent, getNextEventToday } = require("../../app/routes/event");
+const {
+  getNextEvent,
+  getNextEventToday,
+} = require("../../app/routes/event/controllers");
 
 const toBeWithinRange = require("../matchers/toBeWithinRange");
 expect.extend(toBeWithinRange);
+
+const loginUser = require("../utils/loginUser");
+
+async function loginAndRegisterUser(email, password) {
+  var eventId = null;
+  await loginUser(server, email, password);
+  await server
+    .get("/event")
+    .set("Accept", "application/json")
+    .then((data) => {
+      eventId = data.body._id;
+    });
+  await server.put(`/event/${eventId}/register`);
+  await server.get("/user/logout");
+  return 2;
+}
 
 //This is an example integration test for the /api/event api endpoint
 //The test simulates a HTTP request to /api/event and then tests aspects
@@ -13,28 +32,35 @@ expect.extend(toBeWithinRange);
 //Checks for the HTTP code to be 200
 //Checks for the body in the response to consist of an object with
 //a specific set of fields
-describe("/event API", () => {
-  it("GET /event -> HTTP 200", async () => {
+describe("/event no auth", () => {
+  it("GET /event html -> HTTP 200", async () => {
     return request(app).get("/event").expect(200);
   });
 
-  it("GET /event -> Content Type HTML", async () => {
+  it("GET /event html -> Content Type HTML", async () => {
     return request(app)
       .get("/event")
       .expect("Content-type", /text\/html/);
   });
 
-  it("GET /api/event -> HTTP 200", async () => {
-    return request(app).get("/api/event").expect(200);
-  });
-
-  it("GET /api/event -> Content Type JSON", async () => {
-    return request(app).get("/api/event").expect("Content-Type", /json/);
-  });
-
-  it("GET /api/event -> event fields", async () => {
+  it("GET /event json -> HTTP 200", async () => {
     return request(app)
-      .get("/api/event")
+      .get("/event")
+      .set("Accept", "application/json")
+      .expect(200);
+  });
+
+  it("GET /event json -> Content Type JSON", async () => {
+    return request(app)
+      .get("/event")
+      .set("Accept", "application/json")
+      .expect("Content-Type", /json/);
+  });
+
+  it("GET /event json -> event fields", async () => {
+    return request(app)
+      .get("/event")
+      .set("Accept", "application/json")
       .then((res) => {
         expect(res.body).toEqual(
           expect.objectContaining({
@@ -52,143 +78,231 @@ describe("/event API", () => {
         );
       });
   });
+
+  it("GET /event json -> attendance null", async () => {
+    return request(app)
+      .get("/event")
+      .set("Accept", "application/json")
+      .then((res) => {
+        expect(res.body.attendance).toEqual(null);
+      });
+  });
 });
 
-describe("/admin/event as admin", () => {
-  var adminEmail = "admin@admin.admin";
-  var adminPassword = "admin@admin.admin";
+describe("/event as standard user", () => {
+  var adminEmail = "email@taken.com";
+  var adminPassword = "email@taken.com";
 
   beforeAll(async () => {
-    await server.post("/login").send({
+    await server.post("/user/login").send({
       email: adminEmail,
       password: adminPassword,
     });
   });
 
-  it("GET /admin/event -> HTTP 200", async () => {
-    return server.get("/admin/event").expect(200);
+  it("GET /event -> HTTP 200", async () => {
+    return server.get("/event").expect(200);
   });
 
-  it("GET /admin/event -> Content Type HTML", async () => {
-    return server.get("/admin/event").expect("Content-type", /text\/html/);
+  it("GET /event -> Content Type HTML", async () => {
+    return server.get("/event").expect("Content-type", /text\/html/);
+  });
+
+  it("GET /event json -> HTTP 200", async () => {
+    return server.get("/event").set("Aceept", "application/json").expect(200);
+  });
+
+  it("GET /event json -> Content Type JSON", async () => {
+    return server
+      .get("/event")
+      .set("Accept", "application/json")
+      .expect("Content-Type", /json/);
+  });
+
+  it("GET /event json -> event fields", async () => {
+    return server
+      .get("/event")
+      .set("Accept", "application/json")
+      .then((res) => {
+        expect(res.body).toEqual(
+          expect.objectContaining({
+            day: expect.toBeWithinRange(0, 6),
+            start: expect.objectContaining({
+              hours: expect.toBeWithinRange(0, 23),
+              minutes: expect.toBeWithinRange(0, 59),
+            }),
+            end: expect.objectContaining({
+              hours: expect.toBeWithinRange(0, 23),
+              minutes: expect.toBeWithinRange(0, 59),
+            }),
+            location: expect.any(String),
+          })
+        );
+      });
+  });
+
+  it("GET /event json -> attendance not null", async () => {
+    return server
+      .get("/event")
+      .set("Accept", "application/json")
+      .then((res) => {
+        expect(res.body.attendance).toEqual(null);
+      });
   });
 
   afterAll(async () => {
-    await server.get("/logout");
+    await server.get("/user/logout");
   });
 });
 
-describe("/admin/event as standard user", () => {
+describe("/event as admin", () => {
+  var adminEmail = "admin@admin.admin";
+  var adminPassword = "admin@admin.admin";
+
+  beforeAll(async () => {
+    await server.post("/user/login").send({
+      email: adminEmail,
+      password: adminPassword,
+    });
+  });
+
+  it("GET /event -> HTTP 200", async () => {
+    return server.get("/event").expect(200);
+  });
+
+  it("GET /event -> Content Type HTML", async () => {
+    return server.get("/event").expect("Content-type", /text\/html/);
+  });
+
+  it("GET /event json -> HTTP 200", async () => {
+    return server.get("/event").set("Aceept", "application/json").expect(200);
+  });
+
+  it("GET /event json -> Content Type JSON", async () => {
+    return server
+      .get("/event")
+      .set("Accept", "application/json")
+      .expect("Content-Type", /json/);
+  });
+
+  it("GET /event json -> event fields", async () => {
+    return server
+      .get("/event")
+      .set("Accept", "application/json")
+      .then((res) => {
+        expect(res.body).toEqual(
+          expect.objectContaining({
+            day: expect.toBeWithinRange(0, 6),
+            start: expect.objectContaining({
+              hours: expect.toBeWithinRange(0, 23),
+              minutes: expect.toBeWithinRange(0, 59),
+            }),
+            end: expect.objectContaining({
+              hours: expect.toBeWithinRange(0, 23),
+              minutes: expect.toBeWithinRange(0, 59),
+            }),
+            location: expect.any(String),
+            attendance: expect.any(Array),
+          })
+        );
+      });
+  });
+
+  it("GET /event json -> attendance not null", async () => {
+    return server
+      .get("/event")
+      .set("Accept", "application/json")
+      .then((res) => {
+        expect(res.body.attendance).not.toEqual(null);
+      });
+  });
+
+  afterAll(async () => {
+    await server.get("/user/logout");
+  });
+});
+
+describe("/event/1/attendance no auth", () => {
+  it("GET /event/1/attendance -> HTTP 401", async () => {
+    return server
+      .get(`/event/${1}/attendance`)
+      .set("Accept", "application/json")
+      .expect(401);
+  });
+
+  it("GET /event/1/attendance -> content json", async () => {
+    return server
+      .get(`/event/${1}/attendance`)
+      .set("Accept", "application/json")
+      .expect("Content-type", /json/);
+  });
+});
+
+describe("/event/1/attendance standard user", () => {
   var email = "email@taken.com";
   var password = "email@taken.com";
 
   beforeAll(async () => {
-    await server.post("/login").send({
-      email: email,
-      password: password,
-    });
+    await loginUser(server, email, password);
   });
 
-  it("GET /admin/event -> HTTP 401", async () => {
-    return server.get("/admin/event").expect(401);
+  it("GET /event/1/attendance -> HTTP 403", async () => {
+    return server
+      .get(`/event/${1}/attendance`)
+      .set("Accept", "application/json")
+      .expect(403);
   });
 
-  it("GET /admin/event -> Content Type HTML", async () => {
-    return server.get("/admin/event").expect("Content-type", /text\/html/);
+  it("GET /event/1/attendance -> content json", async () => {
+    return server
+      .get(`/event/${1}/attendance`)
+      .set("Accept", "application/json")
+      .expect("Content-type", /json/);
   });
 
   afterAll(async () => {
-    await server.get("/logout");
+    await server.get("/user/logout");
   });
 });
 
-describe("/admin/event without auth", () => {
-  it("GET /admin/event -> HTTP 401", async () => {
-    return server.get("/admin/event").expect(401);
-  });
-
-  it("GET /admin/event -> Content Type HTML", async () => {
-    return server.get("/admin/event").expect("Content-type", /text\/html/);
-  });
-});
-
-async function loginAndRegisterUser(email, password) {
-  var eventId = null;
-  await loginUser(email, password);
-  await server.get("/api/event").then((data) => {
-    eventId = data.body._id;
-  });
-  await server.post("/api/event/register").send({ eventId });
-  await server.get("/logout");
-  return eventId;
-}
-
-async function loginUser(email, password) {
-  await server.post("/login").send({
-    email: email,
-    password: password,
-  });
-}
-
-describe("/api/admin/event/attendance no auth", () => {
-  it("/api/admin/event/attendance HTTP 401", async () => {
-    return server
-      .post("/api/admin/event/attendance")
-      .send({ eventId: 1 })
-      .expect(401);
-  });
-
-  it("/api/admin/event/attendance content html", async () => {
-    return server
-      .post("/api/admin/event/attendance")
-      .send({ eventId: 1 })
-      .expect("Content-type", /text\/html/);
-  });
-});
-
-describe("/api/admin/event/attendance no registered users", () => {
+describe("/event/:eventId/attendance no registered users", () => {
   var eventId = null;
 
   var email = "admin@admin.admin";
   var password = "admin@admin.admin";
 
   beforeAll(async () => {
-    await server.post("/login").send({
-      email: email,
-      password: password,
-    });
-    await server.get("/api/event").then((data) => {
-      eventId = data.body._id;
-    });
+    await loginUser(server, email, password);
+    await server
+      .get("/event")
+      .set("Accept", "application/json")
+      .then((res) => {
+        eventId = res.body._id;
+      });
   });
 
-  it("/api/admin/event/attendance HTTP 200", async () => {
-    return server
-      .post("/api/admin/event/attendance")
-      .send({ eventId })
-      .expect(200);
+  it("GET /event/:eventId/attendance -> HTTP 200", async () => {
+    return server.get(`/event/${eventId}/attendance`).expect(200);
   });
 
-  it("/api/admin/event/attendance content html", async () => {
+  it("GET /event/:eventId/attendance -> content json", async () => {
     return server
-      .post("/api/admin/event/attendance")
-      .send({ eventId })
+      .get(`/event/${eventId}/attendance`)
       .expect("Content-type", /json/);
   });
 
-  it("/api/admin/event/attendance content html", async () => {
+  it("GET /event/:eventId/attendance -> 0 returned users", async () => {
     return server
-      .post("/api/admin/event/attendance")
-      .send({ eventId })
-      .then((res) => expect(res.body.result.users.length).toBe(0));
+      .get(`/event/${eventId}/attendance`)
+      .then((res) => expect(res.body.users.length).toBe(0));
   });
 
   afterAll(async () => {
-    await server.get("/logout");
+    await server.get("/user/logout");
   });
 });
 
-describe("/api/admin/event/attendance one user", () => {
+describe("/event/:eventId/attendance one user", () => {
   var eventId = null;
 
   var email = "admin@admin.admin";
@@ -196,29 +310,25 @@ describe("/api/admin/event/attendance one user", () => {
 
   beforeAll(async () => {
     eventId = await loginAndRegisterUser(email, password);
-    await loginUser(email, password);
+    await loginUser(server, email, password);
   });
 
-  it("/api/admin/event/attendance length is 1", async () => {
+  it("GET /event/:eventId/attendance -> length 1", async () => {
     return server
-      .post("/api/admin/event/attendance")
-      .send({ eventId })
-      .then((res) => expect(res.body.result.users.length).toBe(1));
+      .get(`/event/${eventId}/attendance`)
+      .then((res) => expect(res.body.users.length).toBe(1));
   });
 
-  it("/api/admin/event/attendance HTTP 200", async () => {
-    return server
-      .post("/api/admin/event/attendance")
-      .send({ eventId })
-      .expect(200);
+  it("GET /event/:eventId/attendance -> HTTP 200", async () => {
+    return server.get(`/event/${eventId}/attendance`).expect(200);
   });
 
   afterAll(async () => {
-    await server.get("/logout");
+    await server.get("/user/logout");
   });
 });
 
-describe("/api/admin/event/attendance 3 users", () => {
+describe("/event/:eventId/attendance 3 users", () => {
   var eventId = null;
 
   var adminEmail = "admin@admin.admin";
@@ -230,77 +340,78 @@ describe("/api/admin/event/attendance 3 users", () => {
   beforeAll(async () => {
     await loginAndRegisterUser(adminEmail, adminPassword);
     eventId = await loginAndRegisterUser(userEmail, userPassword);
-    await loginUser(adminEmail, adminPassword);
+    await loginUser(server, adminEmail, adminPassword);
   });
 
-  it("/api/admin/event/attendance length 3", async () => {
-    return server
-      .post("/api/admin/event/attendance")
-      .send({ eventId })
-      .then((res) => expect(res.body.result.users.length).toBe(3));
+  it("GET /event/:eventId/attendance -> length 3", async () => {
+    return server.get(`/event/${eventId}/attendance`).then((res) => {
+      expect(res.body.users.length).toBe(3);
+    });
   });
 
-  it("/api/admin/event/attendance HTTP 200", async () => {
-    return server
-      .post("/api/admin/event/attendance")
-      .send({ eventId })
-      .expect(200);
+  it("GET /event/:eventId/attendance -> HTTP 200", async () => {
+    return server.get(`/event/${eventId}/attendance`).expect(200);
   });
 
   afterAll(async () => {
-    await server.get("/logout");
+    await server.get("/user/logout");
   });
 });
 
-describe("/api/event/register with auth", () => {
+describe("/event/:eventId/register with auth", () => {
   var eventId = null;
 
   var email = "email@taken.com";
   var password = "email@taken.com";
   beforeAll(async () => {
-    await server.post("/login").send({
-      email: email,
-      password: password,
-    });
-    await server.get("/api/event").then((data) => {
-      eventId = data.body._id;
-    });
+    await loginUser(server, email, password);
+    await server
+      .get("/event")
+      .set("Accept", "application/json")
+      .then((res) => {
+        eventId = res.body._id;
+      });
   });
 
-  it("/api/event/register HTTP 200", async () => {
-    return server.post("/api/event/register").send({ eventId }).expect(200);
+  it("PUT /event/:eventId/register -> HTTP 200", async () => {
+    return server.put(`/event/${eventId}/register`).expect(200);
   });
 
-  it("/api/event/register register successful", async () => {
+  it("PUT /event/:eventId/register -> register successful", async () => {
     return server
-      .post("/api/event/register")
-      .send({ eventId })
-      .then((res) => expect(res.body.result.success).toBe(true));
+      .put(`/event/${eventId}/register`)
+      .then((res) => expect(res.body.success).toBe(true));
   });
 
   afterAll(async () => {
-    await server.get("/logout");
+    await server.get("/user/logout");
   });
 });
 
-describe("/api/event/register without auth", () => {
+describe("/event/:eventId/register without auth", () => {
   var eventId = null;
 
   beforeAll(async () => {
-    await server.get("/api/event").then((data) => {
-      eventId = data.body._id;
-    });
+    await server
+      .get("/event")
+      .set("Accept", "application/json")
+      .then((res) => {
+        eventId = res.body._id;
+      });
   });
 
-  it("/api/event/register register unsuccessful", async () => {
+  it("PUT /event/:eventId/register -> HTTP 200", async () => {
+    return server.put(`/event/${eventId}/register`).expect(401);
+  });
+
+  it("PUT /event/:eventId/register register unsuccessful", async () => {
     return server
-      .post("/api/event/register")
-      .send({ eventId })
-      .then((res) => expect(res.body.result.success).toBe(false));
+      .put(`/event/${eventId}/register`)
+      .then((res) => expect(res.body.success).toBe(false));
   });
 
-  it("/api/event/register HTTP 401", async () => {
-    return server.post("/api/event/register").send({ eventId }).expect(401);
+  afterAll(async () => {
+    await server.get("/user/logout");
   });
 });
 

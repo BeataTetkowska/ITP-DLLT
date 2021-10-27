@@ -1,5 +1,5 @@
 const request = require("supertest");
-const app = require("../../app/app");
+const app = require("../../../app/app");
 
 //This is an example integration test for the /api/event api endpoint
 //The test simulates a HTTP request to /api/event and then tests aspects
@@ -8,7 +8,7 @@ const app = require("../../app/app");
 //Checks for the HTTP code to be 200
 //Checks for the body in the response to consist of an object with
 //a specific set of fields
-describe("/login", () => {
+describe("/user/login", () => {
   var email = "logintest1@test.com";
   var password = "password";
   var badEmail = "bad@email.com";
@@ -16,7 +16,7 @@ describe("/login", () => {
 
   beforeAll(async () => {
     await request(app)
-      .post("/signup")
+      .post("/user/signup")
       .send({
         name: {
           first: "test",
@@ -28,18 +28,18 @@ describe("/login", () => {
   });
 
   it("GET /login -> HTTP 200", async () => {
-    return request(app).get("/login").expect(200);
+    return request(app).get("/user/login").expect(200);
   });
 
   it("GET /login -> Content Type HTML", async () => {
     return request(app)
-      .get("/login")
+      .get("/user/login")
       .expect("Content-type", /text\/html/);
   });
 
   it("POST /login -> correct credentials HTTP 200", async () => {
     return request(app)
-      .post("/login")
+      .post("/user/login")
       .send({
         email: email,
         password: password,
@@ -49,7 +49,7 @@ describe("/login", () => {
 
   it("POST /login -> correct credentials content JSON", async () => {
     return request(app)
-      .post("/login")
+      .post("/user/login")
       .send({
         email: email,
         password: password,
@@ -59,7 +59,7 @@ describe("/login", () => {
 
   it("POST /login -> correct credentials login successful", async () => {
     return request(app)
-      .post("/login")
+      .post("/user/login")
       .send({
         email: email,
         password: password,
@@ -71,17 +71,17 @@ describe("/login", () => {
 
   it("POST /login -> incorrect credentials HTTP 200", async () => {
     return request(app)
-      .post("/login")
+      .post("/user/login")
       .send({
         email: badEmail,
         password: badPassword,
       })
-      .expect(200);
+      .expect(401);
   });
 
   it("POST /login -> incorrect credentials content JSON", async () => {
     return request(app)
-      .post("/login")
+      .post("/user/login")
       .send({
         email: badEmail,
         password: badPassword,
@@ -91,7 +91,7 @@ describe("/login", () => {
 
   it("POST /login -> incorrect credentials login successful", async () => {
     return request(app)
-      .post("/login")
+      .post("/user/login")
       .send({
         email: badEmail,
         password: badPassword,
