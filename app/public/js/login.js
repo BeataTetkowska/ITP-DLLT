@@ -13,7 +13,7 @@ function handleSignup(e) {
     return;
   }
 
-  var url = "/login";
+  var url = "/user/login";
   $.post({
     type: "POST",
     url: url,

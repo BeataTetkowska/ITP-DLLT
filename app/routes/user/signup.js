@@ -1,14 +1,14 @@
 const path = require("path");
 const express = require("express");
 var router = express.Router();
-const log = require("../utils/winstonLogger");
+const log = require("../../utils/winstonLogger");
 const bcrypt = require("bcrypt");
 
-const users = require("../db/users");
+const users = require("../../db/users");
 
 //GET /signup -> returns html for signup page
 router.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../views/signup.html"));
+  res.sendFile(path.join(__dirname, "../../views/signup.html"));
 });
 
 //POST /signup -> creates user
