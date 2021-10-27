@@ -32,6 +32,7 @@ router.post("/", async (req, res, next) => {
       if (info.errorCode === 1) {
         formResponse.result.bademail = true;
       }
+      res.status(401);
       res.json(formResponse);
       return;
     }

@@ -76,7 +76,7 @@ describe("/user/login", () => {
         email: badEmail,
         password: badPassword,
       })
-      .expect(200);
+      .expect(401);
   });
 
   it("POST /login -> incorrect credentials content JSON", async () => {
