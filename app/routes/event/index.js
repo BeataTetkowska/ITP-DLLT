@@ -2,12 +2,15 @@ var router = require("express").Router();
 
 var users = require("../../db/users");
 
+const log = require("../../utils/winstonLogger");
+
 const userIs = require("../../middleware/userIs");
 const {
   getEventNowJSON,
   getEventNowHTML,
   parseEventId,
   getEventById,
+  registerSpecificUserById,
 } = require("./controllers");
 
 //GET /event -> returns event data html or json
@@ -27,19 +30,22 @@ router.get("/:eventId", parseEventId, getEventById, (req, res) => {
   res.json(eventCopy);
 });
 
-//PUT /event/:eventId/register
+//PUT /event/:eventId/register?userId
 //-> takes an event ID
 //-> registers currently signed in user for that event
+//If userId is passed as url param and signed in user is admin
+//-> register the given user for the event
 router.put(
   "/:eventId/register",
   userIs.loggedIn,
   parseEventId,
   getEventById,
+  registerSpecificUserById,
   (req, res) => {
     //TODO check if event has passed or starts more than 30 minutes in the future
     //TODO check if user is already registered for this event
     res.locals.matchingEvent.attendance.push(req.user._id);
-    res.json({ success: true, message: "User has registered" });
+    res.json({ success: true, message: "Current user has registered" });
   }
 );
 

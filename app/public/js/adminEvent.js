@@ -114,6 +114,8 @@ function parseAttendanceRecords(res) {
     alert("No users registered for event");
     return;
   } else {
+    var $table = $("#attendanceTableBody");
+    $table.empty();
     res.users.forEach((user) => {
       var userTableDetails = [
         `${user.name.first} ${user.name.last}`,
@@ -121,11 +123,9 @@ function parseAttendanceRecords(res) {
         user.emergency.phone,
       ];
 
-      var $table = $("#attendanceTableBody");
       var $row = $("<tr></tr>");
       var $td;
 
-      $table.empty();
       userTableDetails.forEach((detail) => {
         $td = $("<td></td>");
         $td.text(detail);
