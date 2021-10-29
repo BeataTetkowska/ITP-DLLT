@@ -10,7 +10,7 @@ const {
   getEventNowHTML,
   parseEventId,
   getEventById,
-  registerSpecificUserById,
+  registerUserForEventById,
 } = require("./controllers");
 
 //GET /event -> returns event data html or json
@@ -40,7 +40,7 @@ router.put(
   userIs.loggedIn,
   parseEventId,
   getEventById,
-  registerSpecificUserById,
+  registerUserForEventById,
   (req, res) => {
     //TODO check if event has passed or starts more than 30 minutes in the future
     //TODO check if user is already registered for this event

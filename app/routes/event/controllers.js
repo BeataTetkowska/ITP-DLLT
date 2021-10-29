@@ -1,5 +1,7 @@
 const path = require("path");
 
+var users = require("../../db/users");
+
 var eventSchedule = require("../../db/event");
 var uniqueEvents = require("../../utils/generateUniqueEventsFromSchedule")(
   eventSchedule
@@ -102,7 +104,7 @@ function getNextEvent(time) {
 //Checks to ensure user can be found in database
 //Registers user for event if ther can be found
 //TODO split up this function
-function registerSpecificUserById(req, res, next) {
+function registerUserForEventById(req, res, next) {
   if (req.user.isAdmin && req.query.userId) {
     req.query.userId = parseInt(req.query.userId) || null;
     if (req.query.userId === null) {
@@ -114,7 +116,6 @@ function registerSpecificUserById(req, res, next) {
       res.json(404, { success: false, message: "User not found" });
       return;
     }
-    log.debug(res.locals.matchingEvent);
 
     //TODO check if user is already registered for this event
     res.locals.matchingEvent.attendance.push(req.query.userId);
@@ -134,5 +135,5 @@ module.exports = {
   getEventById,
   getNextEvent,
   getNextEventToday,
-  registerSpecificUserById,
+  registerUserForEventById,
 };

@@ -47,8 +47,20 @@ $(async function () {
 
 //Sends a given user ID to the backend for the user to be registered
 function manuallyRegisterUser(id) {
-  console.log(id);
-  //TODO send userID to /event/eventID/register to register the user manually
+  var url = `/event/${eventId}/register?userId=${id}`;
+  $.ajax({
+    type: "PUT",
+    url: url,
+    contentType: "application/json",
+  }).done((res) => {
+    if (res.success) {
+      //TODO notify user in a more user friendly manner, a toast would be ideal
+      alert("User registered");
+    } else {
+      //TODO handle failure case
+      alert("User failed to register, please try again");
+    }
+  });
 }
 
 //Delays the ajax call to update the list of users in datalist
