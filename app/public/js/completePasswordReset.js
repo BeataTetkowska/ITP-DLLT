@@ -39,11 +39,11 @@ function handleReset(e) {
       if (res.success === true) {
         window.location.href = "/user/login";
       } else {
-        alert("Failed to reset password, please initiate password reset again");
+        alert(`Failed to reset password ${res.message}`);
       }
     })
     .fail(() => {
-      //TODO handle server failure
+      alert(`Failed to reset password`);
     });
 }
 

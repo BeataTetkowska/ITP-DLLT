@@ -61,8 +61,9 @@ async function resetPassword(req, res, next) {
   } = res.locals.matchingUser;
 
   //Check if password reset has ever been initated for this user
-  if (!tokenHash) {
+  if (!tokenHash || !req.body.token) {
     res.json(403, { success: false, message: "Password reset not initiated" });
+    return;
   }
 
   //Check if token matched
