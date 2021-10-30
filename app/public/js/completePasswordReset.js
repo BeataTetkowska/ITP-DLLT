@@ -2,13 +2,16 @@ import validateForm from "./utils/validateForm.js";
 
 var resetToken;
 const resetTokenUrlParam = "resetToken";
+var email;
+const emailUrlParam = "email";
 
 $(function () {
   $("#reset").click((e) => handleReset(e));
 
   var urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.has(resetTokenUrlParam)) {
+  if (urlParams.has(resetTokenUrlParam) && urlParams.has(emailUrlParam)) {
     resetToken = urlParams.get(resetTokenUrlParam);
+    email = urlParams.get(emailUrlParam);
   } else {
     alert("Please follow link in email to reset password");
     $("#reset").addClass("disabled").off("click");
@@ -33,7 +36,7 @@ function handleReset(e) {
   })
     .done((res) => {
       //Redirect to login page if reset completed successfully
-      if (res.result.success === true) {
+      if (res.success === true) {
         window.location.href = "/user/login";
       } else {
         alert("Failed to reset password, please initiate password reset again");
@@ -68,6 +71,7 @@ function validateLoginForm() {
     return false;
   }
   formData.token = resetToken;
+  formData.email = email;
 
   return formData;
 }
