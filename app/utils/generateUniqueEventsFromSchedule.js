@@ -1,7 +1,7 @@
 const eventSchedule = require("../db/event");
 const { v4: uuidv4 } = require("uuid");
 
-//Generate a list of unique events for this week which can be stored in the database
+//Generate a list of unique events for a given number of weeks that can be stored in the database
 //Unique events are required in order to attribute user attendance data
 //to individual events.
 // Unique event schema is as follows
@@ -24,10 +24,23 @@ const { v4: uuidv4 } = require("uuid");
 //   location:
 // }
 module.exports = () => {
-  var startOfWeek = new Date();
-  startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getUTCDay());
-  var startOfWeek = startOfWeek.toISOString();
+  const NUMBEROFWEEKSTOGENERATE = 2;
 
+  events = [];
+  for (let i = 0; i < NUMBEROFWEEKSTOGENERATE; i++) {
+    let startOfWeek = new Date();
+    startOfWeek.setDate(
+      startOfWeek.getDate() - startOfWeek.getUTCDay() + i * 7
+    );
+    startOfWeek = startOfWeek.toISOString();
+    let oneWeekOfEvents = generateOneWeekOfEvents(eventSchedule, startOfWeek);
+    events = events.concat(oneWeekOfEvents);
+  }
+
+  return events;
+};
+
+function generateOneWeekOfEvents(eventSchedule, startOfWeek) {
   return eventSchedule.map((event) => {
     var eventDate = new Date(startOfWeek);
     eventDate.setDate(eventDate.getDate() + event.day);
@@ -45,4 +58,4 @@ module.exports = () => {
       ...event,
     };
   });
-};
+}
