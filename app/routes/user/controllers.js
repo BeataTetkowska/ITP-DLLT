@@ -1,6 +1,25 @@
+const {
+  PROTOCOL,
+  HOST,
+  HTTPPORT,
+  SMTPUSER,
+} = require("../../utils/dotenvDefaults");
 const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 var users = require("../../db/users");
+const { sendTextEmail } = require("../../utils/sendEmail");
+
+function getUserByEmail(req, res, next) {
+  res.locals.matchingUser = users.find((user) => user.email === req.body.email);
+
+  if (!res.locals.matchingUser) {
+    //Can't give clear indication to frontend that no user was found
+    //due to security concerns
+    res.sendStatus(200);
+    return;
+  }
+  next();
+}
 
 async function resetPassword(req, res, next) {
   var isMatch = await bcrypt.compare(
@@ -19,26 +38,28 @@ async function resetPassword(req, res, next) {
   next();
 }
 
-function getUserByEmail(req, res, next) {
-  res.locals.matchingUser = users.find((user) => user.email === req.body.email);
-
-  if (!res.locals.matchingUser) {
-    //Can't give clear indication to frontend that no user was found
-    //due to security concerns
-    res.sendStatus(200);
-    return;
-  }
-  next();
-}
-
-async function sendPasswordResetToken(req, res, next) {
+async function sendPasswordResetToken(_, res, next) {
   res.locals.token = crypto.randomBytes(20).toString("hex");
   var tokenHash = await bcrypt.hash(res.locals.token, 2);
 
   res.locals.matchingUser.resetTokenHash = tokenHash;
   res.locals.matchingUser.resetTokenExpires = Date.now() + 1000 * 60 * 30;
 
-  //TODO email user with password reset token
+  var index = users.findIndex(
+    (user) => (user._id = res.locals.matchingUser._id)
+  );
+  users[index] = res.locals.matchingUser;
+
+  const emailData = {
+    from: SMTPUSER,
+    subject: "Streetsport Password Reset",
+    to: res.locals.matchingUser.email,
+  };
+
+  var link = `${PROTOCOL}${HOST}:${HTTPPORT}/user/password/reset\
+?resetToken=${res.locals.token}&email=${res.locals.matchingUser.email}`;
+  sendTextEmail(emailData, link);
+
   next();
 }
 

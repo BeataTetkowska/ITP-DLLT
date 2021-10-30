@@ -1,6 +1,23 @@
 //Example users table in database
 module.exports = [
   {
+    _id: 0,
+    isAdmin: true,
+    name: {
+      first: "Joaquim",
+      last: "Gomez",
+    },
+    email: "joaquim.q.gomez@gmail.com",
+    //Password matches email
+    hash: "$2b$10$IXGzOoyTJ9cVeqyit87FnOIZqhqsCWgUfBKsYQIHJSjR1n87c7vRe",
+    dob: "27-10-21",
+    postcode: "AB106SP",
+    emergency: {
+      phone: "0712341234",
+      name: "Emergency name",
+    },
+  },
+  {
     _id: 1,
     isAdmin: false,
     name: {

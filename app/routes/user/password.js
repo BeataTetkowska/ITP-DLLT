@@ -6,8 +6,6 @@ const {
   sendPasswordResetToken,
 } = require("./controllers");
 
-const log = require("../../utils/winstonLogger");
-
 // GET /user/password -> form to initiate password reset
 router.get("/", (_, res) => {
   res.sendFile(path.join(__dirname, "../../views/initiatePasswordReset.html"));
@@ -17,12 +15,7 @@ router.get("/", (_, res) => {
 // -> takes users email
 // -> Initiates password reset
 router.post("/", getUserByEmail, sendPasswordResetToken, (_, res) => {
-  //TODO remove this: should only return confirmation of success
-  //Token should be sent in email
-  res.json({
-    user: res.locals.matchingUser,
-    url: `localhost:8080/user/password/reset?resetToken=${res.locals.token}&email=${res.locals.matchingUser.email}`,
-  });
+  res.redirect("/user/login");
 });
 
 // GET /user/password/reset -> form to complete password reset
