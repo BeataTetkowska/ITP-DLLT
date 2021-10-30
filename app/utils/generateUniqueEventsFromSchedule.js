@@ -49,13 +49,13 @@ function generateOneWeekOfEvents(eventSchedule, startOfWeek) {
     return {
       //TODO when implementing this using the database, don't generate an id
       //MongoDB will generate the id for us
+      ...event,
       _id: uuidv4(),
       attendance: [],
       isoString: eventDateIsoString,
       date: eventDate.getDate(),
       month: eventDate.getMonth(),
       year: eventDate.getYear(),
-      ...event,
     };
   });
 }
