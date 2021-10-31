@@ -1,3 +1,5 @@
+const downloadFileFromMemory = require("../../utils/downloadFileFromMemory");
+const { prepareUserForCsv, generateUserCsv } = require("./controllers");
 var router = require("express").Router();
 
 var users = require("../../db/users");
@@ -51,7 +53,7 @@ router.get(
   userIs.admin,
   parseEventId,
   getEventById,
-  (_, res) => {
+  (req, res) => {
     var matchingUserDetails = [];
     res.locals.matchingEvent.attendance.forEach((userID) => {
       let user = users.find((user) => {
@@ -60,6 +62,11 @@ router.get(
         }
       });
       if (user) {
+        if (req.query.download && req.query.download === "true") {
+          user = prepareUserForCsv(user);
+          matchingUserDetails.push(user);
+          return;
+        }
         matchingUserDetails.push({
           _id: user._id,
           name: user.name,
@@ -67,6 +74,15 @@ router.get(
         });
       }
     });
+
+    if (req.query.download && req.query.download === "true") {
+      var csvString = generateUserCsv(matchingUserDetails);
+      let { isoString } = res.locals.matchingEvent;
+      var fileName = `Session-${isoString}--Attendance.csv`;
+
+      downloadFileFromMemory(res, fileName, csvString);
+      return;
+    }
 
     res.json({
       success: true,

@@ -17,6 +17,7 @@ $(async function () {
   $.getJSON(eventUrl, function (res) {
     eventId = res._id;
     attendanceUrl = `/event/${eventId}/attendance`;
+    var attendanceDownloadUrl = `/event/${eventId}/attendance?download=true`;
     $("#location").text(res.location);
     $("#time").text(
       `${res.start.hours}:${
@@ -38,6 +39,8 @@ $(async function () {
             //TODO handle server failure
           });
       });
+
+    $("#exportAttendanceLink").attr("href", attendanceDownloadUrl);
   });
 });
 

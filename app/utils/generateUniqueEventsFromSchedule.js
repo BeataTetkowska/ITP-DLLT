@@ -32,6 +32,8 @@ module.exports = () => {
     startOfWeek.setDate(
       startOfWeek.getDate() - startOfWeek.getUTCDay() + i * 7
     );
+    startOfWeek.setSeconds(0);
+    startOfWeek.setMilliseconds(0);
     startOfWeek = startOfWeek.toISOString();
     let oneWeekOfEvents = generateOneWeekOfEvents(eventSchedule, startOfWeek);
     events = events.concat(oneWeekOfEvents);
@@ -44,6 +46,8 @@ function generateOneWeekOfEvents(eventSchedule, startOfWeek) {
   return eventSchedule.map((event) => {
     var eventDate = new Date(startOfWeek);
     eventDate.setDate(eventDate.getDate() + event.day);
+    eventDate.setHours(event.start.hours);
+    eventDate.setMinutes(event.start.minutes);
     eventDateIsoString = eventDate.toISOString();
 
     return {
