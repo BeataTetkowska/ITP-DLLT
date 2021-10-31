@@ -1,8 +1,6 @@
 const path = require("path");
 const flattenObject = require("../../utils/flattenObject");
 
-const log = require("../../utils/winstonLogger");
-
 var eventSchedule = require("../../db/event");
 var uniqueEvents = require("../../utils/generateUniqueEventsFromSchedule")(
   eventSchedule
