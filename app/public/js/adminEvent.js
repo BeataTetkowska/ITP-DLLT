@@ -17,7 +17,7 @@ $(async function () {
   //Parse data into html
   $.getJSON(eventUrl, function (res) {
     var { nextEvent: event } = res;
-    eventId = res._id;
+    eventId = event._id;
     var attendanceUrl = `/event/${eventId}/attendance`;
     $("#location").text(event.location);
     $("#time").text(
