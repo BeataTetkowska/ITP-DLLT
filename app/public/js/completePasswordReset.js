@@ -28,23 +28,16 @@ function handleReset(e) {
   }
 
   var url = "/user/password/reset";
-  $.post({
+  $.ajax({
     type: "PUT",
     url: url,
     data: formData,
-    dataType: "json",
   })
-    .done((res) => {
+    .done(() => {
       //Redirect to login page if reset completed successfully
-      if (res.success === true) {
-        window.location.href = "/user/login";
-      } else {
-        alert(`Failed to reset password ${res.message}`);
-      }
+      window.location.href = "/user/login";
     })
-    .fail(() => {
-      alert(`Failed to reset password`);
-    });
+    .fail((xhr) => alert(xhr.responseText));
 }
 
 //Prepares formfield validation metadata and validates form fields

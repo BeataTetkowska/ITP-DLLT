@@ -24,7 +24,7 @@ function getEventNowJSON(req, res) {
   var now = new Date();
   nextEvent = Object.assign({}, getNextEvent(now));
 
-  if (!req.user || !req.user.isAdmin) nextEvent.attendance = null;
+  if (!req.user || !req.user.isAdmin) nextEvent.attendance = [];
 
   return res.json(nextEvent);
 }

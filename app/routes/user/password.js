@@ -27,7 +27,7 @@ router.get("/reset", (_, res) => {
 // -> takes users new password and token to confirm
 // -> completes password reset
 router.put("/reset", getUserByEmail, resetPassword, (_, res) => {
-  res.json({ success: true, message: "password has been reset" });
+  return res.status(200).send("Password has been reset");
 });
 
 module.exports = router;

@@ -113,21 +113,23 @@ function getUsersAndUpdateDatalist(el) {
     type: "GET",
     url: `/user/search?query=${query}`,
     contentType: "application/json",
-  }).done((res) => {
-    var $dataList = $("#userSearchList");
-    var $options = [];
+  })
+    .done((users) => {
+      var $dataList = $("#userSearchList");
+      var $options = [];
 
-    res.users.forEach((user) => {
-      var $option = $("<option></option>");
-      $option.attr({
-        value: `${user.name.first} ${user.name.last}`,
-        "data-id": user._id,
+      users.forEach((user) => {
+        var $option = $("<option></option>");
+        $option.attr({
+          value: `${user.name.first} ${user.name.last}`,
+          "data-id": user._id,
+        });
+        $options.push($option);
       });
-      $options.push($option);
-    });
-    $dataList.empty().append($options);
-    el.focus();
-  });
+      $dataList.empty().append($options);
+      el.focus();
+    })
+    .fail((xhr) => alert(xhr.responseText));
 }
 
 function parseAttendanceRecords(users) {

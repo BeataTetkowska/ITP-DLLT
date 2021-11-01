@@ -15,14 +15,13 @@ function handleSignup(e) {
 
   var url = "/user/login";
   $.post({
-    type: "POST",
     url: url,
     data: formData,
   })
     //Redirect to event page if user logged in
     .done(() => (window.location.href = "/event"))
-    .fail(() => {
-      alert("Credentials are invalid");
+    .fail((xhr) => {
+      alert(xhr.responseText);
       $("#email").addClass("input--error");
       $("#password").val("");
     });
