@@ -35,15 +35,10 @@ function getEventNowJSON(req, res) {
 //Checks if a valid eventID was passed to the request
 //returns 400 "Bad Request" if eventId was invalid
 function parseEventId(req, res, next) {
-  if (req.params.eventId === null) {
-    res.status(400);
-    res.format({
-      json: () => ({ success: false, message: "Event ID invalid" }),
-      html: () => "Event ID invalid",
-    });
-    return;
-  }
-  return next();
+  if (req.params.eventId === null)
+    return res.status(400).send("Invalid Event ID");
+
+  next();
 }
 
 //Finds an event with a given id
@@ -53,17 +48,10 @@ function getEventById(req, res, next) {
     (event) => event._id === req.params.eventId
   );
 
-  if (!res.locals.matchingEvent) {
-    res.status(404);
-    res.format({
-      json: () => ({
-        result: { success: false, message: "No event found with matching ID" },
-      }),
-      html: () => "No event found with matching ID",
-    });
-    return;
-  }
-  return next();
+  if (!res.locals.matchingEvent)
+    return res.status(404).send("No event found with matching ID");
+
+  next();
 }
 
 //Searches through the list of events to find any events on today

@@ -32,12 +32,10 @@ $(async function () {
         $.ajax({
           type: "GET",
           url: attendanceUrl,
-          contentType: "application/json",
+          dataType: "json",
         })
-          .done((res) => parseAttendanceRecords(res))
-          .fail(() => {
-            //TODO handle server failure
-          });
+          .done((users) => parseAttendanceRecords(users))
+          .fail((_, text) => alert(text));
       });
 
     $("#exportAttendanceLink").on("click", () => downloadCsv(attendanceUrl));
@@ -54,20 +52,12 @@ function downloadCsv(url) {
   $.ajax({
     url: url,
     headers: {
-      //TODO Fix responses so that only status codes are sent then this can be removed
-      //Accept: mime,
       Accept: `${mime}, */*`,
     },
     dataType: "json",
   })
     .done((res) => downloadFileAsString(res.fileName, res.data, mime))
-    .fail((xhr) => {
-      switch (xhr.status) {
-        case 404:
-          alert("No users registered for event");
-          break;
-      }
-    });
+    .fail((_, text) => alert(text));
   return false;
 }
 
@@ -77,7 +67,7 @@ function manuallyRegisterUser(id) {
   $.ajax({
     type: "PUT",
     url: url,
-    contentType: "application/json",
+    dataType: "json",
   }).done((res) => {
     if (res.success) {
       //TODO notify user in a more user friendly manner, a toast would be ideal
@@ -147,30 +137,25 @@ function getUsersAndUpdateDatalist(el) {
   });
 }
 
-function parseAttendanceRecords(res) {
-  if (res.users.length === 0) {
-    alert("No users registered for event");
-    return;
-  } else {
-    var $table = $("#attendanceTableBody");
-    $table.empty();
-    res.users.forEach((user) => {
-      var userTableDetails = [
-        `${user.name.first} ${user.name.last}`,
-        user.emergency.name,
-        user.emergency.phone,
-      ];
+function parseAttendanceRecords(users) {
+  var $table = $("#attendanceTableBody");
+  $table.empty();
+  users.forEach((user) => {
+    var userTableDetails = [
+      `${user.name.first} ${user.name.last}`,
+      user.emergency.name,
+      user.emergency.phone,
+    ];
 
-      var $row = $("<tr></tr>");
-      var $td;
+    var $row = $("<tr></tr>");
+    var $td;
 
-      userTableDetails.forEach((detail) => {
-        $td = $("<td></td>");
-        $td.text(detail);
-        $row.append($td);
-      });
-
-      $table.append($row);
+    userTableDetails.forEach((detail) => {
+      $td = $("<td></td>");
+      $td.text(detail);
+      $row.append($td);
     });
-  }
+
+    $table.append($row);
+  });
 }
