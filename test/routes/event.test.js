@@ -13,15 +13,21 @@ const loginUser = require("../utils/loginUser");
 
 async function loginAndRegisterUser(email, password) {
   var eventId = null;
+  eventId = await getEventId();
   await loginUser(server, email, password);
+  await server.put(`/event/${eventId}/register`);
+  await server.get("/user/logout");
+  return eventId;
+}
+
+async function getEventId() {
+  var eventId;
   await server
     .get("/event")
     .set("Accept", "application/json")
     .then((data) => {
-      eventId = data.body._id;
+      eventId = data.body.nextEvent._id;
     });
-  await server.put(`/event/${eventId}/register`);
-  await server.get("/user/logout");
   return eventId;
 }
 
@@ -62,7 +68,7 @@ describe("/event no auth", () => {
       .get("/event")
       .set("Accept", "application/json")
       .then((res) => {
-        expect(res.body).toEqual(
+        expect(res.body.nextEvent).toEqual(
           expect.objectContaining({
             day: expect.toBeWithinRange(0, 6),
             start: expect.objectContaining({
@@ -84,7 +90,7 @@ describe("/event no auth", () => {
       .get("/event")
       .set("Accept", "application/json")
       .then((res) => {
-        expect(res.body.attendance.length).toBe(0);
+        expect(res.body.nextEvent.attendance.length).toBe(0);
       });
   });
 });
@@ -124,7 +130,7 @@ describe("/event as standard user", () => {
       .get("/event")
       .set("Accept", "application/json")
       .then((res) => {
-        expect(res.body).toEqual(
+        expect(res.body.nextEvent).toEqual(
           expect.objectContaining({
             day: expect.toBeWithinRange(0, 6),
             start: expect.objectContaining({
@@ -146,7 +152,7 @@ describe("/event as standard user", () => {
       .get("/event")
       .set("Accept", "application/json")
       .then((res) => {
-        expect(res.body.attendance).toHaveLength(0);
+        expect(res.body.nextEvent.attendance).toHaveLength(0);
       });
   });
 
@@ -190,7 +196,7 @@ describe("/event as admin", () => {
       .get("/event")
       .set("Accept", "application/json")
       .then((res) => {
-        expect(res.body).toEqual(
+        expect(res.body.nextEvent).toEqual(
           expect.objectContaining({
             day: expect.toBeWithinRange(0, 6),
             start: expect.objectContaining({
@@ -213,7 +219,7 @@ describe("/event as admin", () => {
       .get("/event")
       .set("Accept", "application/json")
       .then((res) => {
-        expect(res.body.attendance).not.toEqual(null);
+        expect(res.body.nextEvent.attendance).not.toEqual(null);
       });
   });
 
@@ -225,12 +231,7 @@ describe("/event as admin", () => {
 describe("/event/1/attendance no auth", () => {
   var eventId;
   beforeAll(async () => {
-    await server
-      .get("/event")
-      .set("Accept", "application/json")
-      .then((data) => {
-        eventId = data.body._id;
-      });
+    eventId = getEventId();
   });
 
   it("GET /event/1/attendance -> HTTP 401", async () => {
@@ -254,12 +255,7 @@ describe("/event/1/attendance standard user", () => {
   var eventId;
 
   beforeAll(async () => {
-    await server
-      .get("/event")
-      .set("Accept", "application/json")
-      .then((data) => {
-        eventId = data.body._id;
-      });
+    eventId = await getEventId();
     await loginUser(server, email, password);
   });
 
@@ -290,12 +286,7 @@ describe("/event/:eventId/attendance no registered users", () => {
 
   beforeAll(async () => {
     await loginUser(server, email, password);
-    await server
-      .get("/event")
-      .set("Accept", "application/json")
-      .then((res) => {
-        eventId = res.body._id;
-      });
+    eventId = await getEventId();
   });
 
   it("GET /event/:eventId/attendance -> HTTP 200", async () => {
@@ -325,9 +316,9 @@ describe("/event/:eventId/attendance one user", () => {
   });
 
   it("GET /event/:eventId/attendance -> length 1", async () => {
-    return server
-      .get(`/event/${eventId}/attendance`)
-      .then((res) => expect(res.body).toHaveLength(1));
+    return server.get(`/event/${eventId}/attendance`).then((res) => {
+      expect(res.body).toHaveLength(1);
+    });
   });
 
   it("GET /event/:eventId/attendance -> HTTP 200", async () => {
@@ -388,12 +379,7 @@ describe("/event/:eventId/register with auth", () => {
   var password = "email@taken.com";
   beforeAll(async () => {
     await loginUser(server, email, password);
-    await server
-      .get("/event")
-      .set("Accept", "application/json")
-      .then((res) => {
-        eventId = res.body._id;
-      });
+    eventId = await getEventId();
   });
 
   it("PUT /event/:eventId/register -> HTTP 200", async () => {
@@ -415,12 +401,7 @@ describe("/event/:eventId/register without auth", () => {
   var eventId = null;
 
   beforeAll(async () => {
-    await server
-      .get("/event")
-      .set("Accept", "application/json")
-      .then((res) => {
-        eventId = res.body._id;
-      });
+    eventId = await getEventId();
   });
 
   it("PUT /event/:eventId/register -> HTTP 401", async () => {
@@ -452,7 +433,6 @@ describe("/event Functions", () => {
   it("getNextEventToday Tuesday Morning", () => {
     var tuesdayMorning = new Date(2021, 10, 2, 9);
     var result = getNextEventToday(tuesdayMorning);
-    console.log(result);
     expect(result.day).toBe(2);
     expect(result.start.hours).toBe(18);
     expect(result.end.hours).toBe(19);
