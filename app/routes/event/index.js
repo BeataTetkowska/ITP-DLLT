@@ -1,5 +1,4 @@
-const downloadFileFromMemory = require("../../utils/downloadFileFromMemory");
-const { prepareUserForCsv, generateUserCsv } = require("./controllers");
+const { generateUserCsv } = require("./controllers");
 var router = require("express").Router();
 
 var users = require("../../db/users");
@@ -48,6 +47,8 @@ router.put(
 // GET /event/:eventId/attendance
 // -> takes eventId
 // -> returns users attending given eventId
+// -> returns csv with full user attendance details when
+// Accept: text/csv header is sent
 router.get(
   "/:eventId/attendance",
   userIs.admin,
@@ -56,39 +57,36 @@ router.get(
   (req, res) => {
     var matchingUserDetails = [];
     res.locals.matchingEvent.attendance.forEach((userID) => {
-      let user = users.find((user) => {
-        if (user._id === userID) {
-          return true;
-        }
-      });
-      if (user) {
-        if (req.query.download && req.query.download === "true") {
-          user = prepareUserForCsv(user);
-          matchingUserDetails.push(user);
-          return;
-        }
-        matchingUserDetails.push({
-          _id: user._id,
-          name: user.name,
-          emergency: user.emergency,
-        });
-      }
+      let user = users.find((user) => user._id === userID);
+      if (user) matchingUserDetails.push(user);
     });
 
-    if (req.query.download && req.query.download === "true") {
-      var csvString = generateUserCsv(matchingUserDetails);
-      let { isoString } = res.locals.matchingEvent;
-      var fileName = `Session-${isoString}--Attendance.csv`;
-
-      downloadFileFromMemory(res, fileName, csvString);
+    if (matchingUserDetails.length === 0) {
+      res.sendStatus(404);
       return;
     }
 
-    res.json({
-      success: true,
-      message: "Event found, returning registered users",
-      users: matchingUserDetails,
+    res.format({
+      json: () => {
+        matchingUserDetails = matchingUserDetails.map((user) => ({
+          _id: user._id,
+          name: user.name,
+          emergency: user.emergency,
+        }));
+        res.json({
+          success: true,
+          message: "Event found, returning registered users",
+          users: matchingUserDetails,
+        });
+      },
+      "text/csv": () => {
+        var csvString = generateUserCsv(matchingUserDetails);
+        let { isoString } = res.locals.matchingEvent;
+        var fileName = `Session-${isoString}--Attendance.csv`;
+        res.json({ fileName: fileName, data: csvString });
+      },
     });
+    return;
   }
 );
 

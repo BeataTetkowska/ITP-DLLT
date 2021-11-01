@@ -4,14 +4,20 @@ var stream = require("stream");
 //Takes Express response object, the filename as string
 //and the contents as string
 //optionally takes file encoding
-function downloadFileFromMemory(res, name, fileString, encoding = "utf8") {
+function downloadFileFromMemory(
+  res,
+  name,
+  fileString,
+  encoding = "utf8",
+  mime = "text/plain"
+) {
   var fileContents = Buffer.from(fileString, encoding);
 
   var readStream = new stream.PassThrough();
   readStream.end(fileContents);
 
   res.set("Content-disposition", "attachment; filename=" + name);
-  res.set("Content-Type", "text/plain");
+  res.set("Content-Type", mime);
 
   readStream.pipe(res);
 }

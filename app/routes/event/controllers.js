@@ -126,6 +126,7 @@ function generateUserCsv(users) {
 
   //Convert each user object into an ordered array of users
   users.forEach((user) => {
+    user = prepareUserForCsv(user);
     var csvEntry = mapKeysToColumns.map((keyToColumn) => {
       return user[keyToColumn.key];
     });
