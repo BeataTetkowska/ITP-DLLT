@@ -24,7 +24,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Event"
+                type: object
+                properties:
+                  nextEvent:
+                    $ref: "#/components/schemas/Event"
+                  registered:
+                    type: boolean
+                    description: True if the user has already registered for this event
             text/html:
               schema:
                 type: string
