@@ -22,7 +22,7 @@ async function loginAndRegisterUser(email, password) {
     });
   await server.put(`/event/${eventId}/register`);
   await server.get("/user/logout");
-  return 2;
+  return eventId;
 }
 
 //This is an example integration test for the /api/event api endpoint
