@@ -1,6 +1,8 @@
 const path = require("path");
 const flattenObject = require("../../utils/flattenObject");
 
+var users = require("../../db/users");
+
 var eventSchedule = require("../../db/event");
 var uniqueEvents = require("../../utils/generateUniqueEventsFromSchedule")(
   eventSchedule
@@ -136,6 +138,37 @@ function generateUserCsv(users) {
   return csv;
 }
 
+//Validates a given user ID from url query parameter
+//Checks to ensure user can be found in database
+//Registers user for event if ther can be found
+//TODO split up this function
+function registerUserForEventById(req, res, next) {
+  if (req.user.isAdmin && req.query.userId) {
+    req.query.userId = parseInt(req.query.userId) || null;
+    if (req.query.userId === null) {
+      res.json(400, { success: false, message: "User ID invalid" });
+      return;
+    }
+
+    if (!users.find((user) => user._id === req.query.userId)) {
+      res.json(404, { success: false, message: "User not found" });
+      return;
+    }
+
+    //TODO check if user is already registered for this event
+    res.locals.matchingEvent.attendance.push(req.query.userId);
+    res.json({
+      success: true,
+      message: `User ${req.query.userId} has registered`,
+    });
+    return;
+  }
+  if (req.query.userId && !req.query.isAdmin) {
+    return res.sendStatus(403);
+  }
+  next();
+}
+
 module.exports = {
   getEventNowJSON,
   getEventNowHTML,
@@ -145,4 +178,5 @@ module.exports = {
   getNextEventToday,
   prepareUserForCsv,
   generateUserCsv,
+  registerUserForEventById,
 };
