@@ -50,7 +50,7 @@ function checkIfUserExists(_, res, next) {
 //Attempts to create the user and responds with status
 function createUser(_, res) {
   if (res.locals.userExists) {
-    return res.status(403).send("Email taken");
+    return res.status(409).send("Email taken");
   }
 
   res.locals.user._id = users.length + 1;
