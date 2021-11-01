@@ -3,8 +3,6 @@ var router = require("express").Router();
 
 var users = require("../../db/users");
 
-const log = require("../../utils/winstonLogger");
-
 const userIs = require("../../middleware/userIs");
 const {
   getEventNowJSON,
@@ -25,10 +23,9 @@ router.get("/", (req, res) => {
 //GET /event/:eventId -> returns event JSON data for a given eventId
 router.get("/:eventId", parseEventId, getEventById, (req, res) => {
   var eventCopy = Object.assign({}, res.locals.matchingEvent);
-  if (!req.user || !req.user.isAdmin) {
-    eventCopy = null;
-  }
-  res.json(eventCopy);
+  if (!req.user || !req.user.isAdmin) eventCopy.attendance = null;
+
+  return res.json(eventCopy);
 });
 
 //PUT /event/:eventId/register?userId

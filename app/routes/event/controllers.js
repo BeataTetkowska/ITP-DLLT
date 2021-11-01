@@ -13,10 +13,9 @@ var uniqueEvents = require("../../utils/generateUniqueEventsFromSchedule")(
 //the standard page for all other requests
 function getEventNowHTML(req, res) {
   var html = "event.html";
-  if (req.user && req.user.isAdmin) {
-    html = "adminEvent.html";
-  }
-  res.sendFile(path.join(__dirname, `../../views/${html}`));
+  if (req.user && req.user.isAdmin) html = "adminEvent.html";
+
+  return res.sendFile(path.join(__dirname, `../../views/${html}`));
 }
 
 //Sends event JSON data
@@ -25,11 +24,9 @@ function getEventNowJSON(req, res) {
   var now = new Date();
   nextEvent = Object.assign({}, getNextEvent(now));
 
-  if (!req.user || !req.user.isAdmin) {
-    nextEvent.attendance = null;
-  }
+  if (!req.user || !req.user.isAdmin) nextEvent.attendance = null;
 
-  res.json(nextEvent);
+  return res.json(nextEvent);
 }
 
 //Checks if a valid eventID was passed to the request
