@@ -18,20 +18,13 @@ function handleSignup(e) {
     type: "POST",
     url: url,
     data: formData,
-    dataType: "json",
   })
-    .done((response) => {
-      //Redirect to event page if user logged in
-      if (response.result.success === true) {
-        window.location.href = "/event";
-      } else {
-        alert("Credentials are invalid");
-        $("#email").addClass("input--error");
-        $("#password").val("");
-      }
-    })
+    //Redirect to event page if user logged in
+    .done(() => (window.location.href = "/event"))
     .fail(() => {
-      //TODO handle server failure
+      alert("Credentials are invalid");
+      $("#email").addClass("input--error");
+      $("#password").val("");
     });
 }
 

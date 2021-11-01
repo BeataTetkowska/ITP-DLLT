@@ -1,7 +1,6 @@
 const path = require("path");
 const express = require("express");
 var router = express.Router();
-const log = require("../../utils/winstonLogger");
 const bcrypt = require("bcrypt");
 
 const users = require("../../db/users");
@@ -50,24 +49,14 @@ function checkIfUserExists(_, res, next) {
 
 //Attempts to create the user and responds with status
 function createUser(_, res) {
-  var success = false;
-  if (res.locals.userExists === false) {
-    res.locals.user._id = users.length + 1;
-    users.push(res.locals.user);
-    success = true;
-    //TODO sign user in
+  if (res.locals.userExists) {
+    return res.status(403).send("Email taken");
   }
-  //TODO change statuscode for failed user signup
 
-  res.locals.response = {
-    email: res.locals.user.email,
-    result: {
-      success: success,
-    },
-  };
-
-  res.statusCode = 201;
-  res.json(res.locals.response);
+  res.locals.user._id = users.length + 1;
+  users.push(res.locals.user);
+  return res.status(201).send(res.locals.user.email);
+  //TODO sign user in
 }
 
 module.exports = router;
