@@ -1,4 +1,5 @@
 const path = require("path");
+const flattenObject = require("../../utils/flattenObject");
 
 var users = require("../../db/users");
 
@@ -99,6 +100,44 @@ function getNextEvent(time) {
   }
 }
 
+//Prepares individual user objects from the database for adding to
+//attendance CSV
+//This will likely be removed when the database is setup
+function prepareUserForCsv(user) {
+  var { isAdmin, hash, _id, ...tempUser } = user;
+  return flattenObject(tempUser);
+}
+
+//Takes a list of users and generates a csv as string
+//ready to be downloaded
+function generateUserCsv(users) {
+  //Rename object keys to friendly database column names
+  var mapKeysToColumns = [
+    { key: "name_first", column: "First Name" },
+    { key: "name_last", column: "Last Name" },
+    { key: "emergency_name", column: "Emergency Contact Name" },
+    { key: "emergency_phone", column: "Emergency Contact Phone" },
+    { key: "dob", column: "Date of Birth" },
+    { key: "postcode", column: "Postcode" },
+    { key: "email", column: "Email" },
+  ];
+
+  //Generate csv columns
+  var columns = mapKeysToColumns.map((keyToColumn) => keyToColumn.column);
+  var csv = columns.join(",") + "\n";
+
+  //Convert each user object into an ordered array of users
+  users.forEach((user) => {
+    user = prepareUserForCsv(user);
+    var csvEntry = mapKeysToColumns.map((keyToColumn) => {
+      return user[keyToColumn.key];
+    });
+    csv += csvEntry.join(",") + "\n";
+  });
+
+  return csv;
+}
+
 //Validates a given user ID from url query parameter
 //Checks to ensure user can be found in database
 //Registers user for event if ther can be found
@@ -137,5 +176,7 @@ module.exports = {
   getEventById,
   getNextEvent,
   getNextEventToday,
+  prepareUserForCsv,
+  generateUserCsv,
   registerUserForEventById,
 };

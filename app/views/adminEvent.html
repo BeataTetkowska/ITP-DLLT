@@ -4,7 +4,7 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="/js/adminEvent.js"></script>
+    <script src="/js/adminEvent.js" type="module"></script>
     <style>
       * {
         box-sizing: border-box;
@@ -160,6 +160,11 @@
         </thead>
         <tbody id="attendanceTableBody"></tbody>
       </table>
+      <a id="exportAttendanceLink"
+        ><button data-mime-type="text/csv" id="exportAttendance">
+          Export
+        </button></a
+      >
     </div>
   </body>
 </html>

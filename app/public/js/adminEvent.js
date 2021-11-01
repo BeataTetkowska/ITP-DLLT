@@ -1,3 +1,4 @@
+import downloadFileAsString from "./utils/downloadFileAsString.js";
 var eventId;
 $(async function () {
   var eventUrl = window.location.pathname;
@@ -37,6 +38,8 @@ $(async function () {
             //TODO handle server failure
           });
       });
+
+    $("#exportAttendanceLink").on("click", () => downloadCsv(attendanceUrl));
   });
 
   $("#userSearch").on("input", (e) => {
@@ -44,6 +47,28 @@ $(async function () {
     userSearchAutocompleteOnTimer($(e.target));
   });
 });
+
+function downloadCsv(url) {
+  var mime = "text/csv";
+  $.ajax({
+    url: url,
+    headers: {
+      //TODO Fix responses so that only status codes are sent then this can be removed
+      //Accept: mime,
+      Accept: `${mime}, */*`,
+    },
+    dataType: "json",
+  })
+    .done((res) => downloadFileAsString(res.fileName, res.data, mime))
+    .fail((xhr) => {
+      switch (xhr.status) {
+        case 404:
+          alert("No users registered for event");
+          break;
+      }
+    });
+  return false;
+}
 
 //Sends a given user ID to the backend for the user to be registered
 function manuallyRegisterUser(id) {
