@@ -50,6 +50,31 @@
         cursor: default;
       }
 
+      input {
+        background: none;
+        color: #333;
+        border: 1px solid #333;
+        border-radius: 6px;
+        font-size: 16px;
+        padding: 15px 30px;
+      }
+
+      .formGroup {
+        display: flex;
+        flex-direction: column;
+        justify-content: left;
+        align-items: flex-start;
+      }
+
+      .formGroup + .formGroup {
+        margin-top: 20px;
+      }
+
+      .formGroup > input {
+        flex-grow: 0;
+        margin-right: auto;
+      }
+
       table {
         width: 100%;
         margin: 40px 0;
@@ -108,7 +133,23 @@
       <h1 id="location"></h1>
       <p id="time"></p>
       <p id="day"></p>
-      <button class="disabled" id="getAttendance">View Registered Users</button>
+      <div class="formGroup">
+        <label for="getAttendance">View Registered Users</label>
+        <button class="disabled" id="getAttendance">Update</button>
+      </div>
+      <div class="formGroup">
+        <label for="userSearch">Register Manually</label>
+        <div style="display: flex; justify-content: space-between">
+          <input
+            id="userSearch"
+            list="userSearchList"
+            placeholder="Search for user"
+            autocomplete="off"
+          />
+          <button class="disabled" id="registerManually">Register</button>
+        </div>
+        <datalist id="userSearchList"> </datalist>
+      </div>
       <table>
         <thead>
           <tr>
