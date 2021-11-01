@@ -34,7 +34,6 @@ function getEventNowJSON(req, res) {
 //Checks if a valid eventID was passed to the request
 //returns 400 "Bad Request" if eventId was invalid
 function parseEventId(req, res, next) {
-  req.params.eventId = parseInt(req.params.eventId) || null;
   if (req.params.eventId === null) {
     res.status(400);
     res.format({
