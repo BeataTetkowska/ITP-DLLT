@@ -1,4 +1,5 @@
 import downloadFileAsString from "./utils/downloadFileAsString.js";
+
 var eventId;
 $(async function () {
   var eventUrl = window.location.pathname;
@@ -16,7 +17,7 @@ $(async function () {
   //Parse data into html
   $.getJSON(eventUrl, function (res) {
     eventId = res._id;
-    attendanceUrl = `/event/${eventId}/attendance`;
+    var attendanceUrl = `/event/${eventId}/attendance`;
     $("#location").text(res.location);
     $("#time").text(
       `${res.start.hours}:${
@@ -107,7 +108,7 @@ function validateCurrentlySelectedUser() {
     '#userSearchList option[value="' + $("#userSearch").val() + '"]'
   ).data("id");
 
-  $registerButton = $("#registerManually");
+  var $registerButton = $("#registerManually");
 
   if (!id) {
     $registerButton.addClass("disabled");
@@ -130,11 +131,11 @@ function getUsersAndUpdateDatalist(el) {
     url: `/user/search?query=${query}`,
     contentType: "application/json",
   }).done((res) => {
-    $dataList = $("#userSearchList");
-    $options = [];
+    var $dataList = $("#userSearchList");
+    var $options = [];
 
     res.users.forEach((user) => {
-      $option = $("<option></option>");
+      var $option = $("<option></option>");
       $option.attr({
         value: `${user.name.first} ${user.name.last}`,
         "data-id": user._id,
