@@ -79,12 +79,12 @@ describe("/event no auth", () => {
       });
   });
 
-  it("GET /event json -> attendance null", async () => {
+  it("GET /event json -> attendance array empty", async () => {
     return request(app)
       .get("/event")
       .set("Accept", "application/json")
       .then((res) => {
-        expect(res.body.attendance).toEqual(null);
+        expect(res.body.attendance.length).toBe(0);
       });
   });
 });
@@ -146,7 +146,7 @@ describe("/event as standard user", () => {
       .get("/event")
       .set("Accept", "application/json")
       .then((res) => {
-        expect(res.body.attendance).toEqual(null);
+        expect(res.body.attendance).toHaveLength(0);
       });
   });
 
@@ -223,41 +223,58 @@ describe("/event as admin", () => {
 });
 
 describe("/event/1/attendance no auth", () => {
+  var eventId;
+  beforeAll(async () => {
+    await server
+      .get("/event")
+      .set("Accept", "application/json")
+      .then((data) => {
+        eventId = data.body._id;
+      });
+  });
+
   it("GET /event/1/attendance -> HTTP 401", async () => {
     return server
-      .get(`/event/${1}/attendance`)
+      .get(`/event/${eventId}/attendance`)
       .set("Accept", "application/json")
       .expect(401);
   });
 
   it("GET /event/1/attendance -> content json", async () => {
     return server
-      .get(`/event/${1}/attendance`)
+      .get(`/event/${eventId}/attendance`)
       .set("Accept", "application/json")
-      .expect("Content-type", /json/);
+      .expect("Content-type", /text\/html/);
   });
 });
 
 describe("/event/1/attendance standard user", () => {
   var email = "email@taken.com";
   var password = "email@taken.com";
+  var eventId;
 
   beforeAll(async () => {
+    await server
+      .get("/event")
+      .set("Accept", "application/json")
+      .then((data) => {
+        eventId = data.body._id;
+      });
     await loginUser(server, email, password);
   });
 
   it("GET /event/1/attendance -> HTTP 403", async () => {
     return server
-      .get(`/event/${1}/attendance`)
+      .get(`/event/${eventId}/attendance`)
       .set("Accept", "application/json")
       .expect(403);
   });
 
   it("GET /event/1/attendance -> content json", async () => {
     return server
-      .get(`/event/${1}/attendance`)
+      .get(`/event/${eventId}/attendance`)
       .set("Accept", "application/json")
-      .expect("Content-type", /json/);
+      .expect("Content-type", /text\/html/);
   });
 
   afterAll(async () => {
@@ -282,19 +299,13 @@ describe("/event/:eventId/attendance no registered users", () => {
   });
 
   it("GET /event/:eventId/attendance -> HTTP 200", async () => {
-    return server.get(`/event/${eventId}/attendance`).expect(200);
+    return server.get(`/event/${eventId}/attendance`).expect(404);
   });
 
   it("GET /event/:eventId/attendance -> content json", async () => {
     return server
       .get(`/event/${eventId}/attendance`)
-      .expect("Content-type", /json/);
-  });
-
-  it("GET /event/:eventId/attendance -> 0 returned users", async () => {
-    return server
-      .get(`/event/${eventId}/attendance`)
-      .then((res) => expect(res.body.users.length).toBe(0));
+      .expect("Content-type", /text\/html/);
   });
 
   afterAll(async () => {
@@ -316,11 +327,17 @@ describe("/event/:eventId/attendance one user", () => {
   it("GET /event/:eventId/attendance -> length 1", async () => {
     return server
       .get(`/event/${eventId}/attendance`)
-      .then((res) => expect(res.body.users.length).toBe(1));
+      .then((res) => expect(res.body).toHaveLength(1));
   });
 
   it("GET /event/:eventId/attendance -> HTTP 200", async () => {
     return server.get(`/event/${eventId}/attendance`).expect(200);
+  });
+
+  it("GET /event/:eventId/attendance -> content JSON", async () => {
+    return server
+      .get(`/event/${eventId}/attendance`)
+      .expect("Content-type", /json/);
   });
 
   afterAll(async () => {
@@ -345,12 +362,18 @@ describe("/event/:eventId/attendance 3 users", () => {
 
   it("GET /event/:eventId/attendance -> length 3", async () => {
     return server.get(`/event/${eventId}/attendance`).then((res) => {
-      expect(res.body.users.length).toBe(3);
+      expect(res.body).toHaveLength(3);
     });
   });
 
   it("GET /event/:eventId/attendance -> HTTP 200", async () => {
     return server.get(`/event/${eventId}/attendance`).expect(200);
+  });
+
+  it("GET /event/:eventId/attendance -> content HTML", async () => {
+    return server
+      .get(`/event/${eventId}/attendance`)
+      .expect("Content-type", /json/);
   });
 
   afterAll(async () => {
@@ -359,7 +382,7 @@ describe("/event/:eventId/attendance 3 users", () => {
 });
 
 describe("/event/:eventId/register with auth", () => {
-  var eventId = null;
+  var eventId;
 
   var email = "email@taken.com";
   var password = "email@taken.com";
@@ -377,10 +400,10 @@ describe("/event/:eventId/register with auth", () => {
     return server.put(`/event/${eventId}/register`).expect(200);
   });
 
-  it("PUT /event/:eventId/register -> register successful", async () => {
+  it("PUT /event/:eventId/register -> content HTML", async () => {
     return server
       .put(`/event/${eventId}/register`)
-      .then((res) => expect(res.body.success).toBe(true));
+      .expect("Content-type", /text\/html/);
   });
 
   afterAll(async () => {
@@ -400,14 +423,14 @@ describe("/event/:eventId/register without auth", () => {
       });
   });
 
-  it("PUT /event/:eventId/register -> HTTP 200", async () => {
+  it("PUT /event/:eventId/register -> HTTP 401", async () => {
     return server.put(`/event/${eventId}/register`).expect(401);
   });
 
-  it("PUT /event/:eventId/register register unsuccessful", async () => {
+  it("PUT /event/:eventId/register -> content HTML", async () => {
     return server
       .put(`/event/${eventId}/register`)
-      .then((res) => expect(res.body.success).toBe(false));
+      .expect("Content-type", /text\/html/);
   });
 
   afterAll(async () => {
@@ -427,15 +450,16 @@ describe("/event Functions", () => {
   });
 
   it("getNextEventToday Tuesday Morning", () => {
-    var tuesdayMorning = new Date(2021, 9, 26, 9);
+    var tuesdayMorning = new Date(2021, 10, 2, 9);
     var result = getNextEventToday(tuesdayMorning);
+    console.log(result);
     expect(result.day).toBe(2);
     expect(result.start.hours).toBe(18);
     expect(result.end.hours).toBe(19);
   });
 
   it("getNextEventToday Tuesday evening", () => {
-    var tuesdayEvening = new Date(2021, 9, 26, 19);
+    var tuesdayEvening = new Date(2021, 10, 2, 19);
     var result = getNextEventToday(tuesdayEvening);
     expect(result.day).toBe(2);
     expect(result.start.hours).toBe(19);
@@ -443,13 +467,13 @@ describe("/event Functions", () => {
   });
 
   it("getNextEventToday Tuesday night", () => {
-    var tuesdayNight = new Date(2021, 9, 26, 23);
+    var tuesdayNight = new Date(2021, 10, 2, 23);
     expect(getNextEventToday(tuesdayNight)).toEqual(false);
   });
 
   //GetNextEvent
   it("getNextEvent Sunday Night", () => {
-    var sundayMidnight = new Date(2021, 9, 24);
+    var sundayMidnight = new Date(2021, 10, 7);
     var result = getNextEvent(sundayMidnight);
     expect(result.day).toBe(2);
     expect(result.start.hours).toBe(18);
@@ -457,7 +481,7 @@ describe("/event Functions", () => {
   });
 
   it("getNextEvent Monday Morning", () => {
-    var mondayMorning = new Date(2021, 9, 25, 9);
+    var mondayMorning = new Date(2021, 10, 8, 9);
     var result = getNextEvent(mondayMorning);
     expect(result.day).toBe(2);
     expect(result.start.hours).toBe(18);
@@ -465,7 +489,7 @@ describe("/event Functions", () => {
   });
 
   it("getNextEvent Tuesday Morning", () => {
-    var tuesdayMorning = new Date(2021, 9, 26, 9);
+    var tuesdayMorning = new Date(2021, 10, 2, 9);
     var result = getNextEvent(tuesdayMorning);
     expect(result.day).toBe(2);
     expect(result.start.hours).toBe(18);
@@ -473,7 +497,7 @@ describe("/event Functions", () => {
   });
 
   it("getNextEvent Tuesday evening", () => {
-    var tuesdayEvening = new Date(2021, 9, 26, 19);
+    var tuesdayEvening = new Date(2021, 10, 2, 19);
     var result = getNextEvent(tuesdayEvening);
     expect(result.day).toBe(2);
     expect(result.start.hours).toBe(19);
@@ -481,7 +505,7 @@ describe("/event Functions", () => {
   });
 
   it("getNextEvent Tuesday night", () => {
-    var tuesdayNight = new Date(2021, 9, 26, 23);
+    var tuesdayNight = new Date(2021, 10, 2, 23);
     var result = getNextEvent(tuesdayNight);
     expect(result.day).toBe(3);
     expect(result.start.hours).toBe(16);
