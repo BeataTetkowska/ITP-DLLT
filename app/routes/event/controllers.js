@@ -22,11 +22,18 @@ function getEventNowHTML(req, res) {
 //Removes attendance data before sending if user is not admin
 function getEventNowJSON(req, res) {
   var now = new Date();
+  var registered = false;
   nextEvent = Object.assign({}, getNextEvent(now));
+
+  if (
+    req.user &&
+    nextEvent.attendance.find((userId) => req.user._id === userId)
+  )
+    registered = true;
 
   if (!req.user || !req.user.isAdmin) nextEvent.attendance = [];
 
-  return res.json(nextEvent);
+  return res.json({ registered, nextEvent });
 }
 
 //Checks if a valid eventID was passed to the request

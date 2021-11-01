@@ -16,15 +16,18 @@ $(async function () {
   //Get JSON data about the currently on event
   //Parse data into html
   $.getJSON(eventUrl, function (res) {
+    var { nextEvent: event } = res;
     eventId = res._id;
     var attendanceUrl = `/event/${eventId}/attendance`;
-    $("#location").text(res.location);
+    $("#location").text(event.location);
     $("#time").text(
-      `${res.start.hours}:${
-        res.start.minutes != 0 ? res.start.minutes : "00"
-      } - ${res.end.hours}:${res.end.minutes != 0 ? res.end.minutes : "00"}`
+      `${event.start.hours}:${
+        event.start.minutes != 0 ? event.start.minutes : "00"
+      } - ${event.end.hours}:${
+        event.end.minutes != 0 ? event.end.minutes : "00"
+      }`
     );
-    $("#day").text(days[res.day]);
+    $("#day").text(days[event.day]);
 
     $("#getAttendance")
       .removeClass("disabled")
