@@ -125,6 +125,9 @@ function registerUserForEventById(req, res, next) {
     });
     return;
   }
+  if (req.query.userId && !req.query.isAdmin) {
+    return res.sendStatus(403);
+  }
   next();
 }
 
