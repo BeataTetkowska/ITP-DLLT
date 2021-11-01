@@ -46,7 +46,7 @@ router.put(
     //TODO check if event has passed or starts more than 30 minutes in the future
     //TODO check if user is already registered for this event
     res.locals.matchingEvent.attendance.push(req.user._id);
-    res.json({ success: true, message: "Current user has registered" });
+    res.status(200).send("Current user has registered");
   }
 );
 

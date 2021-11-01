@@ -34,22 +34,14 @@ function registerEvent(eventId) {
   $.ajax({
     type: "PUT",
     url: url,
-    contentType: "application/json",
   })
-    .done((res) => {
+    .done(() => {
       //Notify user if registration was succesful
-      if (res.success === true) {
-        $("#register")
-          .css({ color: "green", "border-color": "green" })
-          .text("Registered");
-      }
-      //If user is not signed in, notify user
-      else {
-        //TODO Navigate user to the sign in page, or request more information
-        alert(res.message);
-      }
+      $("#register")
+        .css({ color: "green", "border-color": "green" })
+        .text("Registered");
     })
-    .fail((res) => {
-      alert(res.responseJSON.message);
+    .fail((xhr) => {
+      alert(xhr.responseText);
     });
 }

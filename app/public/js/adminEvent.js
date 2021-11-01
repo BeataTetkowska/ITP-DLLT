@@ -35,7 +35,7 @@ $(async function () {
           dataType: "json",
         })
           .done((users) => parseAttendanceRecords(users))
-          .fail((_, text) => alert(text));
+          .fail((xhr) => alert(xhr.responseText));
       });
 
     $("#exportAttendanceLink").on("click", () => downloadCsv(attendanceUrl));
@@ -57,7 +57,7 @@ function downloadCsv(url) {
     dataType: "json",
   })
     .done((res) => downloadFileAsString(res.fileName, res.data, mime))
-    .fail((_, text) => alert(text));
+    .fail((xhr) => alert(xhr.responseText));
   return false;
 }
 
@@ -67,16 +67,9 @@ function manuallyRegisterUser(id) {
   $.ajax({
     type: "PUT",
     url: url,
-    dataType: "json",
-  }).done((res) => {
-    if (res.success) {
-      //TODO notify user in a more user friendly manner, a toast would be ideal
-      alert("User registered");
-    } else {
-      //TODO handle failure case
-      alert("User failed to register, please try again");
-    }
-  });
+  })
+    .done((text) => alert(text))
+    .fail((xhr) => alert(xhr.responseText));
 }
 
 //Delays the ajax call to update the list of users in datalist
