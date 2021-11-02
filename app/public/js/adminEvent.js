@@ -1,4 +1,5 @@
 import downloadFileAsString from "./utils/downloadFileAsString.js";
+
 var eventId;
 $(async function () {
   var eventUrl = window.location.pathname;
@@ -15,15 +16,18 @@ $(async function () {
   //Get JSON data about the currently on event
   //Parse data into html
   $.getJSON(eventUrl, function (res) {
-    eventId = res._id;
-    attendanceUrl = `/event/${eventId}/attendance`;
-    $("#location").text(res.location);
+    var { nextEvent: event } = res;
+    eventId = event._id;
+    var attendanceUrl = `/event/${eventId}/attendance`;
+    $("#location").text(event.location);
     $("#time").text(
-      `${res.start.hours}:${
-        res.start.minutes != 0 ? res.start.minutes : "00"
-      } - ${res.end.hours}:${res.end.minutes != 0 ? res.end.minutes : "00"}`
+      `${event.start.hours}:${
+        event.start.minutes != 0 ? event.start.minutes : "00"
+      } - ${event.end.hours}:${
+        event.end.minutes != 0 ? event.end.minutes : "00"
+      }`
     );
-    $("#day").text(days[res.day]);
+    $("#day").text(days[event.day]);
 
     $("#getAttendance")
       .removeClass("disabled")
@@ -31,12 +35,10 @@ $(async function () {
         $.ajax({
           type: "GET",
           url: attendanceUrl,
-          contentType: "application/json",
+          dataType: "json",
         })
-          .done((res) => parseAttendanceRecords(res))
-          .fail(() => {
-            //TODO handle server failure
-          });
+          .done((users) => parseAttendanceRecords(users))
+          .fail((xhr) => alert(xhr.responseText));
       });
 
     $("#exportAttendanceLink").on("click", () => downloadCsv(attendanceUrl));
@@ -53,20 +55,12 @@ function downloadCsv(url) {
   $.ajax({
     url: url,
     headers: {
-      //TODO Fix responses so that only status codes are sent then this can be removed
-      //Accept: mime,
       Accept: `${mime}, */*`,
     },
     dataType: "json",
   })
     .done((res) => downloadFileAsString(res.fileName, res.data, mime))
-    .fail((xhr) => {
-      switch (xhr.status) {
-        case 404:
-          alert("No users registered for event");
-          break;
-      }
-    });
+    .fail((xhr) => alert(xhr.responseText));
   return false;
 }
 
@@ -76,16 +70,9 @@ function manuallyRegisterUser(id) {
   $.ajax({
     type: "PUT",
     url: url,
-    contentType: "application/json",
-  }).done((res) => {
-    if (res.success) {
-      //TODO notify user in a more user friendly manner, a toast would be ideal
-      alert("User registered");
-    } else {
-      //TODO handle failure case
-      alert("User failed to register, please try again");
-    }
-  });
+  })
+    .done((text) => alert(text))
+    .fail((xhr) => alert(xhr.responseText));
 }
 
 //Delays the ajax call to update the list of users in datalist
@@ -107,7 +94,7 @@ function validateCurrentlySelectedUser() {
     '#userSearchList option[value="' + $("#userSearch").val() + '"]'
   ).data("id");
 
-  $registerButton = $("#registerManually");
+  var $registerButton = $("#registerManually");
 
   if (!id) {
     $registerButton.addClass("disabled");
@@ -129,47 +116,44 @@ function getUsersAndUpdateDatalist(el) {
     type: "GET",
     url: `/user/search?query=${query}`,
     contentType: "application/json",
-  }).done((res) => {
-    $dataList = $("#userSearchList");
-    $options = [];
+  })
+    .done((users) => {
+      var $dataList = $("#userSearchList");
+      var $options = [];
 
-    res.users.forEach((user) => {
-      $option = $("<option></option>");
-      $option.attr({
-        value: `${user.name.first} ${user.name.last}`,
-        "data-id": user._id,
+      users.forEach((user) => {
+        var $option = $("<option></option>");
+        $option.attr({
+          value: `${user.name.first} ${user.name.last}`,
+          "data-id": user._id,
+        });
+        $options.push($option);
       });
-      $options.push($option);
-    });
-    $dataList.empty().append($options);
-    el.focus();
-  });
+      $dataList.empty().append($options);
+      el.focus();
+    })
+    .fail((xhr) => alert(xhr.responseText));
 }
 
-function parseAttendanceRecords(res) {
-  if (res.users.length === 0) {
-    alert("No users registered for event");
-    return;
-  } else {
-    var $table = $("#attendanceTableBody");
-    $table.empty();
-    res.users.forEach((user) => {
-      var userTableDetails = [
-        `${user.name.first} ${user.name.last}`,
-        user.emergency.name,
-        user.emergency.phone,
-      ];
+function parseAttendanceRecords(users) {
+  var $table = $("#attendanceTableBody");
+  $table.empty();
+  users.forEach((user) => {
+    var userTableDetails = [
+      `${user.name.first} ${user.name.last}`,
+      user.emergency.name,
+      user.emergency.phone,
+    ];
 
-      var $row = $("<tr></tr>");
-      var $td;
+    var $row = $("<tr></tr>");
+    var $td;
 
-      userTableDetails.forEach((detail) => {
-        $td = $("<td></td>");
-        $td.text(detail);
-        $row.append($td);
-      });
-
-      $table.append($row);
+    userTableDetails.forEach((detail) => {
+      $td = $("<td></td>");
+      $td.text(detail);
+      $row.append($td);
     });
-  }
+
+    $table.append($row);
+  });
 }

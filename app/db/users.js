@@ -1,7 +1,7 @@
 //Example users table in database
 module.exports = [
   {
-    _id: 0,
+    _id: "52b156df-a256-49bd-ad70-925ea2fa2067",
     isAdmin: true,
     name: {
       first: "Joaquim",
@@ -18,7 +18,7 @@ module.exports = [
     },
   },
   {
-    _id: 1,
+    _id: "ffea1494-397f-45ca-b17c-0106f1dc38dd",
     isAdmin: false,
     name: {
       first: "email",
@@ -35,7 +35,7 @@ module.exports = [
     },
   },
   {
-    _id: 2,
+    _id: "090cc4b2-022b-406e-8010-653542d5492c",
     isAdmin: true,
     name: {
       first: "admin",
@@ -52,7 +52,7 @@ module.exports = [
     },
   },
   {
-    _id: 3,
+    _id: "17a41050-2f2e-4de5-aaab-a6930d1096ca",
     isAdmin: false,
     name: {
       first: "Leonard",
@@ -69,7 +69,7 @@ module.exports = [
     },
   },
   {
-    _id: 4,
+    _id: "c301345a-4ab1-42b4-b4d3-086ff71559f6",
     isAdmin: false,
     name: {
       first: "Fletcher",
@@ -86,7 +86,7 @@ module.exports = [
     },
   },
   {
-    _id: 5,
+    _id: "c1d98ad0-b2ed-4356-bd51-be311e2a9dc1",
     isAdmin: false,
     name: {
       first: "Norbert",
@@ -103,7 +103,7 @@ module.exports = [
     },
   },
   {
-    _id: 6,
+    _id: "4d9d01cd-e1e5-4faa-9fda-84f8fcd34c47",
     isAdmin: false,
     name: {
       first: "Spring",
@@ -120,7 +120,7 @@ module.exports = [
     },
   },
   {
-    _id: 7,
+    _id: "e350c510-c102-40d3-b65e-e9325b2a01f9",
     isAdmin: false,
     name: {
       first: "Hayden",
@@ -137,7 +137,7 @@ module.exports = [
     },
   },
   {
-    _id: 8,
+    _id: "099e7dec-db73-4253-a2d8-a3dfc8190ca2",
     isAdmin: false,
     name: {
       first: "Alva",

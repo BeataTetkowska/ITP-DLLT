@@ -3,8 +3,6 @@ var router = require("express").Router();
 
 var users = require("../../db/users");
 
-const log = require("../../utils/winstonLogger");
-
 const userIs = require("../../middleware/userIs");
 const {
   getEventNowJSON,
@@ -25,10 +23,9 @@ router.get("/", (req, res) => {
 //GET /event/:eventId -> returns event JSON data for a given eventId
 router.get("/:eventId", parseEventId, getEventById, (req, res) => {
   var eventCopy = Object.assign({}, res.locals.matchingEvent);
-  if (!req.user || !req.user.isAdmin) {
-    eventCopy = null;
-  }
-  res.json(eventCopy);
+  if (!req.user || !req.user.isAdmin) eventCopy.attendance = [];
+
+  return res.json(eventCopy);
 });
 
 //PUT /event/:eventId/register?userId
@@ -46,7 +43,7 @@ router.put(
     //TODO check if event has passed or starts more than 30 minutes in the future
     //TODO check if user is already registered for this event
     res.locals.matchingEvent.attendance.push(req.user._id);
-    res.json({ success: true, message: "Current user has registered" });
+    res.status(200).send("Current user has registered");
   }
 );
 
@@ -60,31 +57,25 @@ router.get(
   userIs.admin,
   parseEventId,
   getEventById,
-  (req, res) => {
+  (_, res) => {
     var matchingUserDetails = [];
     res.locals.matchingEvent.attendance.forEach((userID) => {
       let user = users.find((user) => user._id === userID);
       if (user) matchingUserDetails.push(user);
     });
 
-    if (matchingUserDetails.length === 0) {
-      res.sendStatus(404);
-      return;
-    }
+    if (matchingUserDetails.length === 0)
+      return res.status(404).send("No users registered for event");
 
-    res.format({
-      json: () => {
-        matchingUserDetails = matchingUserDetails.map((user) => ({
-          _id: user._id,
-          name: user.name,
-          emergency: user.emergency,
-        }));
-        res.json({
-          success: true,
-          message: "Event found, returning registered users",
-          users: matchingUserDetails,
-        });
-      },
+    return res.format({
+      json: () =>
+        res.json(
+          matchingUserDetails.map((user) => ({
+            _id: user._id,
+            name: user.name,
+            emergency: user.emergency,
+          }))
+        ),
       "text/csv": () => {
         var csvString = generateUserCsv(matchingUserDetails);
         let { isoString } = res.locals.matchingEvent;
@@ -92,7 +83,6 @@ router.get(
         res.json({ fileName: fileName, data: csvString });
       },
     });
-    return;
   }
 );
 

@@ -29,14 +29,8 @@ describe("/user/logout logout successful", () => {
     return server.get("/user/logout").expect(200);
   });
 
-  it("GET /user/logout -> content json", async () => {
-    return server.get("/user/logout").expect("Content-Type", /json/);
-  });
-
-  it("GET /user/logout -> success", async () => {
-    return server
-      .get("/user/logout")
-      .then((res) => expect(res.body.success).toEqual(true));
+  it("GET /user/logout -> content HTML", async () => {
+    return server.get("/user/logout").expect("Content-Type", /text\/html/);
   });
 
   afterAll(async () => {
@@ -49,13 +43,7 @@ describe("/user/logout logut unsuccessful", () => {
     return server.get("/user/logout").expect(200);
   });
 
-  it("GET /user/logout -> content json", async () => {
-    return server.get("/user/logout").expect("Content-Type", /json/);
-  });
-
-  it("GET /user/logout -> success", async () => {
-    return server
-      .get("/user/logout")
-      .then((res) => expect(res.body.success).toEqual(false));
+  it("GET /user/logout -> content HTML", async () => {
+    return server.get("/user/logout").expect("Content-Type", /text\/html/);
   });
 });

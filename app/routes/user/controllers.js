@@ -16,8 +16,7 @@ function getUserByEmail(req, res, next) {
   if (!res.locals.matchingUser) {
     //Can't give clear indication to frontend that no user was found
     //due to security concerns
-    res.sendStatus(200);
-    return;
+    return res.sendStatus(200);
   }
   next();
 }
@@ -61,23 +60,16 @@ async function resetPassword(req, res, next) {
   } = res.locals.matchingUser;
 
   //Check if password reset has ever been initated for this user
-  if (!tokenHash || !req.body.token) {
-    res.json(403, { success: false, message: "Password reset not initiated" });
-    return;
-  }
+  if (!tokenHash || !req.body.token)
+    return res.status(403).send("Password reset not initiated");
 
   //Check if token matched
   var isMatch = await bcrypt.compare(req.body.token, tokenHash);
-  if (!isMatch) {
-    res.json(403, { success: false, message: "Reset token is incorrect" });
-    return;
-  }
+  if (!isMatch) return res.status(403).send("Reset token is incorrect");
 
   //Check if token has expired
-  if (tokenExpires < Date.now()) {
-    res.json(403, { success: false, message: "Reset token has expired" });
-    return;
-  }
+  if (tokenExpires < Date.now())
+    return res.send(403).send("Reset token has expired");
 
   //Update user's password
   res.locals.matchingUser.hash = await bcrypt.hash(req.body.password, 10);

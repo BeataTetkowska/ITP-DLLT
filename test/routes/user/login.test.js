@@ -47,29 +47,17 @@ describe("/user/login", () => {
       .expect(200);
   });
 
-  it("POST /login -> correct credentials content JSON", async () => {
+  it("POST /login -> correct credentials content HTML", async () => {
     return request(app)
       .post("/user/login")
       .send({
         email: email,
         password: password,
       })
-      .expect("Content-Type", /json/);
+      .expect("Content-Type", /text\/html/);
   });
 
-  it("POST /login -> correct credentials login successful", async () => {
-    return request(app)
-      .post("/user/login")
-      .send({
-        email: email,
-        password: password,
-      })
-      .then((res) => {
-        expect(res.body.result.success).toEqual(true);
-      });
-  });
-
-  it("POST /login -> incorrect credentials HTTP 200", async () => {
+  it("POST /login -> incorrect credentials HTTP 401", async () => {
     return request(app)
       .post("/user/login")
       .send({
@@ -79,25 +67,13 @@ describe("/user/login", () => {
       .expect(401);
   });
 
-  it("POST /login -> incorrect credentials content JSON", async () => {
+  it("POST /login -> incorrect credentials content HTML", async () => {
     return request(app)
       .post("/user/login")
       .send({
         email: badEmail,
         password: badPassword,
       })
-      .expect("Content-Type", /json/);
-  });
-
-  it("POST /login -> incorrect credentials login successful", async () => {
-    return request(app)
-      .post("/user/login")
-      .send({
-        email: badEmail,
-        password: badPassword,
-      })
-      .then((res) => {
-        expect(res.body.result.success).toEqual(false);
-      });
+      .expect("Content-Type", /text\/html/);
   });
 });
