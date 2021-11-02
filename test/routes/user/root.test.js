@@ -14,18 +14,19 @@ describe("GET /user no auth", () => {
 
 describe("GET /user HTML", () => {
   var url = "/user";
+  var email = "email@taken.com";
+  var password = email;
 
   beforeAll(() => loginUser(server, email, password));
 
-  it(`-> HTTP 200`, () => request(app).get(url).expect(200));
+  it(`-> HTTP 200`, () => server.get(url).expect(200));
 
-  it("-> Content HTML", () =>
-    request(app).get(url).expect("Content-type", /text/));
+  it("-> Content HTML", () => server.get(url).expect("Content-type", /text/));
 
   afterAll(() => server.get("/user/logout"));
 });
 
-function signInAndGetUser(email, password, id) {
+function signInAndGetUser(email, password) {
   var url = "/user";
 
   beforeAll(() => loginUser(server, email, password));
@@ -39,34 +40,25 @@ function signInAndGetUser(email, password, id) {
       .set("Accept", "application/json")
       .expect("Content-type", /json/));
 
-  it("-> Correct ID returned", () =>
+  it("-> Correct Email returned", () =>
     server
       .get(url)
       .set("Accept", "application/json")
-      .then(({ body }) => expect(body._id).toBe(id)));
+      .then(({ body }) => expect(body.email).toBe(email)));
 
   afterAll(() => server.get("/user/logout"));
 }
 
 describe("GET /user admin@admin.admin", () =>
-  signInAndGetUser(
-    "admin@admin.admin",
-    "admin@admin.admin",
-    "090cc4b2-022b-406e-8010-653542d5492c"
-  ));
+  signInAndGetUser("admin@admin.admin", "admin@admin.admin"));
 
 describe("GET /user email@taken.com", () =>
-  signInAndGetUser(
-    "email@taken.com",
-    "email@taken.com",
-    "ffea1494-397f-45ca-b17c-0106f1dc38dd"
-  ));
+  signInAndGetUser("email@taken.com", "email@taken.com"));
 
 describe("GET /user fletcher.magdalen@yahoo.com", () =>
   signInAndGetUser(
     "fletcher.magdalen@yahoo.com",
-    "fletcher.magdalen@yahoo.com",
-    "c301345a-4ab1-42b4-b4d3-086ff71559f6"
+    "fletcher.magdalen@yahoo.com"
   ));
 
 describe("PATCH /user no auth", () => {
@@ -81,7 +73,6 @@ describe("PATCH /user no auth", () => {
 describe("PATCH General tests", () => {
   var url = "/user";
   var email = "email@taken.com";
-  var id = "ffea1494-397f-45ca-b17c-0106f1dc38dd";
   var password = email;
   var update = { dob: "16-04-21" };
 
@@ -91,9 +82,6 @@ describe("PATCH General tests", () => {
 
   it("-> Content JSON", () =>
     server.patch(url).send(update).expect("Content-type", /json/));
-
-  it("-> Correct ID returned after update", () =>
-    server.get(url).then(({ body }) => expect(body._id).toBe(id)));
 
   afterAll(() => server.get("/user/logout"));
 });
@@ -107,11 +95,14 @@ function signInAndUpdateTopLevelKeys(email, password, update) {
   });
 
   it("-> Update successful", () =>
-    server.get(url).then(({ body }) => {
-      Object.keys(update).forEach((key) => {
-        expect(body[key]).toBe(update[key]);
-      });
-    }));
+    server
+      .get(url)
+      .set("Accept", "application/json")
+      .then(({ body }) => {
+        Object.keys(update).forEach((key) => {
+          expect(body[key]).toBe(update[key]);
+        });
+      }));
 
   afterAll(() => server.get("/user/logout"));
 }
@@ -144,18 +135,23 @@ describe("PATCH /user update first name", () => {
 
   beforeAll(async () => {
     await loginUser(server, email, password);
-    await server.get(url).then(({ body }) => (previousValue = body));
+    await server
+      .get(url)
+      .set("Accept", "application/json")
+      .then(({ body }) => (previousValue = body));
     await server.patch(url).send(update);
   });
 
   it("-> Update successful", () =>
     server
       .get(url)
+      .set("Accept", "application/json")
       .then(({ body }) => expect(body.name.first).toBe(update.name.first)));
 
   it("-> Last name not changed", () => {
     server
       .get(url)
+      .set("Accept", "application/json")
       .then(({ body }) => expect(body.name.last).toBe(previousValue.name.last));
   });
 
@@ -185,8 +181,6 @@ describe("PATCH /user update first and last name", () => {
   it("-> Update first names uccessful", () =>
     expect(newValue.name.last).toBe(update.name.last));
 
-  it("-> ID not changed", () => expect(newValue._id).toBe(previousValue._id));
-
   afterAll(() => server.get("/user/logout"));
 });
 
@@ -199,13 +193,17 @@ describe("PATCH /user update emergency phone", () => {
 
   beforeAll(async () => {
     await loginUser(server, email, password);
-    await server.get(url).then(({ body }) => (previousValue = body));
+    await server
+      .get(url)
+      .set("Accept", "application/json")
+      .then(({ body }) => (previousValue = body));
     await server.patch(url).send(update);
   });
 
   it("-> Update successful", () =>
     server
       .get(url)
+      .set("Accept", "application/json")
       .then(({ body }) =>
         expect(body.emergency.phone).toBe(update.emergency.phone)
       ));
@@ -213,6 +211,7 @@ describe("PATCH /user update emergency phone", () => {
   it("-> Emergency name not changed", () => {
     server
       .get(url)
+      .set("Accept", "application/json")
       .then(({ body }) =>
         expect(body.emergency.name).toBe(previousValue.emergency.name)
       );
