@@ -13,6 +13,9 @@ $(function () {
   //Get JSON data about the currently on event
   //Parse data into html
   $.getJSON(url, function (res) {
+    
+    //Do what you want with the response
+
     var { nextEvent: event, registered } = res;
     $("#location").text(event.location);
     $("#time").text(
