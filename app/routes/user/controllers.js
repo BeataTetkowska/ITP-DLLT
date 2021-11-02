@@ -13,11 +13,10 @@ const { sendTextEmail } = require("../../utils/sendEmail");
 function getUserByEmail(req, res, next) {
   res.locals.matchingUser = users.find((user) => user.email === req.body.email);
 
-  if (!res.locals.matchingUser) {
-    //Can't give clear indication to frontend that no user was found
-    //due to security concerns
-    return res.sendStatus(200);
-  }
+  //Can't give clear indication to frontend that no user was found
+  //due to security concerns
+  if (!res.locals.matchingUser) return res.sendStatus(200);
+
   next();
 }
 
