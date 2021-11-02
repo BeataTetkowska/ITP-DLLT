@@ -44,7 +44,7 @@ function testSearchQuery(query, expectedIds, expectedListLength) {
   it(`Users list length ${expectedListLength}`, () =>
     server
       .get(url)
-      .then((res) => expect(res.body.length).toBe(expectedListLength)));
+      .then(({ body }) => expect(body.length).toBe(expectedListLength)));
 
   it("Correct User IDs returned", () =>
     server
