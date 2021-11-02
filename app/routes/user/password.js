@@ -15,7 +15,10 @@ router.get("/", (_, res) => {
 // -> takes users email
 // -> Initiates password reset
 router.post("/", getUserByEmail, sendPasswordResetToken, (_, res) => {
-  res.redirect("/user/login");
+  //TODO, user shold be redirected to login page, may be better
+  //to perform the redirect on the client side after notifying the user of success
+  //res.redirect("/user/login");
+  return res.sendStatus(200);
 });
 
 // GET /user/password/reset -> form to complete password reset
@@ -27,7 +30,8 @@ router.get("/reset", (_, res) => {
 // -> takes users new password and token to confirm
 // -> completes password reset
 router.put("/reset", getUserByEmail, resetPassword, (_, res) => {
-  return res.status(200).send("Password has been reset");
+  //Response has to be the same as in getUserByEmail, when email is not found
+  return res.sendStatus(200);
 });
 
 module.exports = router;
