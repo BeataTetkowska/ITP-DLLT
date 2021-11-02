@@ -15,24 +15,15 @@ function handleSignup(e) {
 
   var url = "/user/signup";
   $.post({
-    type: "POST",
     url: url,
     data: formData,
-    dataType: "json",
   })
-    .done((response) => {
-      //Redirect to event page if user created
-      if (response.result.success === true) {
-        window.location.href = "/event";
-      }
-      //If email is taken, notify user
-      else {
-        alert("Email address is taken");
-        $("#email").addClass("input--error");
-      }
+    .done(() => {
+      window.location.href = "/event";
     })
-    .fail(() => {
-      //TODO handle server failure
+    .fail((xhr) => {
+      alert(xhr.responseText);
+      $("#email").addClass("input--error");
     });
 }
 

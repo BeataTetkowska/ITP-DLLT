@@ -3,12 +3,10 @@ var router = require("express").Router();
 // GET /logout -> logs out user
 // Sets loggedin value to false if the user was loggedin
 router.get("/", (req, res) => {
-  if (req.user) {
-    req.logout();
-    res.json({ success: true, message: "logout successful" });
-  } else {
-    res.json({ success: false, message: "User not signed in" });
-  }
+  if (!req.user) return res.status(200).send("User not logged in");
+
+  req.logout();
+  return res.status(200).send("Logout successful");
 });
 
 module.exports = router;
