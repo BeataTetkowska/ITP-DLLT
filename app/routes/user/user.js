@@ -1,14 +1,15 @@
+const path = require("path");
+
 const router = require("express").Router();
 
 const users = require("../../db/users");
-const userIs = require("../../middleware/userIs");
-
+const userIs = require("../../middleware/userIs");;
 //Profile
 router.get("/", userIs.loggedIn, findUserById, removeSensitiveUserfields, (req, res) => {
     // If HTTP Accept header is text/html (which browsers always set) then the html: function will run
     // If HTTP Accept head is application/json (which $.getJSON will set for you) then the json: function will run 
  res.format({
-    html: () => res.send("This is html"), //Send the newly created /user html page here
+    html: () => res.sendFile(path.join(__dirname, "../../views/user.html")),
     json: () => res.json(res.locals.matchingUser),
   });
 });
