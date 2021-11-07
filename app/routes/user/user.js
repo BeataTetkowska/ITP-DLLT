@@ -16,13 +16,22 @@ router.get("/", userIs.loggedIn, findUserById, removeSensitiveUserfields, (req, 
 
 router.patch(
   "/",
+  (req,res) => console.log("hello"),
   findUserById,
   updateUserfields,
   removeSensitiveUserfields,
   (req, res) => {
+    console.log(res.locals.matchingUser);
     res.json(res.locals.matchingUser);
   }
 );
+
+router.get(
+  "/test",
+  (req,res) => {
+    res.json(users)
+  }
+)
 
 function findUserById(req, res, next) {
   res.locals.matchingUser = Object.assign(
