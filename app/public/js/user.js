@@ -13,6 +13,7 @@
       $("#lastName").val(name.last);
 
       // need to insert dob WIP 
+      $("#dateOfBirth").val(dob);
 
       $("#postcode").val(postcode);
       $("#emergencyName").val(emergency.name);

@@ -10,7 +10,7 @@ module.exports = [
     email: "joaquim.q.gomez@gmail.com",
     //Password matches email
     hash: "$2b$10$IXGzOoyTJ9cVeqyit87FnOIZqhqsCWgUfBKsYQIHJSjR1n87c7vRe",
-    dob: "27-10-21",
+    dob: "2021-11-02",
     postcode: "AB106SP",
     emergency: {
       phone: "0712341234",
