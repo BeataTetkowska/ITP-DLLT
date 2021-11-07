@@ -1,34 +1,23 @@
 import validateForm from "./utils/validateForm.js";
 
-
- $(function () {
-
+$(function () {
   $("#submit").click((e) => handleSubmit(e));
 
-    //Get JSON data about current user 
-    //Parse into html data 
-    $.getJSON("/user",function(response){
+  //Get JSON data about current user Parse into html data
+  $.getJSON("/user", function (response) {
+    var { email, name, postcode, dob, emergency } = response;
 
-    //test line 
-    //$.getJSON("/user", (response) => console.log(response ))
-      var {email, name, postcode, dob,  emergency } = response;
-
-      $("#email").val(email);
-      $("#firstName").val(name.first);
-      $("#lastName").val(name.last);
-
-      // need to insert dob WIP 
-      $("#dateOfBirth").val(dob);
-
-      $("#postcode").val(postcode);
-      $("#emergencyName").val(emergency.name);
-      $("#phoneNumber").val(emergency.phone);
+    $("#email").val(email);
+    $("#firstName").val(name.first);
+    $("#lastName").val(name.last);
+    $("#dateOfBirth").val(dob);
+    $("#postcode").val(postcode);
+    $("#emergencyName").val(emergency.name);
+    $("#phoneNumber").val(emergency.phone);
   });
 });
 
-
-
-  //Validates form input and sends form data to server to edit user
+//Validates form input and sends form data to server to edit user
 function handleSubmit(e) {
   e.preventDefault();
 
@@ -39,18 +28,15 @@ function handleSubmit(e) {
 
   var url = "/user";
   $.ajax({
-    type:'PATCH',
+    type: "PATCH",
     url: url,
     data: formData,
   })
-    .done((res) => {
-     // window.location.href = "/event";
-     console.log(res)
-     console.log("hello1")
+    .done(() => {
+      alert("Update successful");
     })
     .fail((xhr) => {
       alert(xhr.responseText);
-     // $("#email").addClass("input--error");
     });
 }
 
@@ -94,14 +80,20 @@ function validateSubmitForm() {
   if (!formData.isValid) {
     return false;
   }
+
+  formData = {
+    name: {
+      first: formData.firstName,
+      last: formData.lastName,
+    },
+    email: formData.email,
+    dob: formData.dateOfBirth,
+    postcode: formData.postcode,
+    emergency: {
+      phone: formData.phoneNumber,
+      name: formData.emergencyName,
+    },
+  };
+
   return formData;
 }
-    
-
-  
-  
-  
-
-
-
-

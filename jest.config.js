@@ -7,6 +7,7 @@ const config = {
       {
         pageTitle: "Test Report",
         includeFailureMsg: true,
+        includeConsoleLog: true,
       },
     ],
   ],

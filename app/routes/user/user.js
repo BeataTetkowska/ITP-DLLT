@@ -3,35 +3,33 @@ const path = require("path");
 const router = require("express").Router();
 
 const users = require("../../db/users");
-const userIs = require("../../middleware/userIs");;
+const userIs = require("../../middleware/userIs");
 //Profile
-router.get("/", userIs.loggedIn, findUserById, removeSensitiveUserfields, (req, res) => {
+router.get(
+  "/",
+  userIs.loggedIn,
+  findUserById,
+  removeSensitiveUserfields,
+  (req, res) => {
     // If HTTP Accept header is text/html (which browsers always set) then the html: function will run
-    // If HTTP Accept head is application/json (which $.getJSON will set for you) then the json: function will run 
- res.format({
-    html: () => res.sendFile(path.join(__dirname, "../../views/user.html")),
-    json: () => res.json(res.locals.matchingUser),
-  });
-});
+    // If HTTP Accept head is application/json (which $.getJSON will set for you) then the json: function will run
+    res.format({
+      html: () => res.sendFile(path.join(__dirname, "../../views/user.html")),
+      json: () => res.json(res.locals.matchingUser),
+    });
+  }
+);
 
 router.patch(
   "/",
-  (req,res) => console.log("hello"),
+  userIs.loggedIn,
   findUserById,
   updateUserfields,
   removeSensitiveUserfields,
   (req, res) => {
-    console.log(res.locals.matchingUser);
     res.json(res.locals.matchingUser);
   }
 );
-
-router.get(
-  "/test",
-  (req,res) => {
-    res.json(users)
-  }
-)
 
 function findUserById(req, res, next) {
   res.locals.matchingUser = Object.assign(
@@ -52,6 +50,8 @@ function findUserById(req, res, next) {
 }
 
 function removeSensitiveUserfields(req, res, next) {
+  res.locals.matchingUser = Object.assign({}, res.locals.matchingUser);
+
   // Delete everything we dont need
   delete res.locals.matchingUser.hash;
   delete res.locals.matchingUser._id;
@@ -87,6 +87,5 @@ function updateUserfields(req, res, next) {
   users[index] = res.locals.matchingUser;
   next();
 }
-
 
 module.exports = router;
