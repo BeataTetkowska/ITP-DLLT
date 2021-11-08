@@ -13,9 +13,6 @@ const app = express();
 //It is useful to keep this in a separate file to keep app.js tidy and
 //primarily containing only the application routes
 module.exports = () => {
-  //Logging with winston used as middleware to log all requests made to backend
-  app.use(logger);
-
   //Express-Sessions for session data
   var secret = process.env.SESSIONSECRET ? process.env.SESSIONSECRET : "secret";
   var sessionArgs = {
@@ -48,6 +45,9 @@ module.exports = () => {
 
   //Folder for html/ejs views
   app.set("views", path.join(__dirname, "../views"));
+
+  //Logging with winston used as middleware to log all requests made to backend
+  app.use(logger);
 
   return app;
 };

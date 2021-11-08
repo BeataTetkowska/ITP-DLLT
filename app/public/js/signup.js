@@ -16,7 +16,8 @@ function handleSignup(e) {
   var url = "/user/signup";
   $.post({
     url: url,
-    data: formData,
+    data: JSON.stringify(formData),
+    contentType: "application/json",
   })
     .done(() => {
       window.location.href = "/session";
@@ -80,6 +81,9 @@ function validateSignUpForm() {
     $("#confirmPassword").addClass("input--error");
     return false;
   }
+
+  formData.gdprAccepted = $("#gdpr").is(":checked");
+  formData.marketingAccepted = $("#marketing").is(":checked");
 
   return formData;
 }
