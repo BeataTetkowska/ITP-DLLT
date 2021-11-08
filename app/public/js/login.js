@@ -18,8 +18,8 @@ function handleSignup(e) {
     url: url,
     data: formData,
   })
-    //Redirect to event page if user logged in
-    .done(() => (window.location.href = "/event"))
+    //Redirect to session page if user logged in
+    .done(() => (window.location.href = "/session"))
     .fail((xhr) => {
       alert(xhr.responseText);
       $("#email").addClass("input--error");
