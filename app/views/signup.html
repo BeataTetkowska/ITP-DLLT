@@ -68,6 +68,17 @@
         margin-right: auto;
       }
 
+      .checkBoxGroup {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0px 10px;
+      }
+
+      .checkBoxGroup > input {
+        margin-right: 10px;
+      }
+
       .input--error {
         color: red;
         border: 1px solid red;
@@ -134,16 +145,21 @@
           </div>
         </div>
       </div>
-      <div class="formGroup">
-        <lable for="marketing">Marketing</lable>
-        <input type="checkbox" id="marketing" />
-      </div>
-      <div class="formGroup">
-        <lable for="GDPR">GDPR</lable>
-        <input type="checkbox" id="GDPR" />
-      </div>
-      <div class="formGroup">
-        <button id="signup">Signup</button>
+
+      <div class="split">
+        <div class="split__left">
+          <div class="formGroup">
+            <button id="signup">Signup</button>
+          </div>
+        </div>
+        <div class="checkBoxGroup">
+          <input type="checkbox" id="marketing" />
+          <lable for="marketing">Marketing</lable>
+        </div>
+        <div class="checkBoxGroup">
+          <input type="checkbox" id="GDPR" />
+          <lable for="GDPR">GDPR</lable>
+        </div>
       </div>
     </div>
   </body>
