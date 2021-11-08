@@ -38,7 +38,7 @@ function deleteUser(req, res) {
 
   if (index < 0) return res.status(404).send("User not found");
 
-  users.pop(index);
+  users.splice(index, 1);
   req.logout();
   return res.status(200).send("User Deleted");
 }
