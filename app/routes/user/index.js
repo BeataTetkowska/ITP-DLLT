@@ -1,11 +1,11 @@
 var router = require("express").Router();
 
-userRouter = require("./user");
-loginRouter = require("./login");
-logoutRouter = require("./logout");
-signupRouter = require("./signup");
-passwordRouter = require("./password");
-searchRouter = require("./search");
+const userRouter = require("./user");
+const loginRouter = require("./login");
+const logoutRouter = require("./logout");
+const signupRouter = require("./signup");
+const passwordRouter = require("./password");
+const searchRouter = require("./search");
 
 router.use("/login", loginRouter);
 router.use("/logout", logoutRouter);

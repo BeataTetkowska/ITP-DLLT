@@ -72,6 +72,18 @@
         color: red;
         border: 1px solid red;
       }
+
+      .split {
+        display: flex;
+      }
+
+      .split__left {
+        margin-right: 30px;
+      }
+
+      .split + .split {
+        margin-top: 50px;
+      }
     </style>
   </head>
 
@@ -80,44 +92,53 @@
       <h3>Street Sport</h3>
       <h1>Signup</h1>
 
-      <div class="formGroup">
-        <lable for="email">Email</lable>
-        <input id="email" type="email" />
+      <div class="split">
+        <div class="split__left">
+          <div class="formGroup">
+            <lable for="email">Email</lable>
+            <input id="email" type="email" />
+          </div>
+          <div class="formGroup">
+            <lable for="password">Password</lable>
+            <input id="password" type="password" />
+          </div>
+          <div class="formGroup">
+            <lable for="firstName">First Name</lable>
+            <input id="firstName" />
+          </div>
+          <div class="formGroup">
+            <lable for="emergencyName">Emergency Contact Name</lable>
+            <input id="emergencyName" />
+          </div>
+          <div class="formGroup">
+            <lable for="dateOfBirth">Date of Birth</lable>
+            <input type="date" id="dateOfBirth" />
+          </div>
+        </div>
+        <div>
+          <div class="formGroup">
+            <lable for="postcode">Postcode</lable>
+            <input id="postcode" />
+          </div>
+          <div class="formGroup">
+            <lable for="confirmPassword">Confirm Password</lable>
+            <input id="confirmPassword" type="password" />
+          </div>
+          <div class="formGroup">
+            <lable for="lastName">Last Name</lable>
+            <input id="lastName" />
+          </div>
+          <div class="formGroup">
+            <lable for="phoneNumber">Emergency Contact Number</lable>
+            <input id="phoneNumber" />
+          </div>
+        </div>
       </div>
-      <div class="formGroup">
-        <lable for="password">Password</lable>
-        <input id="password" type="password" />
-      </div>
-      <div class="formGroup">
-        <lable for="confirmPassword">Confirm Password</lable>
-        <input id="confirmPassword" type="password" />
-      </div>
-      <div class="formGroup">
-        <lable for="firstName">First Name</lable>
-        <input id="firstName" />
-      </div>
-      <div class="formGroup">
-        <lable for="lastName">Last Name</lable>
-        <input id="lastName" />
-      </div>
-      <div class="formGroup">
-        <lable for="dateOfBirth">Date of Birth</lable>
-        <input type="date" id="dateOfBirth" />
-      </div>
-      <div class="formGroup">
-        <lable for="postcode">Postcode</lable>
-        <input id="postcode" />
-      </div>
-      <div class="formGroup">
-        <lable for="emergencyName">Emergency Contact Name</lable>
-        <input id="emergencyName" />
-      </div>
-      <div class="formGroup">
-        <lable for="phoneNumber">Phonenumber</lable>
-        <input id="phoneNumber" />
-      </div>
-      <div class="formGroup">
-        <button id="signup">Signup</button>
+
+      <div class="split">
+        <div class="formGroup">
+          <button id="signup">Signup</button>
+        </div>
       </div>
     </div>
   </body>
