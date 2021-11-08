@@ -4,7 +4,7 @@ $(function () {
   $("#submit").click((e) => handleSubmit(e));
 
   //Get JSON data about current user Parse into html data
-  $.getJSON("/user", function (response) {
+  $.getJSON("", function (response) {
     var { email, name, postcode, dob, emergency } = response;
 
     $("#email").val(email);

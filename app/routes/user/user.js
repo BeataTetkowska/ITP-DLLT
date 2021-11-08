@@ -18,6 +18,20 @@ router.get(
     })
 );
 
+// GET /user/:userId -> JSON data for the given userId
+router.get(
+  "/:userId",
+  userIs.admin,
+  findUserById,
+  removeSensitiveUserfields,
+  (_, res) =>
+    res.format({
+      html: () =>
+        res.sendFile(path.join(__dirname, "../../views/userDetails.html")),
+      json: () => res.json(res.locals.matchingUser),
+    })
+);
+
 // PATCH /user -> takes JSON data for user
 // Updates signed in user with input fields
 router.patch(
@@ -32,7 +46,9 @@ router.patch(
 // Finds a user by their ID and adds to res.locals.matchingUser
 // Returns 404 if user is not found
 function findUserById(req, res, next) {
-  res.locals.matchingUser = users.find((user) => user._id === req.user._id);
+  var userIdToFind = req.user._id;
+  if (req.user.isAdmin && req.params.userId) userIdToFind = req.params.userId;
+  res.locals.matchingUser = users.find((user) => user._id === userIdToFind);
 
   if (!res.locals.matchingUser) return res.status(404).send("User not found");
 

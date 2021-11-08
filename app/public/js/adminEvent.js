@@ -147,13 +147,21 @@ function parseAttendanceRecords(users) {
 
     var $row = $("<tr></tr>");
     var $td;
+    $row.data("userId", user._id);
 
     userTableDetails.forEach((detail) => {
       $td = $("<td></td>");
       $td.text(detail);
       $row.append($td);
     });
+    $row.on("click", getUserDetails);
 
     $table.append($row);
   });
+}
+
+function getUserDetails(e) {
+  var userId = $(e.target).parent().data("userId");
+  var url = `/user/${userId}`;
+  window.location.href = url;
 }

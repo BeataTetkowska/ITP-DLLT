@@ -1,5 +1,5 @@
 $(function () {
-  var url = window.location.pathnam;
+  var url = window.location.pathname;
   var days = [
     "Sunday",
     "Monday",
