@@ -5,6 +5,7 @@
 #
 ##### Project Specific Gitignore #####
 docker.env
+test-report.html
 
 
 ##### Gitignore Boilerplate #####

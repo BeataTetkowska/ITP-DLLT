@@ -9,6 +9,7 @@ const app = getAppWithMiddleware();
 app.use("/event", eventRouter);
 app.use("/user", userRouter);
 
-app.get("/", (req, res) => res.send("Hello World!"));
+//Example test route
+app.get("/", (_, res) => res.send("Hello World!"));
 
 module.exports = app;

@@ -4,7 +4,7 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="/js/login.js" type="module"></script>
+    <script src="/js/user.js" type="module"></script>
     <style>
       * {
         box-sizing: border-box;
@@ -78,20 +78,39 @@
   <body>
     <div class="content">
       <h3>Street Sport</h3>
-      <h1>Login</h1>
+      <h1>Edit Details</h1>
 
       <div class="formGroup">
         <lable for="email">Email</lable>
         <input id="email" type="email" />
       </div>
       <div class="formGroup">
-        <lable for="password">Password</lable>
-        <input id="password" type="password" />
+        <lable for="firstName">First Name</lable>
+        <input id="firstName" />
       </div>
       <div class="formGroup">
-        <button id="login">Login</button>
+        <lable for="lastName">Last Name</lable>
+        <input id="lastName" />
       </div>
-      <a href="/user/password">Reset Password</a>
+      <div class="formGroup">
+        <lable for="dateOfBirth">Date of Birth</lable>
+        <input type="date" id="dateOfBirth" />
+      </div>
+      <div class="formGroup">
+        <lable for="postcode">Postcode</lable>
+        <input id="postcode" />
+      </div>
+      <div class="formGroup">
+        <lable for="emergencyName">Emergency Contact Name</lable>
+        <input id="emergencyName" />
+      </div>
+      <div class="formGroup">
+        <lable for="phoneNumber">Phonenumber</lable>
+        <input id="phoneNumber" />
+      </div>
+      <div class="formGroup">
+        <button id="submit">Submit</button>
+      </div>
     </div>
   </body>
 </html>

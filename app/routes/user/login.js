@@ -10,42 +10,14 @@ router.get("/", (_, res) => {
 
 //POST /login -> checks if credentials are accurate and logs the user in
 router.post("/", async (req, res, next) => {
-  passport.authenticate("local", (err, user, info) => {
-    if (err) {
-      next(err);
-      return;
-    }
+  passport.authenticate("local", (err, user) => {
+    if (err) return next(err);
 
-    var formResponse = {
-      result: {
-        badPassword: null,
-        bademail: null,
-        success: false,
-        isAdmin: false,
-      },
-    };
-
-    if (!user) {
-      if (info.errorCode === 2) {
-        formResponse.result.badPassword = true;
-      }
-      if (info.errorCode === 1) {
-        formResponse.result.bademail = true;
-      }
-      res.status(401);
-      res.json(formResponse);
-      return;
-    }
+    if (!user) return res.status(401).send("Login Failed");
 
     req.login(user, (err) => {
-      if (err) {
-        next(err);
-        return;
-      }
-      formResponse.result.isAdmin = user.isAdmin;
-      formResponse.result.success = true;
-      res.json(formResponse);
-      return;
+      if (err) return next(err);
+      return res.status(200).send("Login Successful");
     });
   })(req, res, next);
 });

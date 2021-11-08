@@ -13,17 +13,27 @@ $(function () {
   //Get JSON data about the currently on event
   //Parse data into html
   $.getJSON(url, function (res) {
-    $("#location").text(res.location);
+    var { nextEvent: event, registered } = res;
+    $("#location").text(event.location);
     $("#time").text(
-      `${res.start.hours}:${
-        res.start.minutes != 0 ? res.start.minutes : "00"
-      } - ${res.end.hours}:${res.end.minutes != 0 ? res.end.minutes : "00"}`
+      `${event.start.hours}:${
+        event.start.minutes != 0 ? event.start.minutes : "00"
+      } - ${event.end.hours}:${
+        event.end.minutes != 0 ? event.end.minutes : "00"
+      }`
     );
-    $("#day").text(days[res.day]);
-    //TODO disable register button unless event is less than 30 minutes in the future
+    $("#day").text(days[event.day]);
+
     $register = $("#register");
+    if (registered) {
+      $register
+        .css({ color: "green", "border-color": "green" })
+        .text("Registered");
+    }
+
+    //TODO disable register button unless event is less than 30 minutes in the future
     $register.removeClass("disabled");
-    $register.on("click", () => registerEvent(res._id));
+    $register.on("click", () => registerEvent(event._id));
   });
 });
 
@@ -34,22 +44,14 @@ function registerEvent(eventId) {
   $.ajax({
     type: "PUT",
     url: url,
-    contentType: "application/json",
   })
-    .done((res) => {
+    .done(() => {
       //Notify user if registration was succesful
-      if (res.success === true) {
-        $("#register")
-          .css({ color: "green", "border-color": "green" })
-          .text("Registered");
-      }
-      //If user is not signed in, notify user
-      else {
-        //TODO Navigate user to the sign in page, or request more information
-        alert(res.message);
-      }
+      $("#register")
+        .css({ color: "green", "border-color": "green" })
+        .text("Registered");
     })
-    .fail((res) => {
-      alert(res.responseJSON.message);
+    .fail((xhr) => {
+      alert(xhr.responseText);
     });
 }
