@@ -1,55 +1,46 @@
 const path = require("path");
-
 const router = require("express").Router();
 
 const users = require("../../db/users");
 const userIs = require("../../middleware/userIs");
-//Profile
+
+// GET /user -> JSON data for logged in user
+// -> or HTML page with for signed in user
 router.get(
   "/",
   userIs.loggedIn,
   findUserById,
   removeSensitiveUserfields,
-  (req, res) => {
-    // If HTTP Accept header is text/html (which browsers always set) then the html: function will run
-    // If HTTP Accept head is application/json (which $.getJSON will set for you) then the json: function will run
+  (_, res) =>
     res.format({
       html: () => res.sendFile(path.join(__dirname, "../../views/user.html")),
       json: () => res.json(res.locals.matchingUser),
-    });
-  }
+    })
 );
 
+// PATCH /user -> takes JSON data for user
+// Updates signed in user with input fields
 router.patch(
   "/",
   userIs.loggedIn,
   findUserById,
   updateUserfields,
   removeSensitiveUserfields,
-  (req, res) => {
-    res.json(res.locals.matchingUser);
-  }
+  (_, res) => res.json(res.locals.matchingUser)
 );
 
+// Finds a user by their ID and adds to res.locals.matchingUser
+// Returns 404 if user is not found
 function findUserById(req, res, next) {
-  res.locals.matchingUser = Object.assign(
-    {},
-    users.find((user) => {
-      if (user._id === req.user._id) {
-        return true;
-      }
-    })
-  );
+  res.locals.matchingUser = users.find((user) => user._id === req.user._id);
 
-  if (!res.locals.matchingUser._id) {
-    console.log("user not found");
-    res.send(404, "User not found");
-    return;
-  }
+  if (!res.locals.matchingUser) return res.status(404).send("User not found");
+
   next();
 }
 
-function removeSensitiveUserfields(req, res, next) {
+// Copies user object and removes sensitive fields
+function removeSensitiveUserfields(_, res, next) {
   res.locals.matchingUser = Object.assign({}, res.locals.matchingUser);
 
   // Delete everything we dont need
@@ -59,20 +50,18 @@ function removeSensitiveUserfields(req, res, next) {
   next();
 }
 
+//Merges req.body fields sent from frontend with local user object
+//Updates user in database with the new fields
 function updateUserfields(req, res, next) {
   const updater = (existingUser, update) => {
     var output = {};
     Object.keys(existingUser).forEach((key) => {
       if (existingUser[key] instanceof Object) {
-        console.log("Printing keys");
-        console.log(existingUser[key], update[key]);
         output[key] = Object.assign({}, existingUser[key], update[key]);
       } else {
         if (update[key]) {
-          console.log("Taking key from update", key);
           output[key] = update[key];
         } else {
-          console.log("Taking key from existingUser", key);
           output[key] = existingUser[key];
         }
       }
