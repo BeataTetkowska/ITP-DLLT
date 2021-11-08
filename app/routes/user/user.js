@@ -29,6 +29,19 @@ router.patch(
   (_, res) => res.json(res.locals.matchingUser)
 );
 
+router.delete("/", userIs.loggedIn, deleteUser);
+
+//Removes user from users table and logs out user
+function deleteUser(req, res) {
+  var index = users.findIndex((user) => {
+    return req.user._id == user._id;
+  });
+
+  users.pop(index);
+  req.logout();
+  res.sendStatus(200);
+}
+
 // Finds a user by their ID and adds to res.locals.matchingUser
 // Returns 404 if user is not found
 function findUserById(req, res, next) {
