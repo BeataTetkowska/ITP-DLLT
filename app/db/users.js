@@ -10,7 +10,7 @@ module.exports = [
     email: "joaquim.q.gomez@gmail.com",
     //Password matches email
     hash: "$2b$10$IXGzOoyTJ9cVeqyit87FnOIZqhqsCWgUfBKsYQIHJSjR1n87c7vRe",
-    dob: "27-10-21",
+    dob: "2021-04-19",
     postcode: "AB106SP",
     emergency: {
       phone: "0712341234",
@@ -27,7 +27,7 @@ module.exports = [
     email: "email@taken.com",
     //Password matches email
     hash: "$2b$10$r9W0xVvS4JxeQ7eqeK4chezPHvuRbm7FiUNpv0eAldp92eWCTU3pm",
-    dob: "27-10-21",
+    dob: "2021-04-19",
     postcode: "AB106SP",
     emergency: {
       phone: "0712341234",
@@ -44,7 +44,7 @@ module.exports = [
     email: "admin@admin.admin",
     //Password matches username
     hash: "$2b$10$8tvx2PWAZTFRsvueBxXWSu9IGZ5DdynsT6fHIihGpIa7gydRhCb0W",
-    dob: "27-10-21",
+    dob: "2021-04-19",
     postcode: "AB106SP",
     emergency: {
       phone: "0712341234",
@@ -61,7 +61,7 @@ module.exports = [
     email: "leonard.carmel@gmail.com",
     //Password matches username
     hash: "$2b$10$YVWY5p6ahUcnXU943z.WmeCJ8OwSxPlBRjxkRBymsNGVgx.C3MlKS",
-    dob: "27-10-21",
+    dob: "2021-04-19",
     postcode: "AB106SP",
     emergency: {
       phone: "0712341234",
@@ -78,7 +78,7 @@ module.exports = [
     email: "fletcher.magdalen@yahoo.com",
     //Password matches username
     hash: "$2b$10$6WtgRfJaov05GmkSiUE2TeYTC.DTY3Z9iSZTfvF25pDYxNmBBVm.W",
-    dob: "27-10-21",
+    dob: "2021-04-19",
     postcode: "AB106SP",
     emergency: {
       phone: "0712341234",
@@ -95,7 +95,7 @@ module.exports = [
     email: "norbert.devin@outlook.com",
     //Password matches username
     hash: "$2b$10$GajegQ7MbiwMz8kIkpafkO/UmCcCglx456TmX..nhhAjpRnBo2l/m",
-    dob: "27-10-21",
+    dob: "2021-04-19",
     postcode: "AB106SP",
     emergency: {
       phone: "0712341234",
@@ -112,7 +112,7 @@ module.exports = [
     email: "spring.shephard@mail.com",
     //Password matches username
     hash: "$2b$10$sSzaWA5IQ1fBrcKRGexeOuSZ8HgROWwOcI6i5Y1QA.1brmdKKQpgm",
-    dob: "27-10-21",
+    dob: "2021-04-19",
     postcode: "AB106SP",
     emergency: {
       phone: "0712341234",
@@ -129,7 +129,7 @@ module.exports = [
     email: "random@email.com",
     //Password matches username
     hash: "$2b$10$OxZoVSUmprr8OD5Svozjv.iK7yfnUZTYwd.2PpaADMJckJ9JiYjI.",
-    dob: "27-10-21",
+    dob: "2021-04-19",
     postcode: "AB106SP",
     emergency: {
       phone: "0712341234",
@@ -146,7 +146,7 @@ module.exports = [
     email: "random2@email.com",
     //Password matches username
     hash: "$2b$10$4F.QKuB6GcbxySsJiV6HQ.64v0ecQLYOOnedmbVWOBQOtPgapOSdG",
-    dob: "27-10-21",
+    dob: "2021-04-19",
     postcode: "AB106SP",
     emergency: {
       phone: "0712341234",
