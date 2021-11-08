@@ -6,7 +6,7 @@ const getAppWithMiddleware = require("./middleware");
 const app = getAppWithMiddleware();
 
 //Routers
-app.use("/event", eventRouter);
+app.use("/session", eventRouter);
 app.use("/user", userRouter);
 
 //Example test route

@@ -19,7 +19,7 @@ function handleSignup(e) {
     data: formData,
   })
     .done(() => {
-      window.location.href = "/event";
+      window.location.href = "/session";
     })
     .fail((xhr) => {
       alert(xhr.responseText);
