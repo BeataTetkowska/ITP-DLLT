@@ -26,7 +26,8 @@ router.get(
   removeSensitiveUserfields,
   (_, res) =>
     res.format({
-      html: () => res.sendFile(path.join(__dirname, "../../views/user.html")),
+      html: () =>
+        res.sendFile(path.join(__dirname, "../../views/userDetails.html")),
       json: () => res.json(res.locals.matchingUser),
     })
 );
