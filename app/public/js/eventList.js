@@ -26,4 +26,7 @@ $(async function () {
     );
     $("#day").text(days[event.day]);
   });
+
+  //TODO implement event creation page
+  $("#fab").click(() => (window.location.href = "/event/create"));
 });
