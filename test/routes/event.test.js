@@ -15,7 +15,7 @@ async function loginAndRegisterUser(email, password) {
   var eventId = null;
   eventId = await getEventId();
   await loginUser(server, email, password);
-  await server.put(`/event/${eventId}/register`);
+  await server.put(`/session/${eventId}/register`);
   await server.get("/user/logout");
   return eventId;
 }
@@ -23,7 +23,7 @@ async function loginAndRegisterUser(email, password) {
 async function getEventId() {
   var eventId;
   await server
-    .get("/event")
+    .get("/session")
     .set("Accept", "application/json")
     .then((data) => {
       eventId = data.body.nextEvent._id;
@@ -32,40 +32,40 @@ async function getEventId() {
 }
 
 //This is an example integration test for the /api/event api endpoint
-//The test simulates a HTTP request to /api/event and then tests aspects
+//The test simulates a HTTP request to /api/session and then tests aspects
 //of the response.
 //Checks for the content-type to be json
 //Checks for the HTTP code to be 200
 //Checks for the body in the response to consist of an object with
 //a specific set of fields
-describe("/event no auth", () => {
-  it("GET /event html -> HTTP 200", async () => {
-    return request(app).get("/event").expect(200);
+describe("/session no auth", () => {
+  it("GET /session html -> HTTP 200", async () => {
+    return request(app).get("/session").expect(200);
   });
 
-  it("GET /event html -> Content Type HTML", async () => {
+  it("GET /session html -> Content Type HTML", async () => {
     return request(app)
-      .get("/event")
+      .get("/session")
       .expect("Content-type", /text\/html/);
   });
 
-  it("GET /event json -> HTTP 200", async () => {
+  it("GET /session json -> HTTP 200", async () => {
     return request(app)
-      .get("/event")
+      .get("/session")
       .set("Accept", "application/json")
       .expect(200);
   });
 
-  it("GET /event json -> Content Type JSON", async () => {
+  it("GET /session json -> Content Type JSON", async () => {
     return request(app)
-      .get("/event")
+      .get("/session")
       .set("Accept", "application/json")
       .expect("Content-Type", /json/);
   });
 
-  it("GET /event json -> event fields", async () => {
+  it("GET /session json -> event fields", async () => {
     return request(app)
-      .get("/event")
+      .get("/session")
       .set("Accept", "application/json")
       .then((res) => {
         expect(res.body.nextEvent).toEqual(
@@ -85,9 +85,9 @@ describe("/event no auth", () => {
       });
   });
 
-  it("GET /event json -> attendance array empty", async () => {
+  it("GET /session json -> attendance array empty", async () => {
     return request(app)
-      .get("/event")
+      .get("/session")
       .set("Accept", "application/json")
       .then((res) => {
         expect(res.body.nextEvent.attendance.length).toBe(0);
@@ -95,7 +95,7 @@ describe("/event no auth", () => {
   });
 });
 
-describe("/event as standard user", () => {
+describe("/session as standard user", () => {
   var adminEmail = "email@taken.com";
   var adminPassword = "email@taken.com";
 
@@ -106,28 +106,28 @@ describe("/event as standard user", () => {
     });
   });
 
-  it("GET /event -> HTTP 200", async () => {
-    return server.get("/event").expect(200);
+  it("GET /session -> HTTP 200", async () => {
+    return server.get("/session").expect(200);
   });
 
-  it("GET /event -> Content Type HTML", async () => {
-    return server.get("/event").expect("Content-type", /text\/html/);
+  it("GET /session -> Content Type HTML", async () => {
+    return server.get("/session").expect("Content-type", /text\/html/);
   });
 
-  it("GET /event json -> HTTP 200", async () => {
-    return server.get("/event").set("Aceept", "application/json").expect(200);
+  it("GET /session json -> HTTP 200", async () => {
+    return server.get("/session").set("Aceept", "application/json").expect(200);
   });
 
-  it("GET /event json -> Content Type JSON", async () => {
+  it("GET /session json -> Content Type JSON", async () => {
     return server
-      .get("/event")
+      .get("/session")
       .set("Accept", "application/json")
       .expect("Content-Type", /json/);
   });
 
-  it("GET /event json -> event fields", async () => {
+  it("GET /session json -> event fields", async () => {
     return server
-      .get("/event")
+      .get("/session")
       .set("Accept", "application/json")
       .then((res) => {
         expect(res.body.nextEvent).toEqual(
@@ -147,9 +147,9 @@ describe("/event as standard user", () => {
       });
   });
 
-  it("GET /event json -> attendance not null", async () => {
+  it("GET /session json -> attendance not null", async () => {
     return server
-      .get("/event")
+      .get("/session")
       .set("Accept", "application/json")
       .then((res) => {
         expect(res.body.nextEvent.attendance).toHaveLength(0);
@@ -161,7 +161,7 @@ describe("/event as standard user", () => {
   });
 });
 
-describe("/event as admin", () => {
+describe("/session as admin", () => {
   var adminEmail = "admin@admin.admin";
   var adminPassword = "admin@admin.admin";
 
@@ -172,28 +172,28 @@ describe("/event as admin", () => {
     });
   });
 
-  it("GET /event -> HTTP 200", async () => {
-    return server.get("/event").expect(200);
+  it("GET /session -> HTTP 200", async () => {
+    return server.get("/session").expect(200);
   });
 
-  it("GET /event -> Content Type HTML", async () => {
-    return server.get("/event").expect("Content-type", /text\/html/);
+  it("GET /session -> Content Type HTML", async () => {
+    return server.get("/session").expect("Content-type", /text\/html/);
   });
 
-  it("GET /event json -> HTTP 200", async () => {
-    return server.get("/event").set("Aceept", "application/json").expect(200);
+  it("GET /session json -> HTTP 200", async () => {
+    return server.get("/session").set("Aceept", "application/json").expect(200);
   });
 
-  it("GET /event json -> Content Type JSON", async () => {
+  it("GET /session json -> Content Type JSON", async () => {
     return server
-      .get("/event")
+      .get("/session")
       .set("Accept", "application/json")
       .expect("Content-Type", /json/);
   });
 
-  it("GET /event json -> event fields", async () => {
+  it("GET /session json -> event fields", async () => {
     return server
-      .get("/event")
+      .get("/session")
       .set("Accept", "application/json")
       .then((res) => {
         expect(res.body.nextEvent).toEqual(
@@ -214,9 +214,9 @@ describe("/event as admin", () => {
       });
   });
 
-  it("GET /event json -> attendance not null", async () => {
+  it("GET /session json -> attendance not null", async () => {
     return server
-      .get("/event")
+      .get("/session")
       .set("Accept", "application/json")
       .then((res) => {
         expect(res.body.nextEvent.attendance).not.toEqual(null);
@@ -228,28 +228,28 @@ describe("/event as admin", () => {
   });
 });
 
-describe("/event/1/attendance no auth", () => {
+describe("/session/1/attendance no auth", () => {
   var eventId;
   beforeAll(async () => {
     eventId = getEventId();
   });
 
-  it("GET /event/1/attendance -> HTTP 401", async () => {
+  it("GET /session/1/attendance -> HTTP 401", async () => {
     return server
-      .get(`/event/${eventId}/attendance`)
+      .get(`/session/${eventId}/attendance`)
       .set("Accept", "application/json")
       .expect(401);
   });
 
-  it("GET /event/1/attendance -> content json", async () => {
+  it("GET /session/1/attendance -> content json", async () => {
     return server
-      .get(`/event/${eventId}/attendance`)
+      .get(`/session/${eventId}/attendance`)
       .set("Accept", "application/json")
       .expect("Content-type", /text\/html/);
   });
 });
 
-describe("/event/1/attendance standard user", () => {
+describe("/session/1/attendance standard user", () => {
   var email = "email@taken.com";
   var password = "email@taken.com";
   var eventId;
@@ -259,16 +259,16 @@ describe("/event/1/attendance standard user", () => {
     await loginUser(server, email, password);
   });
 
-  it("GET /event/1/attendance -> HTTP 403", async () => {
+  it("GET /session/1/attendance -> HTTP 403", async () => {
     return server
-      .get(`/event/${eventId}/attendance`)
+      .get(`/session/${eventId}/attendance`)
       .set("Accept", "application/json")
       .expect(403);
   });
 
-  it("GET /event/1/attendance -> content json", async () => {
+  it("GET /session/1/attendance -> content json", async () => {
     return server
-      .get(`/event/${eventId}/attendance`)
+      .get(`/session/${eventId}/attendance`)
       .set("Accept", "application/json")
       .expect("Content-type", /text\/html/);
   });
@@ -278,7 +278,7 @@ describe("/event/1/attendance standard user", () => {
   });
 });
 
-describe("/event/:eventId/attendance no registered users", () => {
+describe("/session/:eventId/attendance no registered users", () => {
   var eventId = null;
 
   var email = "admin@admin.admin";
@@ -289,13 +289,13 @@ describe("/event/:eventId/attendance no registered users", () => {
     eventId = await getEventId();
   });
 
-  it("GET /event/:eventId/attendance -> HTTP 200", async () => {
-    return server.get(`/event/${eventId}/attendance`).expect(404);
+  it("GET /session/:eventId/attendance -> HTTP 200", async () => {
+    return server.get(`/session/${eventId}/attendance`).expect(404);
   });
 
-  it("GET /event/:eventId/attendance -> content json", async () => {
+  it("GET /session/:eventId/attendance -> content json", async () => {
     return server
-      .get(`/event/${eventId}/attendance`)
+      .get(`/session/${eventId}/attendance`)
       .expect("Content-type", /text\/html/);
   });
 
@@ -304,7 +304,7 @@ describe("/event/:eventId/attendance no registered users", () => {
   });
 });
 
-describe("/event/:eventId/attendance one user", () => {
+describe("/session/:eventId/attendance one user", () => {
   var eventId = null;
 
   var email = "admin@admin.admin";
@@ -315,19 +315,19 @@ describe("/event/:eventId/attendance one user", () => {
     await loginUser(server, email, password);
   });
 
-  it("GET /event/:eventId/attendance -> length 1", async () => {
-    return server.get(`/event/${eventId}/attendance`).then((res) => {
+  it("GET /session/:eventId/attendance -> length 1", async () => {
+    return server.get(`/session/${eventId}/attendance`).then((res) => {
       expect(res.body).toHaveLength(1);
     });
   });
 
-  it("GET /event/:eventId/attendance -> HTTP 200", async () => {
-    return server.get(`/event/${eventId}/attendance`).expect(200);
+  it("GET /session/:eventId/attendance -> HTTP 200", async () => {
+    return server.get(`/session/${eventId}/attendance`).expect(200);
   });
 
-  it("GET /event/:eventId/attendance -> content JSON", async () => {
+  it("GET /session/:eventId/attendance -> content JSON", async () => {
     return server
-      .get(`/event/${eventId}/attendance`)
+      .get(`/session/${eventId}/attendance`)
       .expect("Content-type", /json/);
   });
 
@@ -336,7 +336,7 @@ describe("/event/:eventId/attendance one user", () => {
   });
 });
 
-describe("/event/:eventId/attendance 3 users", () => {
+describe("/session/:eventId/attendance 3 users", () => {
   var eventId = null;
 
   var adminEmail = "admin@admin.admin";
@@ -351,19 +351,19 @@ describe("/event/:eventId/attendance 3 users", () => {
     await loginUser(server, adminEmail, adminPassword);
   });
 
-  it("GET /event/:eventId/attendance -> length 3", async () => {
-    return server.get(`/event/${eventId}/attendance`).then((res) => {
+  it("GET /session/:eventId/attendance -> length 3", async () => {
+    return server.get(`/session/${eventId}/attendance`).then((res) => {
       expect(res.body).toHaveLength(3);
     });
   });
 
-  it("GET /event/:eventId/attendance -> HTTP 200", async () => {
-    return server.get(`/event/${eventId}/attendance`).expect(200);
+  it("GET /session/:eventId/attendance -> HTTP 200", async () => {
+    return server.get(`/session/${eventId}/attendance`).expect(200);
   });
 
-  it("GET /event/:eventId/attendance -> content HTML", async () => {
+  it("GET /session/:eventId/attendance -> content HTML", async () => {
     return server
-      .get(`/event/${eventId}/attendance`)
+      .get(`/session/${eventId}/attendance`)
       .expect("Content-type", /json/);
   });
 
@@ -372,7 +372,7 @@ describe("/event/:eventId/attendance 3 users", () => {
   });
 });
 
-describe("/event/:eventId/register with auth", () => {
+describe("/session/:eventId/register with auth", () => {
   var eventId;
 
   var email = "email@taken.com";
@@ -382,13 +382,13 @@ describe("/event/:eventId/register with auth", () => {
     eventId = await getEventId();
   });
 
-  it("PUT /event/:eventId/register -> HTTP 200", async () => {
-    return server.put(`/event/${eventId}/register`).expect(200);
+  it("PUT /session/:eventId/register -> HTTP 200", async () => {
+    return server.put(`/session/${eventId}/register`).expect(200);
   });
 
-  it("PUT /event/:eventId/register -> content HTML", async () => {
+  it("PUT /session/:eventId/register -> content HTML", async () => {
     return server
-      .put(`/event/${eventId}/register`)
+      .put(`/session/${eventId}/register`)
       .expect("Content-type", /text\/html/);
   });
 
@@ -397,20 +397,20 @@ describe("/event/:eventId/register with auth", () => {
   });
 });
 
-describe("/event/:eventId/register without auth", () => {
+describe("/session/:eventId/register without auth", () => {
   var eventId = null;
 
   beforeAll(async () => {
     eventId = await getEventId();
   });
 
-  it("PUT /event/:eventId/register -> HTTP 401", async () => {
-    return server.put(`/event/${eventId}/register`).expect(401);
+  it("PUT /session/:eventId/register -> HTTP 401", async () => {
+    return server.put(`/session/${eventId}/register`).expect(401);
   });
 
-  it("PUT /event/:eventId/register -> content HTML", async () => {
+  it("PUT /session/:eventId/register -> content HTML", async () => {
     return server
-      .put(`/event/${eventId}/register`)
+      .put(`/session/${eventId}/register`)
       .expect("Content-type", /text\/html/);
   });
 
@@ -419,7 +419,7 @@ describe("/event/:eventId/register without auth", () => {
   });
 });
 
-describe("/event Functions", () => {
+describe("/session Functions", () => {
   it("getNextEventToday Sunday Night", () => {
     var sundayMidnight = new Date(2021, 9, 24);
     expect(getNextEventToday(sundayMidnight)).toEqual(false);

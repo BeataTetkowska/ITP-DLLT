@@ -25,7 +25,7 @@ function deleteUser() {
   })
     .done((res) => {
       alert(res);
-      window.location.href = "/event";
+      window.location.href = "/session";
     })
     .fail((xhr) => {
       alert(xhr.responseText);

@@ -18,7 +18,7 @@ $(async function () {
   $.getJSON(eventUrl, function (res) {
     var { nextEvent: event } = res;
     eventId = event._id;
-    var attendanceUrl = `/event/${eventId}/attendance`;
+    var attendanceUrl = `/session/${eventId}/attendance`;
     $("#location").text(event.location);
     $("#time").text(
       `${event.start.hours}:${
@@ -66,7 +66,7 @@ function downloadCsv(url) {
 
 //Sends a given user ID to the backend for the user to be registered
 function manuallyRegisterUser(id) {
-  var url = `/event/${eventId}/register?userId=${id}`;
+  var url = `/session/${eventId}/register?userId=${id}`;
   $.ajax({
     type: "PUT",
     url: url,

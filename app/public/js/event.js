@@ -40,7 +40,7 @@ $(function () {
 //Sends data about the current event to the server to attempt to register
 //the currently logged in user for the event
 function registerEvent(eventId) {
-  var url = `/event/${eventId}/register`;
+  var url = `/session/${eventId}/register`;
   $.ajax({
     type: "PUT",
     url: url,
