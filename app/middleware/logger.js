@@ -17,6 +17,7 @@ module.exports = (req, res, next) => {
       sessionId: req.sessionId,
       originalUrl: req.originalUrl,
       query: req.query,
+      body: req.body,
     },
   });
   next();

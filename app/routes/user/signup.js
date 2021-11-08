@@ -20,6 +20,8 @@ async function parseSignUpRequest(req, res, next) {
   let hash = await bcrypt.hash(password, 10);
 
   res.locals.user = {
+    gdprAccepted: req.body.gdprAccepted,
+    marketingAccepted: req.body.marketingAccepted,
     name: {
       first: req.body.firstName,
       last: req.body.lastName,
