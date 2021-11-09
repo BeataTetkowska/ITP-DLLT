@@ -40,7 +40,7 @@ async function parseSignUpRequest(req, res, next) {
   };
 
   //User created manually without email address or password
-  if (!res.locals.user.email && !password) {
+  if (!res.locals.user.email && !password && req.user.isAdmin) {
     users.push(res.locals.user);
     return res.status(200).send("User created manually");
   }
