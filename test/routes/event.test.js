@@ -26,7 +26,7 @@ async function getEventId() {
     .get("/session")
     .set("Accept", "application/json")
     .then((data) => {
-      eventId = data.body.nextEvent._id;
+      eventId = data.body.event._id;
     });
   return eventId;
 }
@@ -68,8 +68,15 @@ describe("/session no auth", () => {
       .get("/session")
       .set("Accept", "application/json")
       .then((res) => {
-        expect(res.body.nextEvent).toEqual(
+        expect(res.body.event).toEqual(
           expect.objectContaining({
+            _id: expect.any(String),
+            attendance: expect.any(Array),
+            date: expect.any(Number),
+            month: expect.any(Number),
+            year: expect.any(Number),
+            isoString: expect.any(String),
+            epoch: expect.any(Number),
             day: expect.toBeWithinRange(0, 6),
             start: expect.objectContaining({
               hours: expect.toBeWithinRange(0, 23),
@@ -90,7 +97,7 @@ describe("/session no auth", () => {
       .get("/session")
       .set("Accept", "application/json")
       .then((res) => {
-        expect(res.body.nextEvent.attendance.length).toBe(0);
+        expect(res.body.event.attendance.length).toBe(0);
       });
   });
 });
@@ -130,7 +137,7 @@ describe("/session as standard user", () => {
       .get("/session")
       .set("Accept", "application/json")
       .then((res) => {
-        expect(res.body.nextEvent).toEqual(
+        expect(res.body.event).toEqual(
           expect.objectContaining({
             day: expect.toBeWithinRange(0, 6),
             start: expect.objectContaining({
@@ -152,7 +159,7 @@ describe("/session as standard user", () => {
       .get("/session")
       .set("Accept", "application/json")
       .then((res) => {
-        expect(res.body.nextEvent.attendance).toHaveLength(0);
+        expect(res.body.event.attendance).toHaveLength(0);
       });
   });
 
@@ -196,7 +203,7 @@ describe("/session as admin", () => {
       .get("/session")
       .set("Accept", "application/json")
       .then((res) => {
-        expect(res.body.nextEvent).toEqual(
+        expect(res.body.event).toEqual(
           expect.objectContaining({
             day: expect.toBeWithinRange(0, 6),
             start: expect.objectContaining({
@@ -219,7 +226,7 @@ describe("/session as admin", () => {
       .get("/session")
       .set("Accept", "application/json")
       .then((res) => {
-        expect(res.body.nextEvent.attendance).not.toEqual(null);
+        expect(res.body.event.attendance).not.toEqual(null);
       });
   });
 
@@ -420,18 +427,31 @@ describe("/session/:eventId/register without auth", () => {
 });
 
 describe("/session Functions", () => {
+  const removeTime = (date) =>
+    new Date(date.getTime() - (date.getTime() % 86400000));
+
+  var sundayMidnight;
+  beforeEach(() => {
+    sundayMidnight = removeTime(new Date());
+    sundayMidnight.setDate(sundayMidnight.getDate() - sundayMidnight.getDay());
+  });
+
   it("getNextEventToday Sunday Night", () => {
-    var sundayMidnight = new Date(2021, 9, 24);
     expect(getNextEventToday(sundayMidnight)).toEqual(false);
   });
 
   it("getNextEventToday Monday Morning", () => {
-    var mondayMorning = new Date(2021, 9, 25, 9);
+    var mondayMorning = sundayMidnight;
+    mondayMorning.setDate(mondayMorning.getDate() + 1);
+    mondayMorning.setHours(9);
     expect(getNextEventToday(mondayMorning)).toEqual(false);
   });
 
   it("getNextEventToday Tuesday Morning", () => {
-    var tuesdayMorning = new Date(2021, 10, 2, 9);
+    var tuesdayMorning = sundayMidnight;
+    tuesdayMorning.setDate(tuesdayMorning.getDate() + 2);
+    tuesdayMorning.setHours(9);
+
     var result = getNextEventToday(tuesdayMorning);
     expect(result.day).toBe(2);
     expect(result.start.hours).toBe(18);
@@ -439,7 +459,10 @@ describe("/session Functions", () => {
   });
 
   it("getNextEventToday Tuesday evening", () => {
-    var tuesdayEvening = new Date(2021, 10, 2, 19);
+    var tuesdayEvening = sundayMidnight;
+    tuesdayEvening.setDate(tuesdayEvening.getDate() + 2);
+    tuesdayEvening.setHours(19);
+
     var result = getNextEventToday(tuesdayEvening);
     expect(result.day).toBe(2);
     expect(result.start.hours).toBe(19);
@@ -447,13 +470,14 @@ describe("/session Functions", () => {
   });
 
   it("getNextEventToday Tuesday night", () => {
-    var tuesdayNight = new Date(2021, 10, 2, 23);
+    var tuesdayNight = sundayMidnight;
+    tuesdayNight.setDate(tuesdayNight.getDate() + 2);
+    tuesdayNight.setHours(23);
     expect(getNextEventToday(tuesdayNight)).toEqual(false);
   });
 
   //GetNextEvent
   it("getNextEvent Sunday Night", () => {
-    var sundayMidnight = new Date(2021, 10, 7);
     var result = getNextEvent(sundayMidnight);
     expect(result.day).toBe(2);
     expect(result.start.hours).toBe(18);
@@ -461,7 +485,10 @@ describe("/session Functions", () => {
   });
 
   it("getNextEvent Monday Morning", () => {
-    var mondayMorning = new Date(2021, 10, 8, 9);
+    var mondayMorning = sundayMidnight;
+    mondayMorning.setDate(mondayMorning.getDate() + 1);
+    mondayMorning.setHours(9);
+
     var result = getNextEvent(mondayMorning);
     expect(result.day).toBe(2);
     expect(result.start.hours).toBe(18);
@@ -469,7 +496,10 @@ describe("/session Functions", () => {
   });
 
   it("getNextEvent Tuesday Morning", () => {
-    var tuesdayMorning = new Date(2021, 10, 2, 9);
+    var tuesdayMorning = sundayMidnight;
+    tuesdayMorning.setDate(tuesdayMorning.getDate() + 2);
+    tuesdayMorning.setHours(9);
+
     var result = getNextEvent(tuesdayMorning);
     expect(result.day).toBe(2);
     expect(result.start.hours).toBe(18);
@@ -477,7 +507,10 @@ describe("/session Functions", () => {
   });
 
   it("getNextEvent Tuesday evening", () => {
-    var tuesdayEvening = new Date(2021, 10, 2, 19);
+    var tuesdayEvening = sundayMidnight;
+    tuesdayEvening.setDate(tuesdayEvening.getDate() + 2);
+    tuesdayEvening.setHours(19);
+
     var result = getNextEvent(tuesdayEvening);
     expect(result.day).toBe(2);
     expect(result.start.hours).toBe(19);
@@ -485,7 +518,10 @@ describe("/session Functions", () => {
   });
 
   it("getNextEvent Tuesday night", () => {
-    var tuesdayNight = new Date(2021, 10, 2, 23);
+    var tuesdayNight = sundayMidnight;
+    tuesdayNight.setDate(tuesdayNight.getDate() + 2);
+    tuesdayNight.setHours(23);
+
     var result = getNextEvent(tuesdayNight);
     expect(result.day).toBe(3);
     expect(result.start.hours).toBe(16);
