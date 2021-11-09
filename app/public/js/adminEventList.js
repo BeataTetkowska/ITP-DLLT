@@ -6,7 +6,7 @@ $(function () {
   $("#eventFilter").on("change", (e) => updateEventList($(e.target).val()));
 
   //TODO implement event creation page
-  $("#fab").click(() => (window.location.href = "/event/add"));
+  $("#fab").click(() => (window.location.href = "/session/add"));
 });
 
 // GET json for the event list using the given query
