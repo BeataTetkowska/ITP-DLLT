@@ -1,10 +1,7 @@
 const request = require("supertest");
 const app = require("../../app/app");
 const server = request.agent(app);
-const {
-  getNextEvent,
-  getNextEventToday,
-} = require("../../app/routes/event/controllers");
+const { getNextEvent } = require("../../app/routes/event/controllers");
 
 const toBeWithinRange = require("../matchers/toBeWithinRange");
 expect.extend(toBeWithinRange);
@@ -434,46 +431,6 @@ describe("/session Functions", () => {
   beforeEach(() => {
     sundayMidnight = removeTime(new Date());
     sundayMidnight.setDate(sundayMidnight.getDate() - sundayMidnight.getDay());
-  });
-
-  it("getNextEventToday Sunday Night", () => {
-    expect(getNextEventToday(sundayMidnight)).toEqual(false);
-  });
-
-  it("getNextEventToday Monday Morning", () => {
-    var mondayMorning = sundayMidnight;
-    mondayMorning.setDate(mondayMorning.getDate() + 1);
-    mondayMorning.setHours(9);
-    expect(getNextEventToday(mondayMorning)).toEqual(false);
-  });
-
-  it("getNextEventToday Tuesday Morning", () => {
-    var tuesdayMorning = sundayMidnight;
-    tuesdayMorning.setDate(tuesdayMorning.getDate() + 2);
-    tuesdayMorning.setHours(9);
-
-    var result = getNextEventToday(tuesdayMorning);
-    expect(result.day).toBe(2);
-    expect(result.start.hours).toBe(18);
-    expect(result.end.hours).toBe(19);
-  });
-
-  it("getNextEventToday Tuesday evening", () => {
-    var tuesdayEvening = sundayMidnight;
-    tuesdayEvening.setDate(tuesdayEvening.getDate() + 2);
-    tuesdayEvening.setHours(19);
-
-    var result = getNextEventToday(tuesdayEvening);
-    expect(result.day).toBe(2);
-    expect(result.start.hours).toBe(19);
-    expect(result.end.hours).toBe(21);
-  });
-
-  it("getNextEventToday Tuesday night", () => {
-    var tuesdayNight = sundayMidnight;
-    tuesdayNight.setDate(tuesdayNight.getDate() + 2);
-    tuesdayNight.setHours(23);
-    expect(getNextEventToday(tuesdayNight)).toEqual(false);
   });
 
   //GetNextEvent

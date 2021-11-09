@@ -71,39 +71,14 @@ function getEventById(req, res, next) {
   next();
 }
 
-//Searches through the list of events to find any events on today
-//Returns false if no events can be found that are on today
-function getNextEventToday(time) {
-  var upcomingEventsToday = uniqueEvents
-    .filter((event) => time.getFullYear() === event.year)
-    .filter((event) => time.getMonth() === event.month)
-    .filter((event) => time.getDate() === event.date)
-    .filter((event) => time.getHours() <= event.start.hours);
-
-  var nextEvent;
-  if (upcomingEventsToday.length > 0) {
-    nextEvent = upcomingEventsToday.reduce((prev, current) =>
-      prev.start.hours < current.start.hours ? prev : current
-    );
-    return nextEvent;
-  } else {
-    return false;
-  }
-}
-
-//Finds the next event
-//Will try to find the next event today
-//if none is found, will find the first event for the next day
+//Filter events for events in future,
+//sort events and take from top of list
 function getNextEvent(time) {
-  return uniqueEvents[0];
-  var nextEventToday = getNextEventToday(time);
-  if (nextEventToday) {
-    return nextEventToday;
-  } else {
-    time.setDate(time.getDate() + 1);
-    time.setHours(1);
-    return getNextEvent(time);
-  }
+  var upcomingEvents = uniqueEvents.filter(
+    (event) => time.getTime() < event.epoch
+  );
+  upcomingEvents.sort((a, b) => a.epoch - b.epoch);
+  return upcomingEvents[0];
 }
 
 //Prepares individual user objects from the database for adding to
@@ -167,7 +142,6 @@ module.exports = {
   parseEventId,
   getEventById,
   getNextEvent,
-  getNextEventToday,
   prepareUserForCsv,
   generateUserCsv,
   registerUserForEventById,
