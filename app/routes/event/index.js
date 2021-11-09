@@ -48,7 +48,7 @@ router.get("/list", getEventList);
 
 // GET /session/add -> HTML page for creating a new event
 router.get("/add", userIs.admin, (_, res) =>
-  res.sendFile(path.join(__dirname, "../../views/addEvent.html"))
+  res.sendFile(path.join(__dirname, "../../views/addSession.html"))
 );
 
 //GET /event/:eventId -> returns event JSON data for a given eventId
