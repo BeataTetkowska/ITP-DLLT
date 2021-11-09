@@ -1,4 +1,5 @@
 const path = require("path");
+const { v4: uuidv4 } = require("uuid");
 const express = require("express");
 var router = express.Router();
 const bcrypt = require("bcrypt");
@@ -17,9 +18,11 @@ router.post("/", parseSignUpRequest, checkIfUserExists, createUser);
 async function parseSignUpRequest(req, res, next) {
   var { password } = req.body;
 
-  let hash = await bcrypt.hash(password, 10);
+  let hash = undefined;
+  if (password) hash = await bcrypt.hash(password, 10);
 
   res.locals.user = {
+    _id: uuidv4(),
     gdprAccepted: req.body.gdprAccepted,
     marketingAccepted: req.body.marketingAccepted,
     name: {
@@ -35,6 +38,12 @@ async function parseSignUpRequest(req, res, next) {
       name: req.body.phoneNumber,
     },
   };
+
+  //User created manually without email address or password
+  if (!res.locals.user.email && !password) {
+    users.push(res.locals.user);
+    return res.status(200).send("User created manually");
+  }
 
   next();
 }
@@ -55,7 +64,6 @@ function createUser(_, res) {
     return res.status(409).send("Email taken");
   }
 
-  res.locals.user._id = users.length + 1;
   users.push(res.locals.user);
   return res.status(201).send(res.locals.user.email);
   //TODO sign user in
