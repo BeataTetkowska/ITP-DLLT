@@ -10,6 +10,7 @@ const {
   parseEventId,
   getEventById,
   registerUserForEventById,
+  deregisterUserForEventById,
 } = require("./controllers");
 
 //GET /event -> returns event data html or json
@@ -44,6 +45,21 @@ router.put(
     //TODO check if user is already registered for this event
     res.locals.matchingEvent.attendance.push(req.user._id);
     res.status(200).send("Current user has registered");
+  }
+);
+
+//DELETE /session/:eventId/attendance/:userId
+//-> takes an event ID and userID
+//-> deregisters currently specific user
+router.delete(
+  "/:eventId/attendance/:userId",
+  userIs.admin,
+  parseEventId,
+  getEventById,
+  deregisterUserForEventById,
+  (req, res) => {
+    //res.locals.matchingEvent.attendance.push(req.user._id);
+    res.status(200).send("User Deregistered");
   }
 );
 
