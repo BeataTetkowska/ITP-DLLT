@@ -5,8 +5,9 @@ var users = require("../../db/users");
 
 const userIs = require("../../middleware/userIs");
 const {
-  getEventNowJSON,
-  getEventNowHTML,
+  getNextEvent,
+  getEventJSON,
+  getEventHTML,
   getEventList,
   parseEventId,
   getEventById,
@@ -15,9 +16,12 @@ const {
 
 //GET /event -> returns event data html or json
 router.get("/", (req, res) => {
+  var now = new Date();
+  nextEvent = Object.assign({}, getNextEvent(now));
+
   res.format({
-    html: () => getEventNowHTML(req, res),
-    json: () => getEventNowJSON(req, res),
+    html: () => getEventHTML(req, res),
+    json: () => getEventJSON(req, res, nextEvent),
   });
 });
 
@@ -25,10 +29,10 @@ router.get("/list", getEventList);
 
 //GET /event/:eventId -> returns event JSON data for a given eventId
 router.get("/:eventId", parseEventId, getEventById, (req, res) => {
-  var eventCopy = Object.assign({}, res.locals.matchingEvent);
-  if (!req.user || !req.user.isAdmin) eventCopy.attendance = [];
-
-  return res.json(eventCopy);
+  return res.format({
+    html: () => getEventHTML(req, res),
+    json: () => getEventJSON(req, res, res.locals.matchingEvent),
+  });
 });
 
 //PUT /event/:eventId/register?userId

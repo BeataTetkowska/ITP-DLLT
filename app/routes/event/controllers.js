@@ -26,7 +26,7 @@ function getEventList(req, res) {
 //Sends html page for the current event
 //Sends the admin page for admins and
 //the standard page for all other requests
-function getEventNowHTML(req, res) {
+function getEventHTML(req, res) {
   var html = "event.html";
   if (req.user && req.user.isAdmin) html = "adminEvent.html";
 
@@ -35,20 +35,15 @@ function getEventNowHTML(req, res) {
 
 //Sends event JSON data
 //Removes attendance data before sending if user is not admin
-function getEventNowJSON(req, res) {
-  var now = new Date();
+function getEventJSON(req, res, event) {
   var registered = false;
-  nextEvent = Object.assign({}, getNextEvent(now));
 
-  if (
-    req.user &&
-    nextEvent.attendance.find((userId) => req.user._id === userId)
-  )
+  if (req.user && event.attendance.find((userId) => req.user._id === userId))
     registered = true;
 
-  if (!req.user || !req.user.isAdmin) nextEvent.attendance = [];
+  if (!req.user || !req.user.isAdmin) event.attendance = [];
 
-  return res.json({ registered, nextEvent });
+  return res.json({ registered, event });
 }
 
 //Checks if a valid eventID was passed to the request
@@ -97,6 +92,7 @@ function getNextEventToday(time) {
 //Will try to find the next event today
 //if none is found, will find the first event for the next day
 function getNextEvent(time) {
+  return uniqueEvents[0];
   var nextEventToday = getNextEventToday(time);
   if (nextEventToday) {
     return nextEventToday;
@@ -163,8 +159,8 @@ function registerUserForEventById(req, res, next) {
 }
 
 module.exports = {
-  getEventNowJSON,
-  getEventNowHTML,
+  getEventJSON,
+  getEventHTML,
   parseEventId,
   getEventById,
   getNextEvent,
