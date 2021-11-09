@@ -138,6 +138,10 @@ function getUsersAndUpdateDatalist(el) {
 function parseAttendanceRecords(users) {
   var $table = $("#attendanceTableBody");
   $table.empty();
+  var $deregisterCross = $("<div></div>")
+    .addClass("deregister-cross")
+    .text("X");
+  $deregisterCross.click(deregisterUser);
   users.forEach((user) => {
     var userTableDetails = [
       `${user.name.first} ${user.name.last}`,
@@ -154,6 +158,7 @@ function parseAttendanceRecords(users) {
       $td.text(detail);
       $row.append($td);
     });
+    $($row.children()[$row.children().length - 1]).append($deregisterCross);
     $row.on("click", getUserDetails);
 
     $table.append($row);
@@ -164,4 +169,23 @@ function getUserDetails(e) {
   var userId = $(e.target).parent().data("userId");
   var url = `/user/${userId}`;
   window.location.href = url;
+  return false;
+}
+
+function deregisterUser(e) {
+  var $parent = $(e.target).parent().parent();
+  var userId = $parent.data("userId");
+  var url = `/session/${eventId}/attendance/${userId}`;
+
+  if (!window.confirm("Are you sure you would like to deregister this user?"))
+    return false;
+
+  $.ajax({
+    type: "DELETE",
+    url: url,
+  })
+    .done(() => $parent.remove())
+    .fail((xhr) => alert(xhr.responseText));
+
+  return false;
 }

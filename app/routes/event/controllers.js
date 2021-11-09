@@ -147,6 +147,21 @@ function registerUserForEventById(req, res, next) {
   next();
 }
 
+//Validates a given user ID from url query parameter
+//Checks to ensure user can be found in database
+//Registers user for event if ther can be found
+function deregisterUserForEventById(req, res) {
+  var index = res.locals.matchingEvent.attendance.findIndex(
+    (user) => (user._id = req.params.userId)
+  );
+
+  if (index < 0)
+    return res.status(404).send("User was not registered for event");
+
+  res.locals.matchingEvent.attendance.splice(index, 1);
+  return res.status(200).send(`User ${req.params.userId} has deregisterd`);
+}
+
 module.exports = {
   getEventNowJSON,
   getEventNowHTML,
@@ -157,4 +172,5 @@ module.exports = {
   prepareUserForCsv,
   generateUserCsv,
   registerUserForEventById,
+  deregisterUserForEventById,
 };

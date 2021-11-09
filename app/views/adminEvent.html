@@ -92,7 +92,7 @@
 
       table td,
       table th {
-        padding: 0.5em;
+        padding: 6px;
         height: 60px;
         vertical-align: middle;
         border-right: 1px solid #333;
@@ -119,6 +119,22 @@
 
       table thead th {
         color: #fff;
+      }
+
+      table tbody tr td {
+        position: relative;
+      }
+
+      .deregister-cross {
+        color: #c62828;
+        visibility: hidden;
+        position: absolute;
+        right: 20px;
+        top: 16px;
+      }
+
+      table tbody tr:hover .deregister-cross {
+        visibility: visible;
       }
 
       table tbody tr:last-child td,
