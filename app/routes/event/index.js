@@ -25,6 +25,9 @@ router.get("/", (req, res) => {
   });
 });
 
+// GET /event/list?start&end
+// -> takes a start and end time in epoch format
+// -> returns the list of events that fall in the given range
 router.get("/list", getEventList);
 
 //GET /event/:eventId -> returns event JSON data for a given eventId

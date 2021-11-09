@@ -14,11 +14,16 @@ function updateEventList(timeDiff) {
   var sessionListUrl = "/session/list";
   var { start, end } = generateDateRange(timeDiff);
 
-  $.getJSON(`${sessionListUrl}?start=${start}&end=${end}`, (events) => {
-    var $eventsList = $("#eventsList");
-    $eventsList.empty();
-    events.forEach((event) => $eventsList.append(createEventElement(event)));
-  }).fail((xhr) => {
+  var $eventsList = $("#eventsList");
+  $eventsList.empty();
+  $.getJSON(`${sessionListUrl}?start=${start}&end=${end}`, (events) =>
+    events.forEach((event) => $eventsList.append(createEventElement(event)))
+  ).fail((xhr) => {
+    if (xhr.status === 404 && xhr.responseText === "No events in this range")
+      return $eventsList.append(
+        $("<h4></h4>").addClass("no-events").text("No Sessions Found")
+      );
+
     alert(xhr.responseText);
   });
 }

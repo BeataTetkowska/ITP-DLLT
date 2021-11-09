@@ -45,6 +45,13 @@
         cursor: pointer;
       }
 
+      .no-events {
+        text-align: center;
+        padding: 40px 0px;
+        border: 1px solid #333;
+        border-radius: 6px;
+      }
+
       .event:hover {
         box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
       }
@@ -118,6 +125,7 @@
             <select class="css-select" name="eventFilter" id="eventFilter">
               <option value="today">Today</option>
               <option value="tomorrow">Tomorrow</option>
+              <option value="yesterday">Yesterday</option>
               <option value="week">This Week</option>
               <option value="month">This Month</option>
             </select>

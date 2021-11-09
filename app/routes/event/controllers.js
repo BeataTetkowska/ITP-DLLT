@@ -16,11 +16,14 @@ function getEventList(req, res) {
     return res.status(400).send("Invalid start/end time supplied");
   }
 
-  return res.json(
-    uniqueEvents
-      .filter((event) => event.epoch > start && event.epoch < end)
-      .map(({ attendance, ...event }) => event)
-  );
+  var filteredEvents = uniqueEvents
+    .filter((event) => event.epoch > start && event.epoch < end)
+    .map(({ attendance, ...event }) => event);
+
+  if (filteredEvents.length === 0)
+    return res.status(404).send("No events in this range");
+
+  return res.json(filteredEvents);
 }
 
 //Sends html page for the current event

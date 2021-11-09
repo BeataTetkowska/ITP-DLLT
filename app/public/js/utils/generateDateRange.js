@@ -12,6 +12,9 @@ export default function generateDateRange(timeDiff) {
       start.setDate(start.getDate() + 1);
       end.setDate(end.getDate() + 2);
       break;
+    case "yesterday":
+      start.setDate(start.getDate() - 1);
+      break;
     case "week":
       start.setDate(start.getDate() - start.getDay() + 1);
       end.setDate(end.getDate() - end.getDay() + 8);
