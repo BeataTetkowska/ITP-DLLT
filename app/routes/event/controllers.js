@@ -16,24 +16,11 @@ function getEventList(req, res) {
     return res.status(400).send("Invalid start/end time supplied");
   }
 
-  var filteredEvents = uniqueEvents.filter(
-    (event) => event.epoch > start && event.epoch < end
+  return res.json(
+    uniqueEvents
+      .filter((event) => event.epoch > start && event.epoch < end)
+      .map(({ attendance, ...event }) => event)
   );
-  //TODO only send the required information to the frontend
-
-  // if (!req.user || !req.user.isAdmin)
-  //   filteredEvents = filteredEvents.map(({_id, }) => {
-  //     {
-  //        _id,
-  //        location,
-  //        start,
-  //        end,
-  //        date,
-  //        month
-  //     }
-  //   });
-
-  return res.json(filteredEvents);
 }
 
 //Sends html page for the current event

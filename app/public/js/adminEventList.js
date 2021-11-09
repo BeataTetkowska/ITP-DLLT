@@ -1,4 +1,4 @@
-import generateDateRange from "./utils/generateDateRange";
+import generateDateRange from "./utils/generateDateRange.js";
 
 $(async function () {
   //Upddate eventList using select value and add onChange handler to update list
@@ -6,7 +6,7 @@ $(async function () {
   $("#eventFilter").on("change", (e) => updateEventList($(e.target).val()));
 
   //TODO implement event creation page
-  $("#fab").click(() => (window.location.href = "/event/create"));
+  $("#fab").click(() => (window.location.href = "/event/add"));
 });
 
 // GET json for the event list using the given query
@@ -22,29 +22,29 @@ function updateEventList(timeDiff) {
 }
 
 // JQuery functions to generate an "event" element from event data
-// TODO find a better way to format the date (long format) and the time
 function createEventElement(event) {
-  var days = [
-    "Sunday",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-  ];
+  var { _id, location, epoch } = event;
+  var datetime = new Date(epoch);
+
+  var formattedTime = datetime.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  var formattedDate = datetime.toLocaleDateString([], {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
 
   var $event = $("<div></div>").addClass("event");
-  $event.data("eventId", event._id);
+  $event.data("eventId", _id);
 
   var $locationDiv = $("<div></div>");
-  var $location = $("<h4></h4>").text(event.location);
+  var $location = $("<h4></h4>").text(location);
 
-  var formattedTime = `${event.start.hours}:${
-    event.start.minutes != 0 ? event.start.minutes : "00"
-  } - ${event.end.hours}:${event.end.minutes != 0 ? event.end.minutes : "00"}`;
   var $datetimeDiv = $("<div></div>").addClass("event__datetime");
-  var $datePara = $("<p></p>").text(days[event.day]);
+  var $datePara = $("<p></p>").text(formattedDate);
   var $timePara = $("<p></p>").text(formattedTime);
 
   $locationDiv.append($location);

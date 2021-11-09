@@ -12,6 +12,7 @@ const { v4: uuidv4 } = require("uuid");
 //   month: // monthOfYear for the event
 //   year:
 //   isoString: //ISO Standard date string for quick comparison
+//   epoch: milliseconds since epoch start
 //   day: // dayOfWeek for the event
 //   start: {
 //     hours:
