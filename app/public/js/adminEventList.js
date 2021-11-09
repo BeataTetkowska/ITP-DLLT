@@ -16,9 +16,10 @@ function updateEventList(timeDiff) {
 
   var $eventsList = $("#eventsList");
   $eventsList.empty();
-  $.getJSON(`${sessionListUrl}?start=${start}&end=${end}`, (events) =>
-    events.forEach((event) => $eventsList.append(createEventElement(event)))
-  ).fail((xhr) => {
+  $.getJSON(`${sessionListUrl}?start=${start}&end=${end}`, (events) => {
+    events.sort((a, b) => a.epoch - b.epoch);
+    events.forEach((event) => $eventsList.append(createEventElement(event)));
+  }).fail((xhr) => {
     if (xhr.status === 404 && xhr.responseText === "No events in this range")
       return $eventsList.append(
         $("<h4></h4>").addClass("no-events").text("No Sessions Found")

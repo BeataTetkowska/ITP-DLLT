@@ -38,7 +38,7 @@ router.post(
   parseModifySessionRequest,
   createUniqueSession,
   addSessionToSchedule,
-  () => res.status(200).send("Event created successfully")
+  (_, res) => res.status(200).send("Event created successfully")
 );
 
 // GET /event/list?start&end

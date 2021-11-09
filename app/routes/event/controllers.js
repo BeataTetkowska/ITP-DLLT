@@ -147,15 +147,13 @@ function parseModifySessionRequest(req, res, next) {
     return res.status(400).send("Malformed Request");
   }
 
-  var {
-    locals: { startDate },
-  } = res.locals;
+  var { startDate } = res.locals;
 
   res.locals.session = {
     date: startDate.getDate(),
     month: startDate.getMonth(),
     year: startDate.getFullYear(),
-    isoString: startDate.getISOString(),
+    isoString: startDate.toISOString(),
     epoch: epochStart,
     day: startDate.getDay(),
     start,
@@ -188,6 +186,8 @@ function addSessionToSchedule(req, res, next) {
     epoch,
     ...sessionForSchedule
   } = res.locals.session;
+
+  sessionForSchedule._id = uuidv4();
 
   eventSchedule.push(sessionForSchedule);
 
