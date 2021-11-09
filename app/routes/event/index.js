@@ -1,3 +1,4 @@
+const path = require("path");
 const { generateUserCsv } = require("./controllers");
 var router = require("express").Router();
 
@@ -5,28 +6,58 @@ var users = require("../../db/users");
 
 const userIs = require("../../middleware/userIs");
 const {
-  getEventNowJSON,
-  getEventNowHTML,
+  getNextEvent,
+  getEventJSON,
+  getEventHTML,
+  getEventList,
   parseEventId,
   getEventById,
+  parseModifySessionRequest,
+  createUniqueSession,
+  addSessionToSchedule,
   registerUserForEventById,
   deregisterUserForEventById,
 } = require("./controllers");
 
 //GET /event -> returns event data html or json
 router.get("/", (req, res) => {
+  var now = new Date();
+  nextEvent = Object.assign({}, getNextEvent(now));
+
   res.format({
-    html: () => getEventNowHTML(req, res),
-    json: () => getEventNowJSON(req, res),
+    html: () => getEventHTML(req, res),
+    json: () => getEventJSON(req, res, nextEvent),
   });
 });
 
+// POST /session?addToSchedule
+// -> Creates an event with the given details
+// -> if addToSchedule is true, adds the event to the schedule for future
+router.post(
+  "/",
+  userIs.admin,
+  parseModifySessionRequest,
+  createUniqueSession,
+  addSessionToSchedule,
+  (_, res) => res.status(200).send("Event created successfully")
+);
+
+// GET /event/list?start&end
+// -> takes a start and end time in epoch format
+// -> returns the list of events that fall in the given range
+router.get("/list", getEventList);
+
+// GET /session/add -> HTML page for creating a new event
+router.get("/add", userIs.admin, (_, res) =>
+  res.sendFile(path.join(__dirname, "../../views/addSession.html"))
+);
+
 //GET /event/:eventId -> returns event JSON data for a given eventId
 router.get("/:eventId", parseEventId, getEventById, (req, res) => {
-  var eventCopy = Object.assign({}, res.locals.matchingEvent);
-  if (!req.user || !req.user.isAdmin) eventCopy.attendance = [];
-
-  return res.json(eventCopy);
+  return res.format({
+    html: () => getEventHTML(req, res),
+    json: () => getEventJSON(req, res, res.locals.matchingEvent),
+  });
 });
 
 //PUT /event/:eventId/register?userId

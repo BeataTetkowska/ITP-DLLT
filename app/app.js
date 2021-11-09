@@ -1,3 +1,5 @@
+const path = require("path");
+
 const eventRouter = require("./routes/event");
 const userRouter = require("./routes/user");
 
@@ -9,7 +11,14 @@ const app = getAppWithMiddleware();
 app.use("/session", eventRouter);
 app.use("/user", userRouter);
 
-//Example test route
-app.get("/", (_, res) => res.send("Hello World!"));
+// GET / -> sends event list
+// I think this will work as the homepage for now
+app.get("/", (req, res) => {
+  //TODO these files are virtually identical, the difference should be rendered with EJS
+  //Rather than maintaining two files
+  var file = "eventList.html";
+  if (req.user && req.user.isAdmin) file = "adminEventList.html";
+  res.sendFile(path.join(__dirname, `./views/${file}`));
+});
 
 module.exports = app;

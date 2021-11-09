@@ -13,7 +13,7 @@ $(function () {
   //Get JSON data about the currently on event
   //Parse data into html
   $.getJSON(url, function (res) {
-    var { nextEvent: event, registered } = res;
+    var { event, registered } = res;
     $("#location").text(event.location);
     $("#time").text(
       `${event.start.hours}:${

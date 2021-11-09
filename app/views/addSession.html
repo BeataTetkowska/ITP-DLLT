@@ -1,0 +1,168 @@
+<!-- This is just a bad example frontend for the signup page. Only for showing the API functionality -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="/js/addSession.js" type="module"></script>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        line-height: 2;
+      }
+
+      html,
+      body {
+        height: 100%;
+        width: 100%;
+      }
+
+      button,
+      input {
+        background: none;
+        color: #333;
+        border: 1px solid #333;
+        border-radius: 6px;
+        font-size: 16px;
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+      input {
+        padding: 10px;
+      }
+
+      button {
+        cursor: pointer;
+        padding: 15px 30px;
+      }
+
+      .content {
+        position: absolute;
+        top: 10%;
+        left: 10%;
+      }
+
+      .container {
+        height: 100%;
+        width: 100%;
+      }
+
+      .formGroup {
+        display: flex;
+        flex-direction: column;
+        justify-content: left;
+      }
+
+      .formGroup + * {
+        margin-top: 20px;
+      }
+
+      .formGroup > input {
+        flex-grow: 0;
+        margin-right: auto;
+      }
+
+      .formGroup > input.fill {
+        margin-right: unset;
+      }
+
+      .checkBoxGroup {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0px 10px;
+      }
+
+      .checkBoxGroup > input {
+        margin-right: 10px;
+      }
+
+      .input--error {
+        color: red;
+        border: 1px solid red;
+      }
+
+      .split {
+        display: flex;
+      }
+
+      .split__left {
+        margin-right: 30px;
+      }
+
+      .split + .split {
+        margin-top: 50px;
+      }
+
+      .css-select {
+        font-size: 1rem;
+        border-radius: 6px;
+        border: 1px solid #333;
+        padding: 10px 20px 10px 10px;
+        background: #fff;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="content">
+      <h3>Streetsport</h3>
+      <h1>Create Session</h1>
+
+      <div class="formGroup">
+        <lable for="location">Session Location</lable>
+        <input id="location" class="fill" />
+      </div>
+
+      <div class="split">
+        <div class="split__left">
+          <div class="formGroup">
+            <lable for="start">Start Time</lable>
+            <input id="start" type="time" />
+          </div>
+          <div class="formGroup">
+            <lable for="date">Date</lable>
+            <input type="date" id="date" />
+          </div>
+          <!-- <div class="formGroup"> -->
+          <!--   <lable for="dayOfWeek">Scheduled Day of Week</lable> -->
+          <!--   <select class="css-select" name="dayOfWeek" id="dayOfWeek"> -->
+          <!--     <option value="monday">Monday</option> -->
+          <!--     <option value="tuesday">Tuesday</option> -->
+          <!--     <option value="wednesday">Wednesday</option> -->
+          <!--     <option value="thursday">Thursday</option> -->
+          <!--     <option value="friday">Friday</option> -->
+          <!--     <option value="Saturday">Saturday</option> -->
+          <!--     <option value="sunday">Sunday</option> -->
+          <!--   </select> -->
+          <!-- </div> -->
+        </div>
+
+        <div>
+          <div class="formGroup">
+            <lable for="end">End Time</lable>
+            <input id="end" type="time" />
+          </div>
+        </div>
+      </div>
+
+      <div class="split">
+        <div class="split__left">
+          <div class="formGroup">
+            <button id="createSession">Create Session</button>
+          </div>
+        </div>
+        <div class="checkBoxGroup">
+          <input type="checkbox" id="addToSchedule" />
+          <lable for="addToSchedule">Add Session to Schedule</lable>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
