@@ -190,6 +190,9 @@ function addSessionToSchedule(req, res, next) {
   sessionForSchedule._id = uuidv4();
 
   eventSchedule.push(sessionForSchedule);
+  //FIXME Currently after the event is added to the schedule, no additional
+  //unique events are generated
+  //TODO when moving to the database, a check should be run to see if more unique events should be generated
 
   next();
 }
