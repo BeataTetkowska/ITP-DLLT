@@ -18,6 +18,7 @@ module.exports = (req, res, next) => {
       originalUrl: req.originalUrl,
       query: req.query,
       body: req.body,
+      params: req.params,
     },
   });
   next();

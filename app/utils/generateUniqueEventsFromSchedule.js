@@ -49,6 +49,7 @@ function generateOneWeekOfEvents(eventSchedule, startOfWeek) {
     eventDate.setHours(event.start.hours);
     eventDate.setMinutes(event.start.minutes);
     eventDateIsoString = eventDate.toISOString();
+    eventDateEpoch = eventDate.getTime();
 
     return {
       //TODO when implementing this using the database, don't generate an id
@@ -57,9 +58,10 @@ function generateOneWeekOfEvents(eventSchedule, startOfWeek) {
       _id: uuidv4(),
       attendance: [],
       isoString: eventDateIsoString,
+      epoch: eventDateEpoch,
       date: eventDate.getDate(),
       month: eventDate.getMonth(),
-      year: eventDate.getYear(),
+      year: eventDate.getFullYear(),
     };
   });
 }

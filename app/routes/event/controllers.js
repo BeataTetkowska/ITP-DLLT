@@ -8,6 +8,34 @@ var uniqueEvents = require("../../utils/generateUniqueEventsFromSchedule")(
   eventSchedule
 );
 
+function getEventList(req, res) {
+  try {
+    var start = parseInt(req.query.start);
+    var end = parseInt(req.query.end);
+  } catch {
+    return res.status(400).send("Invalid start/end time supplied");
+  }
+
+  var filteredEvents = uniqueEvents.filter(
+    (event) => event.epoch > start && event.epoch < end
+  );
+  //TODO only send the required information to the frontend
+
+  // if (!req.user || !req.user.isAdmin)
+  //   filteredEvents = filteredEvents.map(({_id, }) => {
+  //     {
+  //        _id,
+  //        location,
+  //        start,
+  //        end,
+  //        date,
+  //        month
+  //     }
+  //   });
+
+  return res.json(filteredEvents);
+}
+
 //Sends html page for the current event
 //Sends the admin page for admins and
 //the standard page for all other requests
@@ -157,4 +185,5 @@ module.exports = {
   prepareUserForCsv,
   generateUserCsv,
   registerUserForEventById,
+  getEventList,
 };

@@ -7,6 +7,7 @@ const userIs = require("../../middleware/userIs");
 const {
   getEventNowJSON,
   getEventNowHTML,
+  getEventList,
   parseEventId,
   getEventById,
   registerUserForEventById,
@@ -19,6 +20,8 @@ router.get("/", (req, res) => {
     json: () => getEventNowJSON(req, res),
   });
 });
+
+router.get("/list", getEventList);
 
 //GET /event/:eventId -> returns event JSON data for a given eventId
 router.get("/:eventId", parseEventId, getEventById, (req, res) => {
