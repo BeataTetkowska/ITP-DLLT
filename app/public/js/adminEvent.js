@@ -175,15 +175,17 @@ function getUserDetails(e) {
 function deregisterUser(e) {
   var $parent = $(e.target).parent().parent();
   var userId = $parent.data("userId");
+  var url = `/session/${eventId}/attendance/${userId}`;
 
   if (!window.confirm("Are you sure you would like to deregister this user?"))
     return false;
 
-  //TODO Deregister user
+  $.ajax({
+    type: "DELETE",
+    url: url,
+  })
+    .done(() => $parent.remove())
+    .fail((xhr) => alert(xhr.responseText));
 
-  {
-    //TODO move to .done promise hanlder
-    $parent.remove();
-  }
   return false;
 }
