@@ -1,3 +1,4 @@
+const path = require("path");
 const { generateUserCsv } = require("./controllers");
 var router = require("express").Router();
 
@@ -11,6 +12,9 @@ const {
   getEventList,
   parseEventId,
   getEventById,
+  parseModifySessionRequest,
+  createUniqueSession,
+  addSessionToSchedule,
   registerUserForEventById,
 } = require("./controllers");
 
@@ -25,10 +29,27 @@ router.get("/", (req, res) => {
   });
 });
 
+// POST /session?addToSchedule
+// -> Creates an event with the given details
+// -> if addToSchedule is true, adds the event to the schedule for future
+router.post(
+  "/",
+  userIs.admin,
+  parseModifySessionRequest,
+  createUniqueSession,
+  addSessionToSchedule,
+  () => res.status(200).send("Event created successfully")
+);
+
 // GET /event/list?start&end
 // -> takes a start and end time in epoch format
 // -> returns the list of events that fall in the given range
 router.get("/list", getEventList);
+
+// GET /session/add -> HTML page for creating a new event
+router.get("/add", userIs.admin, (_, res) =>
+  res.sendFile(path.join(__dirname, "../../views/addEvent.html"))
+);
 
 //GET /event/:eventId -> returns event JSON data for a given eventId
 router.get("/:eventId", parseEventId, getEventById, (req, res) => {

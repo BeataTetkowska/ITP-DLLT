@@ -1,3 +1,4 @@
+const { v4: uuidv4 } = require("uuid");
 const path = require("path");
 const flattenObject = require("../../utils/flattenObject");
 
@@ -136,6 +137,63 @@ function registerUserForEventById(req, res, next) {
   next();
 }
 
+// Pulls all required information from a request intended to modify an session
+function parseModifySessionRequest(req, res, next) {
+  var { epochStart, start, end, location } = req.body;
+
+  try {
+    res.locals.startDate = new Date(epochStart);
+  } catch {
+    return res.status(400).send("Malformed Request");
+  }
+
+  var {
+    locals: { startDate },
+  } = res.locals;
+
+  res.locals.session = {
+    date: startDate.getDate(),
+    month: startDate.getMonth(),
+    year: startDate.getFullYear(),
+    isoString: startDate.getISOString(),
+    epoch: epochStart,
+    day: startDate.getDay(),
+    start,
+    end,
+    location,
+  };
+
+  next();
+}
+
+// Adds a unique session to the unique sessions list
+function createUniqueSession(_, res, next) {
+  uniqueSession = Object.assign({}, res.locals.session);
+  uniqueSession._id = uuidv4();
+  uniqueSession.attendance = [];
+
+  uniqueEvents.push(uniqueSession);
+  next();
+}
+
+// Adds an session to the session schedule
+function addSessionToSchedule(req, res, next) {
+  if (req.query.addToSchedule !== "true") return next();
+
+  var {
+    date,
+    month,
+    year,
+    isoString,
+    epoch,
+    ...sessionForSchedule
+  } = res.locals.session;
+
+  eventSchedule.push(sessionForSchedule);
+
+  next();
+}
+
 module.exports = {
   getEventJSON,
   getEventHTML,
@@ -143,6 +201,9 @@ module.exports = {
   getEventById,
   getNextEvent,
   prepareUserForCsv,
+  parseModifySessionRequest,
+  createUniqueSession,
+  addSessionToSchedule,
   generateUserCsv,
   registerUserForEventById,
   getEventList,
