@@ -14,6 +14,8 @@ app.use("/user", userRouter);
 // GET / -> sends event list
 // I think this will work as the homepage for now
 app.get("/", (req, res) => {
+  //TODO these files are virtually identical, the difference should be rendered with EJS
+  //Rather than maintaining two files
   var file = "eventList.html";
   if (req.user && req.user.isAdmin) file = "adminEventList.html";
   res.sendFile(path.join(__dirname, `./views/${file}`));

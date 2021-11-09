@@ -1,6 +1,6 @@
 import generateDateRange from "./utils/generateDateRange.js";
 
-$(async function () {
+$(function () {
   //Upddate eventList using select value and add onChange handler to update list
   updateEventList($("#eventFilter").val());
   $("#eventFilter").on("change", (e) => updateEventList($(e.target).val()));
@@ -18,6 +18,8 @@ function updateEventList(timeDiff) {
     var $eventsList = $("#eventsList");
     $eventsList.empty();
     events.forEach((event) => $eventsList.append(createEventElement(event)));
+  }).fail((xhr) => {
+    alert(xhr.responseText);
   });
 }
 
@@ -38,7 +40,7 @@ function createEventElement(event) {
   });
 
   var $event = $("<div></div>").addClass("event");
-  $event.data("eventId", _id);
+  $event.click(() => (window.location.href = `/session/${_id}`));
 
   var $locationDiv = $("<div></div>");
   var $location = $("<h4></h4>").text(location);
