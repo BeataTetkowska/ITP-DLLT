@@ -49,9 +49,6 @@ async function checkIfUserExists(_, res, next) {
   if (testuser) {
     res.locals.userExists = true;
   }
-  // if (users.filter((user) => user.email === res.locals.user.email).length > 0) {
-  //   res.locals.userExists = true;
-  // }
 
   next();
 }
@@ -60,9 +57,8 @@ async function checkIfUserExists(_, res, next) {
 async function createUser(_, res) {
   var success = false;
   if (res.locals.userExists === false) {
-    //  res.locals.user._id = users.length + 1;
     await users.create(res.locals.user);
-    //  users.push(res.locals.user);
+
     success = true;
   }
 
