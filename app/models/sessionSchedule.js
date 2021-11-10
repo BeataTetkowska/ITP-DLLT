@@ -2,10 +2,10 @@ const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
 
-let events = new Schema(
+let sessionSchedule = new Schema(
   {
     day: {
-      type: String,
+      type: Int,
     },
     start: {
       hours: {
@@ -27,7 +27,7 @@ let events = new Schema(
       type: String,
     },
   },
-  { collection: "events" }
+  { collection: "sessionSchedule" }
 );
 
-module.exports = mongoose.model("events", events);
+module.exports = mongoose.model("sessionSchedule", sessionSchedule);

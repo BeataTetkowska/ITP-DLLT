@@ -4,10 +4,9 @@ const Schema = mongoose.Schema;
 
 let uniqueevent = new Schema(
   {
-    isAdmin: {
-      type: Boolean,
+    attendance: {
+      type: Array,
     },
-    attendance: {},
     date: {
       type: Int,
     },
@@ -19,6 +18,9 @@ let uniqueevent = new Schema(
     },
     isoString: {
       type: isoString,
+    },
+    epoch: {
+      type: Int,
     },
     day: {
       type: Int,
