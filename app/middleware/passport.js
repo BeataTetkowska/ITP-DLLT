@@ -2,7 +2,7 @@ var passport = require("passport");
 var LocalStrategy = require("passport-local").Strategy;
 const bcrypt = require("bcrypt");
 
-const users = require("../db/users");
+const user = require("../models/user");
 
 //Serialises user object in preparation for storing in the sessions database
 passport.serializeUser(function (user, done) {
@@ -30,8 +30,8 @@ passport.use(
       usernameField: "email",
     },
     async function (req, email, password, done) {
-      let matchingUser = users.filter((user) => user.email === email)[0];
-
+      let matchingUser = await user.findOne({ email }).exec();
+      console.log(matchingUser);
       //No user found with matching email address
       if (matchingUser === undefined) {
         return done(null, false, {

@@ -1,3 +1,4 @@
+const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
@@ -12,6 +13,9 @@ let user = new Schema(
         type: String,
       },
       last: {
+        type: String,
+      },
+      full: {
         type: String,
       },
     },
@@ -35,6 +39,18 @@ let user = new Schema(
       name: {
         type: String,
       },
+    },
+    gdprAccepted: {
+      type: Boolean,
+    },
+    marketingAccepted: {
+      type: Boolean,
+    },
+    resetTokenHash: {
+      type: String,
+    },
+    resetTokenExpires: {
+      type: Number,
     },
   },
   { collection: "users" }
