@@ -6,6 +6,8 @@ const { getNextEvent } = require("../../app/routes/event/controllers");
 const toBeWithinRange = require("../matchers/toBeWithinRange");
 expect.extend(toBeWithinRange);
 
+var eventSchedule = require("../../app/db/event");
+
 const loginUser = require("../utils/loginUser");
 
 async function loginAndRegisterUser(email, password) {
@@ -290,22 +292,135 @@ describe("POST /session: standard user", () => {
   afterAll(() => server.get("/user/logout"));
 });
 
-// describe("POST /session: Malformed epoch", () => {
-//   var url = "/session";
-//   var email = "joaquim.q.gomez@gmail.com";
-//   var password = email;
-//
-//   beforeAll(() => loginUser(server, email, password));
-//
-//   it("-> HTTP 403", () =>
-//     server.post(url).send({ epochStart: "wooo" }).expect(403));
-//   it("-> Content Type HTML", () =>
-//     server.post(url).expect("Content-type", /text/));
-//
-//   afterAll(() => server.get("/user/logout"));
-// });
-//
-// describe("POST /session: Missing fields", () => {});
+describe("POST /session: Malformed epoch", () => {
+  var url = "/session";
+  var email = "admin@admin.admin";
+  var password = email;
+
+  var sessionBody = {
+    epochStart: "wooo",
+    start: {
+      hours: 1,
+      minutes: 1,
+    },
+    end: {
+      hours: 1,
+      minutes: 1,
+    },
+    location: "test",
+  };
+
+  beforeAll(() => loginUser(server, email, password));
+
+  it("-> HTTP 403", () => server.post(url).send(sessionBody).expect(400));
+  it("-> Content Type HTML", () =>
+    server.post(url).expect("Content-type", /text/));
+
+  afterAll(() => server.get("/user/logout"));
+});
+
+describe("POST /session: Missing fields", () => {
+  var url = "/session";
+  var email = "admin@admin.admin";
+  var password = email;
+
+  var sessionBody = {
+    epochStart: 7777777,
+    start: {
+      hours: 1,
+      minutes: 1,
+    },
+    end: {
+      hours: 1,
+      minutes: 1,
+    },
+    location: "test",
+  };
+
+  var { epochStart, ...missingEpoch } = sessionBody;
+  var { start, ...missingStart } = sessionBody;
+  var { end, ...missingEnd } = sessionBody;
+  var { location, ...missingLocation } = sessionBody;
+
+  beforeAll(() => loginUser(server, email, password));
+
+  it("-> Missing Epoch: 403", () =>
+    server.post(url).send(missingEpoch).expect(400));
+  it("-> Missing Start: 403", () =>
+    server.post(url).send(missingStart).expect(400));
+  it("-> Missing End: 403", () =>
+    server.post(url).send(missingEnd).expect(400));
+  it("-> Missing Location: 403", () =>
+    server.post(url).send(missingLocation).expect(400));
+
+  afterAll(() => server.get("/user/logout"));
+});
+
+describe("POST /session: Session created but not added to schedule", () => {
+  var url = "/session";
+  var email = "admin@admin.admin";
+  var password = email;
+
+  var sessionBody = {
+    epochStart: 1636579019187,
+    start: {
+      hours: 1,
+      minutes: 1,
+    },
+    end: {
+      hours: 1,
+      minutes: 1,
+    },
+    location: "jlklklklklklklklklklklklkl",
+  };
+
+  beforeAll(() => loginUser(server, email, password));
+
+  it("-> HTTP 200", () => server.post(url).send(sessionBody).expect(200));
+
+  it("-> Session not in event schedule", () =>
+    expect(
+      eventSchedule.findIndex(
+        (event) => event.location === sessionBody.location
+      ) > 0
+    ).toBe(false));
+
+  afterAll(() => server.get("/user/logout"));
+});
+
+describe("POST /session: Session created and added to schedule", () => {
+  var url = "/session?addToSchedule=true";
+  var email = "admin@admin.admin";
+  var password = email;
+
+  var sessionBody = {
+    epochStart: 1636579019187,
+    start: {
+      hours: 1,
+      minutes: 1,
+    },
+    end: {
+      hours: 1,
+      minutes: 1,
+    },
+    location: "fasdfasdfasdfasdfasfasdfasdf",
+  };
+
+  beforeAll(() => loginUser(server, email, password));
+
+  it("-> HTTP 200", () => server.post(url).send(sessionBody).expect(200));
+
+  it("-> Session is in event schedule", () =>
+    expect(
+      eventSchedule.findIndex(
+        (event) => event.location === sessionBody.location
+      ) > 0
+    ).toBe(true));
+
+  afterAll(() => server.get("/user/logout"));
+});
+
+//TODO check for session being added to uniqueSessions
 
 describe("/session/1/attendance standard user", () => {
   var email = "email@taken.com";
