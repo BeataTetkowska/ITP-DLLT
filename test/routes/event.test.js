@@ -28,6 +28,22 @@ async function getEventId() {
   return eventId;
 }
 
+async function countNumberOfEvents(start, end, numEvents) {
+  start = start.getTime();
+  end = end.getTime();
+  var url = getSessionListUrl(start, end);
+
+  return request(app)
+    .get(url)
+    .then((res) => expect(res.body.length).toEqual(numEvents));
+}
+
+const getSessionListUrl = (start, end) =>
+  `/session/list?start=${start}&end=${end}`;
+
+const removeTime = (date) =>
+  new Date(date.getTime() - (date.getTime() % 86400000));
+
 //This is an example integration test for the /api/event api endpoint
 //The test simulates a HTTP request to /api/session and then tests aspects
 //of the response.
@@ -329,11 +345,10 @@ describe("/session/:eventId/attendance one user", () => {
     return server.get(`/session/${eventId}/attendance`).expect(200);
   });
 
-  it("GET /session/:eventId/attendance -> content JSON", async () => {
-    return server
+  it("GET /session/:eventId/attendance -> content JSON", async () =>
+    server
       .get(`/session/${eventId}/attendance`)
-      .expect("Content-type", /json/);
-  });
+      .expect("Content-type", /json/));
 
   afterAll(async () => {
     await server.get("/user/logout");
@@ -423,10 +438,174 @@ describe("/session/:eventId/register without auth", () => {
   });
 });
 
-describe("/session Functions", () => {
-  const removeTime = (date) =>
-    new Date(date.getTime() - (date.getTime() % 86400000));
+describe("GET /session/list: malformed query", () => {
+  it("-> HTTP 400", () => {
+    var start = "asdfasdf";
+    var end = "asdfasdf";
+    var url = getSessionListUrl(start, end);
 
+    return request(app).get(url).expect(400);
+  });
+
+  it("-> HTTP 400", () => {
+    var start = "";
+    var end = "asdfasdf";
+    var url = getSessionListUrl(start, end);
+
+    return request(app).get(url).expect(400);
+  });
+});
+
+describe("GET /session/list: events found", () => {
+  var sundayMidnight;
+  beforeEach(() => {
+    sundayMidnight = removeTime(new Date());
+    sundayMidnight.setDate(sundayMidnight.getDate() - sundayMidnight.getDay());
+  });
+
+  it("-> 2 Events on Tuesday", async () => {
+    var tuesdayEvening = new Date(sundayMidnight);
+    tuesdayEvening.setDate(tuesdayEvening.getDate() + 2);
+    tuesdayEvening.setHours(21);
+
+    return countNumberOfEvents(sundayMidnight, tuesdayEvening, 2);
+  });
+
+  it("-> 8 Events in a week", async () => {
+    var sundayMidnightNextWeek = new Date(sundayMidnight);
+    sundayMidnightNextWeek.setDate(sundayMidnightNextWeek.getDate() + 7);
+    sundayMidnightNextWeek.setHours(21);
+
+    return countNumberOfEvents(sundayMidnight, sundayMidnightNextWeek, 8);
+  });
+
+  it("-> 1 Event on Wednesday", async () => {
+    var wednesdayMorning = new Date(sundayMidnight);
+    wednesdayMorning.setDate(wednesdayMorning.getDate() + 3);
+    wednesdayMorning.setHours(9);
+    var wednesdayNight = new Date(wednesdayMorning);
+    wednesdayNight.setHours(22);
+
+    return countNumberOfEvents(wednesdayMorning, wednesdayNight, 1);
+  });
+
+  it("-> 2 Events on Thursday", async () => {
+    var thursdayMorning = new Date(sundayMidnight);
+    thursdayMorning.setDate(thursdayMorning.getDate() + 4);
+    thursdayMorning.setHours(9);
+    var thursdayNight = new Date(thursdayMorning);
+    thursdayNight.setHours(22);
+
+    return countNumberOfEvents(thursdayMorning, thursdayNight, 2);
+  });
+
+  it("-> 3 Events on Friday", async () => {
+    var fridayMorning = new Date(sundayMidnight);
+    fridayMorning.setDate(fridayMorning.getDate() + 5);
+    fridayMorning.setHours(9);
+    var fridayNight = new Date(fridayMorning);
+    fridayNight.setHours(22);
+
+    return countNumberOfEvents(fridayMorning, fridayNight, 3);
+  });
+
+  it("-> 5 Events on Thursday-Friday", async () => {
+    var thursdayMorning = new Date(sundayMidnight);
+    thursdayMorning.setDate(thursdayMorning.getDate() + 4);
+    thursdayMorning.setHours(9);
+    var fridayNight = new Date(thursdayMorning);
+    fridayNight.setDate(fridayNight.getDate() + 1);
+    fridayNight.setHours(22);
+
+    return countNumberOfEvents(thursdayMorning, fridayNight, 5);
+  });
+});
+
+describe("GET /session/list: no events found", () => {
+  const expectNoEvents = (start, end) => {
+    start = start.getTime();
+    end = end.getTime();
+    var url = getSessionListUrl(start, end);
+
+    return request(app).get(url).expect(404);
+  };
+
+  var sundayMidnight;
+  beforeEach(() => {
+    sundayMidnight = removeTime(new Date());
+    sundayMidnight.setDate(sundayMidnight.getDate() - sundayMidnight.getDay());
+  });
+
+  it("-> Saturday-Sunday", async () => {
+    var saturdayMorning = new Date(sundayMidnight);
+    saturdayMorning.setDate(saturdayMorning.getDate() + 6);
+    saturdayMorning.setHours(9);
+    var sundayNight = new Date(saturdayMorning);
+    sundayNight.setDate(sundayNight.getDate() + 1);
+    sundayNight.setHours(22);
+
+    return expectNoEvents(saturdayMorning, sundayNight);
+  });
+
+  it("-> Tuesday morning", async () => {
+    var tuesdayMorning = new Date(sundayMidnight);
+    tuesdayMorning.setDate(tuesdayMorning.getDate() + 2);
+    tuesdayMorning.setHours(9);
+
+    tuesdayMidday = new Date(tuesdayMorning);
+    tuesdayMidday.setHours(14);
+
+    return expectNoEvents(tuesdayMorning, tuesdayMidday);
+  });
+
+  it("-> Matching start and end", async () => {
+    return expectNoEvents(sundayMidnight, sundayMidnight);
+  });
+});
+
+describe("GET /session/list: return object deatils", () => {
+  var sundayMidnight;
+  beforeEach(() => {
+    sundayMidnight = removeTime(new Date());
+    sundayMidnight.setDate(sundayMidnight.getDate() - sundayMidnight.getDay());
+  });
+
+  var eventTemplate = {
+    _id: expect.any(String),
+    date: expect.any(Number),
+    month: expect.any(Number),
+    year: expect.any(Number),
+    isoString: expect.any(String),
+    epoch: expect.any(Number),
+    day: expect.toBeWithinRange(0, 6),
+    start: expect.objectContaining({
+      hours: expect.toBeWithinRange(0, 23),
+      minutes: expect.toBeWithinRange(0, 59),
+    }),
+    end: expect.objectContaining({
+      hours: expect.toBeWithinRange(0, 23),
+      minutes: expect.toBeWithinRange(0, 59),
+    }),
+    location: expect.any(String),
+  };
+
+  it("-> Response and event have the correct properties", async () => {
+    var tuesdayEvening = new Date(sundayMidnight);
+    tuesdayEvening.setDate(tuesdayEvening.getDate() + 2);
+    tuesdayEvening.setHours(21);
+    var start = sundayMidnight.getTime();
+    var end = tuesdayEvening.getTime();
+    var url = getSessionListUrl(start, end);
+
+    return request(app)
+      .get(url)
+      .then((res) => {
+        expect(res.body).toEqual(expect.arrayContaining([eventTemplate]));
+      });
+  });
+});
+
+describe("/session Functions", () => {
   var sundayMidnight;
   beforeEach(() => {
     sundayMidnight = removeTime(new Date());

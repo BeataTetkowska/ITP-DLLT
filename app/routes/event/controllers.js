@@ -10,12 +10,11 @@ var uniqueEvents = require("../../utils/generateUniqueEventsFromSchedule")(
 );
 
 function getEventList(req, res) {
-  try {
-    var start = parseInt(req.query.start);
-    var end = parseInt(req.query.end);
-  } catch {
+  var start = parseInt(req.query.start) || null;
+  var end = parseInt(req.query.end) || null;
+
+  if (!start || !end)
     return res.status(400).send("Invalid start/end time supplied");
-  }
 
   var filteredEvents = uniqueEvents
     .filter((event) => event.epoch > start && event.epoch < end)
