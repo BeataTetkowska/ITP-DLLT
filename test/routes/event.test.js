@@ -269,6 +269,44 @@ describe("/session/1/attendance no auth", () => {
   });
 });
 
+describe("POST /session: no auth", () => {
+  var url = "/session";
+  it("-> HTTP 401", () => request(app).post(url).expect(401));
+  it("-> Content Type HTML", () =>
+    request(app).post(url).expect("Content-type", /text/));
+});
+
+describe("POST /session: standard user", () => {
+  var url = "/session";
+  var email = "random@email.com";
+  var password = email;
+
+  beforeAll(() => loginUser(server, email, password));
+
+  it("-> HTTP 403", () => server.post(url).expect(403));
+  it("-> Content Type HTML", () =>
+    server.post(url).expect("Content-type", /text/));
+
+  afterAll(() => server.get("/user/logout"));
+});
+
+// describe("POST /session: Malformed epoch", () => {
+//   var url = "/session";
+//   var email = "joaquim.q.gomez@gmail.com";
+//   var password = email;
+//
+//   beforeAll(() => loginUser(server, email, password));
+//
+//   it("-> HTTP 403", () =>
+//     server.post(url).send({ epochStart: "wooo" }).expect(403));
+//   it("-> Content Type HTML", () =>
+//     server.post(url).expect("Content-type", /text/));
+//
+//   afterAll(() => server.get("/user/logout"));
+// });
+//
+// describe("POST /session: Missing fields", () => {});
+
 describe("/session/1/attendance standard user", () => {
   var email = "email@taken.com";
   var password = "email@taken.com";
