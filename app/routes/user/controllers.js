@@ -6,12 +6,14 @@ const {
 } = require("../../utils/dotenvDefaults");
 const crypto = require("crypto");
 const bcrypt = require("bcrypt");
-var users = require("../../db/users");
 const { sendTextEmail } = require("../../utils/sendEmail");
+const user = require("../../models/user");
 
 //Searches the database for the user using an email address provided in request body
-function getUserByEmail(req, res, next) {
-  res.locals.matchingUser = users.find((user) => user.email === req.body.email);
+async function getUserByEmail(req, res, next) {
+  res.locals.matchingUser = await user
+    .findOne({ email: req.body.email })
+    .exec();
 
   //Can't give clear indication to frontend that no user was found
   //due to security concerns
@@ -29,10 +31,10 @@ async function sendPasswordResetToken(_, res, next) {
   res.locals.matchingUser.resetTokenExpires = Date.now() + 1000 * 60 * 30;
 
   //Update user in database
-  var index = users.findIndex(
-    (user) => (user._id = res.locals.matchingUser._id)
+  await user.replaceOne(
+    { _id: res.locals.matchingUser._id },
+    res.locals.matchingUser
   );
-  users[index] = res.locals.matchingUser;
 
   //Email data for sending email
   const emailData = {
@@ -53,10 +55,8 @@ async function sendPasswordResetToken(_, res, next) {
 //Checks, token and email match the database record
 //and that token has not expired
 async function resetPassword(req, res, next) {
-  var {
-    resetTokenHash: tokenHash,
-    resetTokenExpires: tokenExpires,
-  } = res.locals.matchingUser;
+  var { resetTokenHash: tokenHash, resetTokenExpires: tokenExpires } =
+    res.locals.matchingUser;
 
   //Check if password reset has ever been initated for this user
   if (!tokenHash || !req.body.token)
@@ -72,6 +72,10 @@ async function resetPassword(req, res, next) {
 
   //Update user's password
   res.locals.matchingUser.hash = await bcrypt.hash(req.body.password, 10);
+  await user.replaceOne(
+    { _id: res.locals.matchingUser._id },
+    res.locals.matchingUser
+  );
   next();
 }
 
