@@ -4,7 +4,7 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="/js/signup.js" type="module"></script>
+    <script src="/js/addSession.js" type="module"></script>
     <style>
       * {
         box-sizing: border-box;
@@ -59,13 +59,17 @@
         justify-content: left;
       }
 
-      .formGroup + .formGroup {
+      .formGroup + * {
         margin-top: 20px;
       }
 
       .formGroup > input {
         flex-grow: 0;
         margin-right: auto;
+      }
+
+      .formGroup > input.fill {
+        margin-right: unset;
       }
 
       .checkBoxGroup {
@@ -95,53 +99,55 @@
       .split + .split {
         margin-top: 50px;
       }
+
+      .css-select {
+        font-size: 1rem;
+        border-radius: 6px;
+        border: 1px solid #333;
+        padding: 10px 20px 10px 10px;
+        background: #fff;
+      }
     </style>
   </head>
 
   <body>
     <div class="content">
       <h3>Streetsport</h3>
-      <h1>Signup</h1>
+      <h1>Create Session</h1>
+
+      <div class="formGroup">
+        <lable for="location">Session Location</lable>
+        <input id="location" class="fill" />
+      </div>
 
       <div class="split">
         <div class="split__left">
           <div class="formGroup">
-            <lable for="email">Email</lable>
-            <input id="email" type="email" />
+            <lable for="start">Start Time</lable>
+            <input id="start" type="time" />
           </div>
           <div class="formGroup">
-            <lable for="password">Password</lable>
-            <input id="password" type="password" />
+            <lable for="date">Date</lable>
+            <input type="date" id="date" />
           </div>
-          <div class="formGroup">
-            <lable for="firstName">First Name</lable>
-            <input id="firstName" />
-          </div>
-          <div class="formGroup">
-            <lable for="emergencyName">Emergency Contact Name</lable>
-            <input id="emergencyName" />
-          </div>
-          <div class="formGroup">
-            <lable for="dateOfBirth">Date of Birth</lable>
-            <input type="date" id="dateOfBirth" />
-          </div>
+          <!-- <div class="formGroup"> -->
+          <!--   <lable for="dayOfWeek">Scheduled Day of Week</lable> -->
+          <!--   <select class="css-select" name="dayOfWeek" id="dayOfWeek"> -->
+          <!--     <option value="monday">Monday</option> -->
+          <!--     <option value="tuesday">Tuesday</option> -->
+          <!--     <option value="wednesday">Wednesday</option> -->
+          <!--     <option value="thursday">Thursday</option> -->
+          <!--     <option value="friday">Friday</option> -->
+          <!--     <option value="Saturday">Saturday</option> -->
+          <!--     <option value="sunday">Sunday</option> -->
+          <!--   </select> -->
+          <!-- </div> -->
         </div>
+
         <div>
           <div class="formGroup">
-            <lable for="postcode">Postcode</lable>
-            <input id="postcode" />
-          </div>
-          <div class="formGroup">
-            <lable for="confirmPassword">Confirm Password</lable>
-            <input id="confirmPassword" type="password" />
-          </div>
-          <div class="formGroup">
-            <lable for="lastName">Last Name</lable>
-            <input id="lastName" />
-          </div>
-          <div class="formGroup">
-            <lable for="phoneNumber">Emergency Contact Number</lable>
-            <input id="phoneNumber" />
+            <lable for="end">End Time</lable>
+            <input id="end" type="time" />
           </div>
         </div>
       </div>
@@ -149,16 +155,12 @@
       <div class="split">
         <div class="split__left">
           <div class="formGroup">
-            <button id="signup">Signup</button>
+            <button id="createSession">Create Session</button>
           </div>
         </div>
         <div class="checkBoxGroup">
-          <input type="checkbox" id="marketing" />
-          <lable for="marketing">Marketing</lable>
-        </div>
-        <div class="checkBoxGroup">
-          <input type="checkbox" id="gdpr" />
-          <lable for="GDPR">GDPR</lable>
+          <input type="checkbox" id="addToSchedule" />
+          <lable for="addToSchedule">Add Session to Schedule</lable>
         </div>
       </div>
     </div>

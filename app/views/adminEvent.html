@@ -4,7 +4,7 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="/js/adminEvent.js"></script>
+    <script src="/js/adminEvent.js" type="module"></script>
     <style>
       * {
         box-sizing: border-box;
@@ -43,8 +43,38 @@
         text-decoration: none;
         cursor: pointer;
       }
-      
-      
+
+      button.disabled {
+        color: #bbb;
+        border: 1px solid #bbb;
+        cursor: default;
+      }
+
+      input {
+        background: none;
+        color: #333;
+        border: 1px solid #333;
+        border-radius: 6px;
+        font-size: 16px;
+        padding: 15px 30px;
+      }
+
+      .formGroup {
+        display: flex;
+        flex-direction: column;
+        justify-content: left;
+        align-items: flex-start;
+      }
+
+      .formGroup + .formGroup {
+        margin-top: 20px;
+      }
+
+      .formGroup > input {
+        flex-grow: 0;
+        margin-right: auto;
+      }
+
       table {
         width: 100%;
         margin: 40px 0;
@@ -61,8 +91,8 @@
       }
 
       table td,
-        table th {
-        padding: .5em;
+      table th {
+        padding: 6px;
         height: 60px;
         vertical-align: middle;
         border-right: 1px solid #333;
@@ -70,7 +100,7 @@
       }
 
       table td:last-child,
-          table th:last-child {
+      table th:last-child {
         border-right: none;
       }
 
@@ -80,6 +110,7 @@
 
       table td {
         background: #fff;
+        cursor: pointer;
       }
 
       table thead {
@@ -88,25 +119,54 @@
 
       table thead th {
         color: #fff;
-        font-size: 2rem;
-        letter-spacing: .2em;
+      }
+
+      table tbody tr td {
+        position: relative;
+      }
+
+      .deregister-cross {
+        color: #c62828;
+        visibility: hidden;
+        position: absolute;
+        right: 20px;
+        top: 16px;
+      }
+
+      table tbody tr:hover .deregister-cross {
+        visibility: visible;
       }
 
       table tbody tr:last-child td,
-        table tbody tr:last-child th {
+      table tbody tr:last-child th {
         border-bottom: none;
       }
-      
     </style>
   </head>
 
   <body>
     <div class="content">
-      <h3>Street Sport</h3>
+      <h3>Streetsport</h3>
       <h1 id="location"></h1>
       <p id="time"></p>
       <p id="day"></p>
-      <button id="getAttendance">View Registered Users</button>
+      <div class="formGroup">
+        <label for="getAttendance">View Registered Users</label>
+        <button class="disabled" id="getAttendance">Update</button>
+      </div>
+      <div class="formGroup">
+        <label for="userSearch">Register Manually</label>
+        <div style="display: flex; justify-content: space-between">
+          <input
+            id="userSearch"
+            list="userSearchList"
+            placeholder="Search for user"
+            autocomplete="off"
+          />
+          <button class="disabled" id="registerManually">Register</button>
+        </div>
+        <datalist id="userSearchList"> </datalist>
+      </div>
       <table>
         <thead>
           <tr>
@@ -115,9 +175,13 @@
             <th>Emergency Contact Number</th>
           </tr>
         </thead>
-        <tbody id="attendanceTable">
-        </tbody>
+        <tbody id="attendanceTableBody"></tbody>
       </table>
+      <a id="exportAttendanceLink"
+        ><button data-mime-type="text/csv" id="exportAttendance">
+          Export
+        </button></a
+      >
     </div>
   </body>
 </html>

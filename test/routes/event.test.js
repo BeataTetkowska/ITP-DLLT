@@ -1,31 +1,156 @@
 const request = require("supertest");
 const app = require("../../app/app");
+const server = request.agent(app);
+const { getNextEvent } = require("../../app/routes/event/controllers");
 
 const toBeWithinRange = require("../matchers/toBeWithinRange");
 expect.extend(toBeWithinRange);
 
+const loginUser = require("../utils/loginUser");
+
+async function loginAndRegisterUser(email, password) {
+  var eventId = null;
+  eventId = await getEventId();
+  await loginUser(server, email, password);
+  await server.put(`/session/${eventId}/register`);
+  await server.get("/user/logout");
+  return eventId;
+}
+
+async function getEventId() {
+  var eventId;
+  await server
+    .get("/session")
+    .set("Accept", "application/json")
+    .then((data) => {
+      eventId = data.body.event._id;
+    });
+  return eventId;
+}
+
+async function countNumberOfEvents(start, end, numEvents) {
+  start = start.getTime();
+  end = end.getTime();
+  var url = getSessionListUrl(start, end);
+
+  return request(app)
+    .get(url)
+    .then((res) => expect(res.body.length).toEqual(numEvents));
+}
+
+const getSessionListUrl = (start, end) =>
+  `/session/list?start=${start}&end=${end}`;
+
+const removeTime = (date) =>
+  new Date(date.getTime() - (date.getTime() % 86400000));
+
 //This is an example integration test for the /api/event api endpoint
-//The test simulates a HTTP request to /api/event and then tests aspects
+//The test simulates a HTTP request to /api/session and then tests aspects
 //of the response.
 //Checks for the content-type to be json
 //Checks for the HTTP code to be 200
 //Checks for the body in the response to consist of an object with
 //a specific set of fields
-describe("/event", () => {
-  it("GET /event -> event page html", async () => {
+describe("/session no auth", () => {
+  it("GET /session html -> HTTP 200", async () => {
+    return request(app).get("/session").expect(200);
+  });
+
+  it("GET /session html -> Content Type HTML", async () => {
     return request(app)
-      .get("/event")
-      .expect("Content-type", /text\/html/)
+      .get("/session")
+      .expect("Content-type", /text\/html/);
+  });
+
+  it("GET /session json -> HTTP 200", async () => {
+    return request(app)
+      .get("/session")
+      .set("Accept", "application/json")
       .expect(200);
   });
 
-  it("GET /api/event -> current event json", async () => {
+  it("GET /session json -> Content Type JSON", async () => {
     return request(app)
-      .get("/api/event")
-      .expect("Content-Type", /json/)
-      .expect(200)
+      .get("/session")
+      .set("Accept", "application/json")
+      .expect("Content-Type", /json/);
+  });
+
+  it("GET /session json -> event fields", async () => {
+    return request(app)
+      .get("/session")
+      .set("Accept", "application/json")
       .then((res) => {
-        expect(res.body).toEqual(
+        expect(res.body.event).toEqual(
+          expect.objectContaining({
+            _id: expect.any(String),
+            attendance: expect.any(Array),
+            date: expect.any(Number),
+            month: expect.any(Number),
+            year: expect.any(Number),
+            isoString: expect.any(String),
+            epoch: expect.any(Number),
+            day: expect.toBeWithinRange(0, 6),
+            start: expect.objectContaining({
+              hours: expect.toBeWithinRange(0, 23),
+              minutes: expect.toBeWithinRange(0, 59),
+            }),
+            end: expect.objectContaining({
+              hours: expect.toBeWithinRange(0, 23),
+              minutes: expect.toBeWithinRange(0, 59),
+            }),
+            location: expect.any(String),
+          })
+        );
+      });
+  });
+
+  it("GET /session json -> attendance array empty", async () => {
+    return request(app)
+      .get("/session")
+      .set("Accept", "application/json")
+      .then((res) => {
+        expect(res.body.event.attendance.length).toBe(0);
+      });
+  });
+});
+
+describe("/session as standard user", () => {
+  var adminEmail = "email@taken.com";
+  var adminPassword = "email@taken.com";
+
+  beforeAll(async () => {
+    await server.post("/user/login").send({
+      email: adminEmail,
+      password: adminPassword,
+    });
+  });
+
+  it("GET /session -> HTTP 200", async () => {
+    return server.get("/session").expect(200);
+  });
+
+  it("GET /session -> Content Type HTML", async () => {
+    return server.get("/session").expect("Content-type", /text\/html/);
+  });
+
+  it("GET /session json -> HTTP 200", async () => {
+    return server.get("/session").set("Aceept", "application/json").expect(200);
+  });
+
+  it("GET /session json -> Content Type JSON", async () => {
+    return server
+      .get("/session")
+      .set("Accept", "application/json")
+      .expect("Content-Type", /json/);
+  });
+
+  it("GET /session json -> event fields", async () => {
+    return server
+      .get("/session")
+      .set("Accept", "application/json")
+      .then((res) => {
+        expect(res.body.event).toEqual(
           expect.objectContaining({
             day: expect.toBeWithinRange(0, 6),
             start: expect.objectContaining({
@@ -40,5 +165,540 @@ describe("/event", () => {
           })
         );
       });
+  });
+
+  it("GET /session json -> attendance not null", async () => {
+    return server
+      .get("/session")
+      .set("Accept", "application/json")
+      .then((res) => {
+        expect(res.body.event.attendance).toHaveLength(0);
+      });
+  });
+
+  afterAll(async () => {
+    await server.get("/user/logout");
+  });
+});
+
+describe("/session as admin", () => {
+  var adminEmail = "admin@admin.admin";
+  var adminPassword = "admin@admin.admin";
+
+  beforeAll(async () => {
+    await server.post("/user/login").send({
+      email: adminEmail,
+      password: adminPassword,
+    });
+  });
+
+  it("GET /session -> HTTP 200", async () => {
+    return server.get("/session").expect(200);
+  });
+
+  it("GET /session -> Content Type HTML", async () => {
+    return server.get("/session").expect("Content-type", /text\/html/);
+  });
+
+  it("GET /session json -> HTTP 200", async () => {
+    return server.get("/session").set("Aceept", "application/json").expect(200);
+  });
+
+  it("GET /session json -> Content Type JSON", async () => {
+    return server
+      .get("/session")
+      .set("Accept", "application/json")
+      .expect("Content-Type", /json/);
+  });
+
+  it("GET /session json -> event fields", async () => {
+    return server
+      .get("/session")
+      .set("Accept", "application/json")
+      .then((res) => {
+        expect(res.body.event).toEqual(
+          expect.objectContaining({
+            day: expect.toBeWithinRange(0, 6),
+            start: expect.objectContaining({
+              hours: expect.toBeWithinRange(0, 23),
+              minutes: expect.toBeWithinRange(0, 59),
+            }),
+            end: expect.objectContaining({
+              hours: expect.toBeWithinRange(0, 23),
+              minutes: expect.toBeWithinRange(0, 59),
+            }),
+            location: expect.any(String),
+            attendance: expect.any(Array),
+          })
+        );
+      });
+  });
+
+  it("GET /session json -> attendance not null", async () => {
+    return server
+      .get("/session")
+      .set("Accept", "application/json")
+      .then((res) => {
+        expect(res.body.event.attendance).not.toEqual(null);
+      });
+  });
+
+  afterAll(async () => {
+    await server.get("/user/logout");
+  });
+});
+
+describe("/session/1/attendance no auth", () => {
+  var eventId;
+  beforeAll(async () => {
+    eventId = getEventId();
+  });
+
+  it("GET /session/1/attendance -> HTTP 401", async () => {
+    return server
+      .get(`/session/${eventId}/attendance`)
+      .set("Accept", "application/json")
+      .expect(401);
+  });
+
+  it("GET /session/1/attendance -> content json", async () => {
+    return server
+      .get(`/session/${eventId}/attendance`)
+      .set("Accept", "application/json")
+      .expect("Content-type", /text\/html/);
+  });
+});
+
+describe("POST /session: no auth", () => {
+  var url = "/session";
+  it("-> HTTP 401", () => request(app).post(url).expect(401));
+  it("-> Content Type HTML", () =>
+    request(app).post(url).expect("Content-type", /text/));
+});
+
+describe("POST /session: standard user", () => {
+  var url = "/session";
+  var email = "random@email.com";
+  var password = email;
+
+  beforeAll(() => loginUser(server, email, password));
+
+  it("-> HTTP 403", () => server.post(url).expect(403));
+  it("-> Content Type HTML", () =>
+    server.post(url).expect("Content-type", /text/));
+
+  afterAll(() => server.get("/user/logout"));
+});
+
+// describe("POST /session: Malformed epoch", () => {
+//   var url = "/session";
+//   var email = "joaquim.q.gomez@gmail.com";
+//   var password = email;
+//
+//   beforeAll(() => loginUser(server, email, password));
+//
+//   it("-> HTTP 403", () =>
+//     server.post(url).send({ epochStart: "wooo" }).expect(403));
+//   it("-> Content Type HTML", () =>
+//     server.post(url).expect("Content-type", /text/));
+//
+//   afterAll(() => server.get("/user/logout"));
+// });
+//
+// describe("POST /session: Missing fields", () => {});
+
+describe("/session/1/attendance standard user", () => {
+  var email = "email@taken.com";
+  var password = "email@taken.com";
+  var eventId;
+
+  beforeAll(async () => {
+    eventId = await getEventId();
+    await loginUser(server, email, password);
+  });
+
+  it("GET /session/1/attendance -> HTTP 403", async () => {
+    return server
+      .get(`/session/${eventId}/attendance`)
+      .set("Accept", "application/json")
+      .expect(403);
+  });
+
+  it("GET /session/1/attendance -> content json", async () => {
+    return server
+      .get(`/session/${eventId}/attendance`)
+      .set("Accept", "application/json")
+      .expect("Content-type", /text\/html/);
+  });
+
+  afterAll(async () => {
+    await server.get("/user/logout");
+  });
+});
+
+describe("/session/:eventId/attendance no registered users", () => {
+  var eventId = null;
+
+  var email = "admin@admin.admin";
+  var password = "admin@admin.admin";
+
+  beforeAll(async () => {
+    await loginUser(server, email, password);
+    eventId = await getEventId();
+  });
+
+  it("GET /session/:eventId/attendance -> HTTP 200", async () => {
+    return server.get(`/session/${eventId}/attendance`).expect(404);
+  });
+
+  it("GET /session/:eventId/attendance -> content json", async () => {
+    return server
+      .get(`/session/${eventId}/attendance`)
+      .expect("Content-type", /text\/html/);
+  });
+
+  afterAll(async () => {
+    await server.get("/user/logout");
+  });
+});
+
+describe("/session/:eventId/attendance one user", () => {
+  var eventId = null;
+
+  var email = "admin@admin.admin";
+  var password = "admin@admin.admin";
+
+  beforeAll(async () => {
+    eventId = await loginAndRegisterUser(email, password);
+    await loginUser(server, email, password);
+  });
+
+  it("GET /session/:eventId/attendance -> length 1", async () => {
+    return server.get(`/session/${eventId}/attendance`).then((res) => {
+      expect(res.body).toHaveLength(1);
+    });
+  });
+
+  it("GET /session/:eventId/attendance -> HTTP 200", async () => {
+    return server.get(`/session/${eventId}/attendance`).expect(200);
+  });
+
+  it("GET /session/:eventId/attendance -> content JSON", async () =>
+    server
+      .get(`/session/${eventId}/attendance`)
+      .expect("Content-type", /json/));
+
+  afterAll(async () => {
+    await server.get("/user/logout");
+  });
+});
+
+describe("/session/:eventId/attendance 3 users", () => {
+  var eventId = null;
+
+  var adminEmail = "admin@admin.admin";
+  var adminPassword = "admin@admin.admin";
+
+  var userEmail = "email@taken.com";
+  var userPassword = "email@taken.com";
+
+  beforeAll(async () => {
+    await loginAndRegisterUser(adminEmail, adminPassword);
+    eventId = await loginAndRegisterUser(userEmail, userPassword);
+    await loginUser(server, adminEmail, adminPassword);
+  });
+
+  it("GET /session/:eventId/attendance -> length 3", async () => {
+    return server.get(`/session/${eventId}/attendance`).then((res) => {
+      expect(res.body).toHaveLength(3);
+    });
+  });
+
+  it("GET /session/:eventId/attendance -> HTTP 200", async () => {
+    return server.get(`/session/${eventId}/attendance`).expect(200);
+  });
+
+  it("GET /session/:eventId/attendance -> content HTML", async () => {
+    return server
+      .get(`/session/${eventId}/attendance`)
+      .expect("Content-type", /json/);
+  });
+
+  afterAll(async () => {
+    await server.get("/user/logout");
+  });
+});
+
+describe("/session/:eventId/register with auth", () => {
+  var eventId;
+
+  var email = "email@taken.com";
+  var password = "email@taken.com";
+  beforeAll(async () => {
+    await loginUser(server, email, password);
+    eventId = await getEventId();
+  });
+
+  it("PUT /session/:eventId/register -> HTTP 200", async () => {
+    return server.put(`/session/${eventId}/register`).expect(200);
+  });
+
+  it("PUT /session/:eventId/register -> content HTML", async () => {
+    return server
+      .put(`/session/${eventId}/register`)
+      .expect("Content-type", /text\/html/);
+  });
+
+  afterAll(async () => {
+    await server.get("/user/logout");
+  });
+});
+
+describe("/session/:eventId/register without auth", () => {
+  var eventId = null;
+
+  beforeAll(async () => {
+    eventId = await getEventId();
+  });
+
+  it("PUT /session/:eventId/register -> HTTP 401", async () => {
+    return server.put(`/session/${eventId}/register`).expect(401);
+  });
+
+  it("PUT /session/:eventId/register -> content HTML", async () => {
+    return server
+      .put(`/session/${eventId}/register`)
+      .expect("Content-type", /text\/html/);
+  });
+
+  afterAll(async () => {
+    await server.get("/user/logout");
+  });
+});
+
+describe("GET /session/list: malformed query", () => {
+  it("-> HTTP 400", () => {
+    var start = "asdfasdf";
+    var end = "asdfasdf";
+    var url = getSessionListUrl(start, end);
+
+    return request(app).get(url).expect(400);
+  });
+
+  it("-> HTTP 400", () => {
+    var start = "";
+    var end = "asdfasdf";
+    var url = getSessionListUrl(start, end);
+
+    return request(app).get(url).expect(400);
+  });
+});
+
+describe("GET /session/list: events found", () => {
+  var sundayMidnight;
+  beforeEach(() => {
+    sundayMidnight = removeTime(new Date());
+    sundayMidnight.setDate(sundayMidnight.getDate() - sundayMidnight.getDay());
+  });
+
+  it("-> 2 Events on Tuesday", async () => {
+    var tuesdayEvening = new Date(sundayMidnight);
+    tuesdayEvening.setDate(tuesdayEvening.getDate() + 2);
+    tuesdayEvening.setHours(21);
+
+    return countNumberOfEvents(sundayMidnight, tuesdayEvening, 2);
+  });
+
+  it("-> 8 Events in a week", async () => {
+    var sundayMidnightNextWeek = new Date(sundayMidnight);
+    sundayMidnightNextWeek.setDate(sundayMidnightNextWeek.getDate() + 7);
+    sundayMidnightNextWeek.setHours(21);
+
+    return countNumberOfEvents(sundayMidnight, sundayMidnightNextWeek, 8);
+  });
+
+  it("-> 1 Event on Wednesday", async () => {
+    var wednesdayMorning = new Date(sundayMidnight);
+    wednesdayMorning.setDate(wednesdayMorning.getDate() + 3);
+    wednesdayMorning.setHours(9);
+    var wednesdayNight = new Date(wednesdayMorning);
+    wednesdayNight.setHours(22);
+
+    return countNumberOfEvents(wednesdayMorning, wednesdayNight, 1);
+  });
+
+  it("-> 2 Events on Thursday", async () => {
+    var thursdayMorning = new Date(sundayMidnight);
+    thursdayMorning.setDate(thursdayMorning.getDate() + 4);
+    thursdayMorning.setHours(9);
+    var thursdayNight = new Date(thursdayMorning);
+    thursdayNight.setHours(22);
+
+    return countNumberOfEvents(thursdayMorning, thursdayNight, 2);
+  });
+
+  it("-> 3 Events on Friday", async () => {
+    var fridayMorning = new Date(sundayMidnight);
+    fridayMorning.setDate(fridayMorning.getDate() + 5);
+    fridayMorning.setHours(9);
+    var fridayNight = new Date(fridayMorning);
+    fridayNight.setHours(22);
+
+    return countNumberOfEvents(fridayMorning, fridayNight, 3);
+  });
+
+  it("-> 5 Events on Thursday-Friday", async () => {
+    var thursdayMorning = new Date(sundayMidnight);
+    thursdayMorning.setDate(thursdayMorning.getDate() + 4);
+    thursdayMorning.setHours(9);
+    var fridayNight = new Date(thursdayMorning);
+    fridayNight.setDate(fridayNight.getDate() + 1);
+    fridayNight.setHours(22);
+
+    return countNumberOfEvents(thursdayMorning, fridayNight, 5);
+  });
+});
+
+describe("GET /session/list: no events found", () => {
+  const expectNoEvents = (start, end) => {
+    start = start.getTime();
+    end = end.getTime();
+    var url = getSessionListUrl(start, end);
+
+    return request(app).get(url).expect(404);
+  };
+
+  var sundayMidnight;
+  beforeEach(() => {
+    sundayMidnight = removeTime(new Date());
+    sundayMidnight.setDate(sundayMidnight.getDate() - sundayMidnight.getDay());
+  });
+
+  it("-> Saturday-Sunday", async () => {
+    var saturdayMorning = new Date(sundayMidnight);
+    saturdayMorning.setDate(saturdayMorning.getDate() + 6);
+    saturdayMorning.setHours(9);
+    var sundayNight = new Date(saturdayMorning);
+    sundayNight.setDate(sundayNight.getDate() + 1);
+    sundayNight.setHours(22);
+
+    return expectNoEvents(saturdayMorning, sundayNight);
+  });
+
+  it("-> Tuesday morning", async () => {
+    var tuesdayMorning = new Date(sundayMidnight);
+    tuesdayMorning.setDate(tuesdayMorning.getDate() + 2);
+    tuesdayMorning.setHours(9);
+
+    tuesdayMidday = new Date(tuesdayMorning);
+    tuesdayMidday.setHours(14);
+
+    return expectNoEvents(tuesdayMorning, tuesdayMidday);
+  });
+
+  it("-> Matching start and end", async () => {
+    return expectNoEvents(sundayMidnight, sundayMidnight);
+  });
+});
+
+describe("GET /session/list: return object deatils", () => {
+  var sundayMidnight;
+  beforeEach(() => {
+    sundayMidnight = removeTime(new Date());
+    sundayMidnight.setDate(sundayMidnight.getDate() - sundayMidnight.getDay());
+  });
+
+  var eventTemplate = {
+    _id: expect.any(String),
+    date: expect.any(Number),
+    month: expect.any(Number),
+    year: expect.any(Number),
+    isoString: expect.any(String),
+    epoch: expect.any(Number),
+    day: expect.toBeWithinRange(0, 6),
+    start: expect.objectContaining({
+      hours: expect.toBeWithinRange(0, 23),
+      minutes: expect.toBeWithinRange(0, 59),
+    }),
+    end: expect.objectContaining({
+      hours: expect.toBeWithinRange(0, 23),
+      minutes: expect.toBeWithinRange(0, 59),
+    }),
+    location: expect.any(String),
+  };
+
+  it("-> Response and event have the correct properties", async () => {
+    var tuesdayEvening = new Date(sundayMidnight);
+    tuesdayEvening.setDate(tuesdayEvening.getDate() + 2);
+    tuesdayEvening.setHours(21);
+    var start = sundayMidnight.getTime();
+    var end = tuesdayEvening.getTime();
+    var url = getSessionListUrl(start, end);
+
+    return request(app)
+      .get(url)
+      .then((res) => {
+        expect(res.body).toEqual(expect.arrayContaining([eventTemplate]));
+      });
+  });
+});
+
+describe("/session Functions", () => {
+  var sundayMidnight;
+  beforeEach(() => {
+    sundayMidnight = removeTime(new Date());
+    sundayMidnight.setDate(sundayMidnight.getDate() - sundayMidnight.getDay());
+  });
+
+  //GetNextEvent
+  it("getNextEvent Sunday Night", () => {
+    var result = getNextEvent(sundayMidnight);
+    expect(result.day).toBe(2);
+    expect(result.start.hours).toBe(18);
+    expect(result.end.hours).toBe(19);
+  });
+
+  it("getNextEvent Monday Morning", () => {
+    var mondayMorning = sundayMidnight;
+    mondayMorning.setDate(mondayMorning.getDate() + 1);
+    mondayMorning.setHours(9);
+
+    var result = getNextEvent(mondayMorning);
+    expect(result.day).toBe(2);
+    expect(result.start.hours).toBe(18);
+    expect(result.end.hours).toBe(19);
+  });
+
+  it("getNextEvent Tuesday Morning", () => {
+    var tuesdayMorning = sundayMidnight;
+    tuesdayMorning.setDate(tuesdayMorning.getDate() + 2);
+    tuesdayMorning.setHours(9);
+
+    var result = getNextEvent(tuesdayMorning);
+    expect(result.day).toBe(2);
+    expect(result.start.hours).toBe(18);
+    expect(result.end.hours).toBe(19);
+  });
+
+  it("getNextEvent Tuesday evening", () => {
+    var tuesdayEvening = sundayMidnight;
+    tuesdayEvening.setDate(tuesdayEvening.getDate() + 2);
+    tuesdayEvening.setHours(19);
+
+    var result = getNextEvent(tuesdayEvening);
+    expect(result.day).toBe(2);
+    expect(result.start.hours).toBe(19);
+    expect(result.end.hours).toBe(21);
+  });
+
+  it("getNextEvent Tuesday night", () => {
+    var tuesdayNight = sundayMidnight;
+    tuesdayNight.setDate(tuesdayNight.getDate() + 2);
+    tuesdayNight.setHours(23);
+
+    var result = getNextEvent(tuesdayNight);
+    expect(result.day).toBe(3);
+    expect(result.start.hours).toBe(16);
+    expect(result.end.hours).toBe(17);
   });
 });

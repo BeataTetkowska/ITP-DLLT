@@ -43,16 +43,22 @@
         text-decoration: none;
         cursor: pointer;
       }
+
+      button.disabled {
+        color: #bbb;
+        border: 1px solid #bbb;
+        cursor: default;
+      }
     </style>
   </head>
 
   <body>
     <div class="content">
-      <h3>Street Sport</h3>
+      <h3>Streetsport</h3>
       <h1 id="location"></h1>
       <p id="time"></p>
       <p id="day"></p>
-      <button id="register">Register</button>
+      <button class="disabled" id="register">Register</button>
     </div>
   </body>
 </html>

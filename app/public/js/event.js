@@ -1,6 +1,5 @@
-var scheduleId;
 $(function () {
-  var url = "/api/event";
+  var url = window.location.pathname;
   var days = [
     "Sunday",
     "Monday",
@@ -13,55 +12,46 @@ $(function () {
 
   //Get JSON data about the currently on event
   //Parse data into html
-  $.getJSON(url, function (data) {
-    scheduleId = data._id;
-    $("#location").text(data.location);
+  $.getJSON(url, function (res) {
+    var { event, registered } = res;
+    $("#location").text(event.location);
     $("#time").text(
-      `${data.start.hours}:${
-        data.start.minutes != 0 ? data.start.minutes : "00"
-      } - ${data.end.hours}:${data.end.minutes != 0 ? data.end.minutes : "00"}`
+      `${event.start.hours}:${
+        event.start.minutes != 0 ? event.start.minutes : "00"
+      } - ${event.end.hours}:${
+        event.end.minutes != 0 ? event.end.minutes : "00"
+      }`
     );
-    $("#day").text(days[data.day]);
-    //TODO disable register button unless event is less than 30 minutes in the future
-  });
+    $("#day").text(days[event.day]);
 
-  $("#register").on("click", registerEvent);
+    $register = $("#register");
+    if (registered) {
+      $register
+        .css({ color: "green", "border-color": "green" })
+        .text("Registered");
+    }
+
+    //TODO disable register button unless event is less than 30 minutes in the future
+    $register.removeClass("disabled");
+    $register.on("click", () => registerEvent(event._id));
+  });
 });
 
 //Sends data about the current event to the server to attempt to register
 //the currently logged in user for the event
-function registerEvent() {
-  var now = new Date();
-
-  var url = "/api/event/register";
+function registerEvent(eventId) {
+  var url = `/session/${eventId}/register`;
   $.ajax({
-    type: "POST",
+    type: "PUT",
     url: url,
-    data: JSON.stringify({
-      scheduleId,
-      minutes: now.getMinutes(),
-      hours: now.getHours(),
-      date: now.getDate(),
-      month: now.getMonth(),
-      year: now.getYear(),
-    }),
-    dataType: "json",
-    contentType: "application/json",
   })
-    .done((response) => {
+    .done(() => {
       //Notify user if registration was succesful
-      if (response.result.success === true) {
-        $("#register")
-          .css({ color: "green", "border-color": "green" })
-          .text("Registered");
-      }
-      //If user is not signed in, notify user
-      else {
-        //TODO Navigate user to the sign in page, or request more information
-        alert(response.result.message);
-      }
+      $("#register")
+        .css({ color: "green", "border-color": "green" })
+        .text("Registered");
     })
-    .fail(() => {
-      //TODO handle server failure
+    .fail((xhr) => {
+      alert(xhr.responseText);
     });
 }

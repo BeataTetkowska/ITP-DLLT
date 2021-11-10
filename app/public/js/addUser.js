@@ -1,14 +1,14 @@
 import validateForm from "./utils/validateForm.js";
 
 $(function () {
-  $("#signup").click((e) => handleSignup(e));
+  $("#addUser").click((e) => handleCreateUser(e));
 });
 
 //Validates form input and sends form data to server to create user
-function handleSignup(e) {
+function handleCreateUser(e) {
   e.preventDefault();
 
-  var formData = validateSignUpForm();
+  var formData = validateCreateUserForm();
   if (!formData) {
     return;
   }
@@ -20,16 +20,15 @@ function handleSignup(e) {
     contentType: "application/json",
   })
     .done(() => {
-      window.location.href = "/session";
+      window.location.href = "/";
     })
     .fail((xhr) => {
       alert(xhr.responseText);
-      $("#email").addClass("input--error");
     });
 }
 
 //Prepares formfield validation metadata and validates form fields
-function validateSignUpForm() {
+function validateCreateUserForm() {
   var fields = [
     {
       selector: "#firstName",
@@ -38,20 +37,6 @@ function validateSignUpForm() {
     {
       selector: "#lastName",
       id: "lastName",
-    },
-    {
-      selector: "#email",
-      id: "email",
-      re: true,
-      reString: /^\S+@\S+\.\S+$/,
-    },
-    {
-      selector: "#password",
-      id: "password",
-    },
-    {
-      selector: "#confirmPassword",
-      id: "confirmPassword",
     },
     {
       selector: "#dateOfBirth",
@@ -74,11 +59,6 @@ function validateSignUpForm() {
   var formData = validateForm(fields);
 
   if (!formData.isValid) {
-    return false;
-  }
-
-  if (formData.confirmPassword != formData.password) {
-    $("#confirmPassword").addClass("input--error");
     return false;
   }
 

@@ -6,6 +6,7 @@
 ##### Project Specific Gitignore #####
 docker.env
 .DS_Store
+test-report.html
 
 ##### Gitignore Boilerplate #####
 # Logs

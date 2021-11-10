@@ -4,7 +4,7 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="/js/signup.js" type="module"></script>
+    <script src="/js/user.js" type="module"></script>
     <style>
       * {
         box-sizing: border-box;
@@ -68,20 +68,14 @@
         margin-right: auto;
       }
 
-      .checkBoxGroup {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 0px 10px;
-      }
-
-      .checkBoxGroup > input {
-        margin-right: 10px;
-      }
-
       .input--error {
         color: red;
         border: 1px solid red;
+      }
+
+      .button--error {
+        color: #c62828;
+        border: 1px solid #333;
       }
 
       .split {
@@ -101,7 +95,7 @@
   <body>
     <div class="content">
       <h3>Streetsport</h3>
-      <h1>Signup</h1>
+      <h1>Edit Details</h1>
 
       <div class="split">
         <div class="split__left">
@@ -110,16 +104,12 @@
             <input id="email" type="email" />
           </div>
           <div class="formGroup">
-            <lable for="password">Password</lable>
-            <input id="password" type="password" />
-          </div>
-          <div class="formGroup">
             <lable for="firstName">First Name</lable>
             <input id="firstName" />
           </div>
           <div class="formGroup">
-            <lable for="emergencyName">Emergency Contact Name</lable>
-            <input id="emergencyName" />
+            <lable for="lastName">Last Name</lable>
+            <input id="lastName" />
           </div>
           <div class="formGroup">
             <lable for="dateOfBirth">Date of Birth</lable>
@@ -132,33 +122,25 @@
             <input id="postcode" />
           </div>
           <div class="formGroup">
-            <lable for="confirmPassword">Confirm Password</lable>
-            <input id="confirmPassword" type="password" />
+            <lable for="emergencyName">Emergency Contact Name</lable>
+            <input id="emergencyName" />
           </div>
           <div class="formGroup">
-            <lable for="lastName">Last Name</lable>
-            <input id="lastName" />
-          </div>
-          <div class="formGroup">
-            <lable for="phoneNumber">Emergency Contact Number</lable>
+            <lable for="phoneNumber">Phonenumber</lable>
             <input id="phoneNumber" />
           </div>
         </div>
       </div>
-
       <div class="split">
         <div class="split__left">
           <div class="formGroup">
-            <button id="signup">Signup</button>
+            <button id="submit">Submit</button>
           </div>
         </div>
-        <div class="checkBoxGroup">
-          <input type="checkbox" id="marketing" />
-          <lable for="marketing">Marketing</lable>
-        </div>
-        <div class="checkBoxGroup">
-          <input type="checkbox" id="gdpr" />
-          <lable for="GDPR">GDPR</lable>
+        <div>
+          <div class="formGroup">
+            <button class="button--error" id="delete">Delete Account</button>
+          </div>
         </div>
       </div>
     </div>

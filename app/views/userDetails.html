@@ -1,0 +1,68 @@
+<!-- This is just a bad example frontend for the signup page. Only for showing the API functionality -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="/js/userDetails.js" type="module"></script>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        line-height: 2;
+      }
+
+      html,
+      body {
+        height: 100%;
+        width: 100%;
+      }
+
+      h4 {
+        margin-bottom: 0;
+        color: #545454;
+      }
+
+      p {
+        margin-top: 0;
+      }
+
+      .content {
+        position: absolute;
+        top: 10%;
+        left: 10%;
+      }
+
+      .container {
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="content">
+      <h3>Streetsport</h3>
+      <h1>User Details</h1>
+
+      <h4 for="email">Email</h4>
+      <p id="email"></p>
+      <h4 for="firstName">First Name</h4>
+      <p id="firstName"></p>
+      <h4 for="lastName">Last Name</h4>
+      <p id="lastName"></p>
+      <h4 for="dateOfBirth">Date of Birth</h4>
+      <p id="dateOfBirth"></p>
+      <h4 for="postcode">Postcode</h4>
+      <p id="postcode"></p>
+      <h4 for="emergencyName">Emergency Contact Name</h4>
+      <p id="emergencyName"></p>
+      <h4 for="phoneNumber">Phonenumber</h4>
+      <p id="phoneNumber"></p>
+    </div>
+  </body>
+</html>

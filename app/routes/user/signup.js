@@ -1,14 +1,13 @@
 const path = require("path");
+const { v4: uuidv4 } = require("uuid");
 const express = require("express");
 var router = express.Router();
-const log = require("../utils/winstonLogger");
 const bcrypt = require("bcrypt");
-
 const users = require("../models/user");
 
 //GET /signup -> returns html for signup page
 router.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../views/signup.html"));
+  res.sendFile(path.join(__dirname, "../../views/signup.html"));
 });
 
 //POST /signup -> creates user
@@ -17,11 +16,14 @@ router.post("/", parseSignUpRequest, checkIfUserExists, createUser);
 //Parses variables sent from frontend into response object
 async function parseSignUpRequest(req, res, next) {
   var { password } = req.body;
-  log.debug(req.body);
 
-  let hash = await bcrypt.hash(password, 10);
+  let hash = undefined;
+  if (password) hash = await bcrypt.hash(password, 10);
 
   res.locals.user = {
+    _id: uuidv4(),
+    gdprAccepted: req.body.gdprAccepted,
+    marketingAccepted: req.body.marketingAccepted,
     name: {
       first: req.body.firstName,
       last: req.body.lastName,
@@ -36,7 +38,15 @@ async function parseSignUpRequest(req, res, next) {
     },
   };
 
-  log.debug(res.locals.user);
+  //User created manually without email address or password
+  if (!res.locals.user.email || !hash) {
+    if (req.user && req.user.isAdmin) {
+      users.push(res.locals.user);
+      return res.status(200).send("User created manually");
+    }
+    //User must be admin to manually create user
+    return res.status(403).send("User not admin");
+  }
 
   next();
 }
@@ -62,15 +72,9 @@ async function createUser(_, res) {
     success = true;
   }
 
-  res.locals.response = {
-    email: res.locals.user.email,
-    result: {
-      success: success,
-    },
-  };
-
-  res.statusCode = 201;
-  res.json(res.locals.response);
+  users.push(res.locals.user);
+  return res.status(201).send(res.locals.user.email);
+  //TODO sign user in
 }
 
 module.exports = router;

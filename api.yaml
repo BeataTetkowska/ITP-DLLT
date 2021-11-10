@@ -1,0 +1,478 @@
+openapi: 3.0.0
+info:
+  description: Denis Law Legacy Trust Booking App API
+  version: 1.0.2
+  title: DLLT
+  contact:
+    email: joaquim@joaquimgomez.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+tags:
+  - name: Events
+  - name: Users
+paths:
+  /event:
+    get:
+      tags:
+        - Events
+      summary: Get current event
+      operationId: getCurrentEvent
+      responses:
+        "200":
+          description: Event returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  nextEvent:
+                    $ref: "#/components/schemas/Event"
+                  registered:
+                    type: boolean
+                    description: True if the user has already registered for this event
+            text/html:
+              schema:
+                type: string
+                description: Event HTML page
+  /event/{eventId}:
+    get:
+      tags:
+        - Events
+      summary: Get event by ID
+      operationId: getEventById
+      parameters:
+        - name: eventId
+          in: path
+          description: ID of event to return
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Event returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Event"
+        "400":
+          description: Invalid ID supplied
+        "404":
+          description: Event not found
+  /event/{eventId}/register:
+    put:
+      tags:
+        - Events
+      summary: Register user for an event
+      operationId: registerUserForEventById
+      parameters:
+        - name: eventId
+          in: path
+          description: ID of event to return
+          required: true
+          schema:
+            type: string
+        - name: userId
+          in: query
+          description: ID of user to register
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: User registered
+        "400":
+          description: Invalid ID supplied
+        "401":
+          $ref: "#/components/responses/notLoggedIn"
+        "403":
+          $ref: "#/components/responses/notAdmin"
+        "404":
+          description: Event or User not found
+  /event/{eventId}/attendance:
+    get:
+      tags:
+        - Events
+      summary: Get event attendance by ID
+      operationId: getEventAttendanceById
+      parameters:
+        - name: eventId
+          in: path
+          description: ID of event attendance to return
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Event attendance information
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserSummary"
+            text/csv:
+              schema:
+                type: string
+                description: CSV for user's attendance
+        "400":
+          description: Invalid ID supplied
+        "401":
+          $ref: "#/components/responses/notLoggedIn"
+        "403":
+          $ref: "#/components/responses/notAdmin"
+        "404":
+          description: Event not found
+  /user:
+    get: 
+      summary: Information on currently logged in user
+      tags:
+        - Users
+      responses:
+        "200":
+          description: User profile details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+            text/html: 
+              schema:
+                type: string
+                description: User profile HTML page
+        "401":
+          $ref: "#/components/responses/notLoggedIn"
+    patch: 
+      summary: Update currently logged in user
+      tags:
+        - Users
+      responses:
+        "200":
+          description: User update successful
+        "401":
+          $ref:  "#/components/responses/notLoggedIn"
+    delete:
+      tags:
+        - Users
+      summary: Delete logged in user
+      responses:
+        "200":
+          description: Successful account deletion
+        "401":
+          $ref: "#/components/responses/notLoggedIn"
+  /user/{userId}:
+    get: 
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user to return
+          required: true
+          schema:
+            type: string
+      summary: Information on currently logged in user
+      tags:
+        - Users
+      responses:
+        "200":
+          description: User profile details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+            text/html: 
+              schema:
+                type: string
+                description: User profile HTML page
+        "401":
+          $ref: "#/components/responses/notLoggedIn"
+        "403":
+          $ref: "#/components/responses/notAdmin"
+    patch: 
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user to update
+          required: true
+          schema:
+            type: string
+      summary: Update given user by ID
+      tags:
+        - Users
+      responses:
+        "200":
+          description: User update successful
+        "401":
+          $ref:  "#/components/responses/notLoggedIn"
+        "403":
+          $ref: "#/components/responses/notAdmin"
+  /user/signup:
+    get:
+      tags:
+        - Users
+      summary: user signup html page
+      operationId: userSignupPage
+      responses:
+        "200":
+          description: User signup HTML page
+    post:
+      tags:
+        - Users
+      summary: creates a new user
+      operationId: userSignup
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+        description: User to create
+      responses:
+        "201":
+          description: User account created
+        "403":
+          description: Account already exists
+  /user/login:
+    get:
+      tags:
+        - Users
+      summary: user login html page
+      operationId: userLoginPage
+      responses:
+        "200":
+          description: User Login HTML page
+    post:
+      tags:
+        - Users
+      summary: Attempt to login user
+      operationId: userLogin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Credentials"
+        description: User's email and password
+        required: true
+      responses:
+        "200":
+          description: Login successful
+        "401":
+          $ref: "#/components/responses/notLoggedIn"
+  /user/logout:
+    get:
+      tags:
+        - Users
+      summary: Logout user
+      operationId: userLogout
+      responses:
+        "200":
+          description: User logged out
+  /user/password:
+    get:
+      tags:
+        - Users
+      summary: Password reset initiation page
+      operationId: getInitiatePasswordReset
+      responses:
+        "200":
+          description: Password reset HTML page
+    post:
+      tags:
+        - Users
+      summary: Initiate password reset
+      operationId: initiatePasswordReset
+      responses:
+        "200":
+          description: Password reset initiated, email sent if matching email in database
+  /user/password/reset:
+    get:
+      tags:
+        - Users
+      summary: Password reset completion page
+      operationId: getCompletePasswordReset
+      responses:
+        "200":
+          description: Password reset completion HTML page
+    put:
+      tags:
+        - Users
+      summary: Complete password reset
+      operationId: completePasswordReset
+      responses:
+        "200":
+          description: Password reset successful
+        "403":
+          description: Password reset failed
+          content:
+            text/html:
+              schema:
+                type: string
+                example: Reset token expired
+servers:
+  - url: https://virtserver.swaggerhub.com/JoaquimGomez/DLLT/1.0.0
+components:
+  responses:
+    notLoggedIn:
+      description: User not logged in
+      content:
+        text/html:
+          schema:
+            type: string
+            example: "Not Logged In"
+    notAdmin:
+      description: Not admin
+      content:
+        text/html:
+          schema:
+            type: string
+            example: "Not Admin"
+  schemas:
+    Event:
+      type: object
+      description: A specific event in the schedule in JSON
+      properties:
+        _id:
+          type: string
+          description: Unique event identifier
+          example: 7c1e3c1d-319a-482e-a009-ad1d0002d9a3
+        location:
+          type: string
+          description: Location of the event
+          example: Cruyff Court Denis Law
+        attendance:
+          type: array
+          description: List of user IDs which have registered for the event
+          items:
+            type: string
+            description: User ID
+            example: 1cb96007-6302-49a4-8c38-66d7b89839c7
+        date:
+          type: integer
+          description: Day of month for event
+          example: 10
+        day:
+          type: integer
+          description: Day of week for event
+          example: 2
+        month:
+          type: integer
+          description: Month of year for event
+          example: 21
+        year:
+          type: integer
+          description: Year of event
+          example: 121
+        isoString:
+          type: string
+          description: ISO Standard string for datetime of event
+          example: "2021-11-01T11:19:39.011Z"
+        start:
+          type: object
+          description: Event start time
+          properties:
+            hours:
+              type: integer
+              description: Event start hour
+              example: 17
+            minutes:
+              type: integer
+              description: Event start minute
+              example: 30
+          required:
+            - hours
+            - minutes
+        end:
+          type: object
+          description: Event end time
+          properties:
+            hours:
+              type: integer
+              description: Event end hour
+              example: 19
+            minutes:
+              type: integer
+              description: Event end minute
+              example: 0
+          required:
+            - hours
+            - minutes
+      required:
+        - _id
+        - location
+        - attendance
+        - date
+        - day
+        - month
+        - year
+        - isoString
+        - start
+        - end
+    User:
+      description: User Signup fields
+      allOf:
+        - $ref: "#/components/schemas/Credentials"
+        - type: object
+          properties:
+            dob:
+              type: string
+              description: User's date of birth
+              example: 27-10-98
+            postcode:
+              type: string
+              description: User's postcode
+              example: AB117RS
+        - $ref: "#/components/schemas/UserSummary"
+      required:
+        - dob
+        - postcode
+        - emergency
+        - name
+    Credentials:
+      type: object
+      description: Login credentials
+      properties:
+        email:
+          type: string
+          description: User's email
+          example: email@taken.com
+        password:
+          type: string
+          description: User's plaintext password
+          example: P@ssw0rd
+      required:
+        - email
+        - password
+    UserSummary:
+      description: Subset of user fields
+      properties:
+        _id:
+          type: string
+          description: Unique user identifier
+          example: 1cb96007-6302-49a4-8c38-66d7b89839c7
+        emergency:
+          description: Emergency contact details
+          type: object
+          properties:
+            name:
+              type: string
+              description: Emergency contact name
+              example: Dave Chapelle
+            phone:
+              type: string
+              description: Emergency contact phone number
+              example: 075479382917
+          required:
+            - name
+            - phone
+        name:
+          description: User's name
+          type: object
+          properties:
+            first:
+              type: string
+              example: "Dave"
+            last:
+              type: string
+              example: "Chapelle"
+          required:
+            - first
+            - last
+      required:
+        - _id

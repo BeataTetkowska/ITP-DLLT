@@ -1,4 +1,4 @@
-require("dotenv").config();
+const { HTTPPORT } = require("./app/utils/dotenvDefaults");
 const app = require("./app/app");
 const log = require("./app/utils/winstonLogger");
 const mongoose = require("mongoose");
@@ -14,5 +14,6 @@ connection.once("open", function() {
   console.log("MongoDB database connection established successfully");
 });
 
-const port = process.env.HTTPPORT || 8080;
-app.listen(port, () => log.info(`Example app listening on port ${port}!`));
+app.listen(HTTPPORT, () =>
+  log.info(`Example app listening on port ${HTTPPORT}!`)
+);
