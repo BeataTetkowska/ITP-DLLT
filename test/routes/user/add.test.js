@@ -5,7 +5,7 @@ const server = request.agent(app);
 
 describe("GET /user/add no auth", () => {
   var url = "/user/add";
-  it("-> HTTP 200", () => request(app).get(url).expect(401));
+  it("-> HTTP 401", () => request(app).get(url).expect(401));
   it("-> Content Type HTML", () =>
     request(app).get(url).expect("Content-type", /text/));
 });
@@ -16,7 +16,7 @@ function loginAndGetAddUser(email, code) {
 
   beforeAll(() => loginUser(server, email, password));
 
-  it("-> HTTP 403", () => server.get(url).expect(code));
+  it(`-> HTTP ${code}`, () => server.get(url).expect(code));
   it("-> Content Type HTML", () =>
     server.get(url).expect("Content-type", /text/));
 
