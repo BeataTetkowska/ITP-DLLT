@@ -10,12 +10,11 @@ var uniqueEvents = require("../../utils/generateUniqueEventsFromSchedule")(
 );
 
 function getEventList(req, res) {
-  try {
-    var start = parseInt(req.query.start);
-    var end = parseInt(req.query.end);
-  } catch {
+  var start = parseInt(req.query.start) || null;
+  var end = parseInt(req.query.end) || null;
+
+  if (!start || !end)
     return res.status(400).send("Invalid start/end time supplied");
-  }
 
   var filteredEvents = uniqueEvents
     .filter((event) => event.epoch > start && event.epoch < end)
@@ -141,11 +140,15 @@ function registerUserForEventById(req, res, next) {
 function parseModifySessionRequest(req, res, next) {
   var { epochStart, start, end, location } = req.body;
 
+  //FIXME this does not actually catch a malformed request
   try {
     res.locals.startDate = new Date(epochStart);
   } catch {
     return res.status(400).send("Malformed Request");
   }
+
+  //TODO add checks for if the required fields are empty
+  //and send 400 if that is the case.
 
   var { startDate } = res.locals;
 

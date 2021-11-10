@@ -3,6 +3,8 @@ const app = require("../../../app/app");
 const loginUser = require("../../utils/loginUser");
 const server = request.agent(app);
 
+var users = require("../../../app/db/users");
+
 describe("GET /user no auth", () => {
   var url = "/user";
 
@@ -219,3 +221,35 @@ describe("PATCH /user update emergency phone", () => {
 
   afterAll(() => server.get("/user/logout"));
 });
+
+describe("DELETE /user no auth", () => {
+  var url = "/user";
+  it("-> HTTP 401 Unauthorised", () => server.delete(url).expect(401));
+});
+
+function deleteUser(email) {
+  var url = "/user";
+  var password = email;
+
+  beforeAll(() => loginUser(server, email, password));
+
+  it("-> User Exists", () => {
+    expect(users.find((user) => user.email === email).email).toBe(email);
+  });
+
+  it("-> HTTP 200", () => server.delete(url).expect(200));
+
+  it("-> User not logged in", () => server.delete(url).expect(401));
+
+  it("-> User Deleted", () => {
+    expect(users.find((user) => user.email === email)).toBe(undefined);
+  });
+
+  afterAll(() => server.get("/user/logout"));
+}
+
+describe("DELETE /user delete random@email.com", () =>
+  deleteUser("random@email.com"));
+
+describe("DELETE /user delete spring.shephard@mail.com", () =>
+  deleteUser("spring.shephard@mail.com"));
