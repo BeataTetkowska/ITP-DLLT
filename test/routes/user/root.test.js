@@ -50,6 +50,113 @@ function signInAndGetUser(email, password) {
 
   afterAll(() => server.get("/user/logout"));
 }
+describe("GET /user/:userId no auth", () => {
+  var url = "/user/asdfasdf";
+
+  it(`-> HTTP 401`, () => request(app).get(url).expect(401));
+
+  it("-> Content HTML", () =>
+    request(app).get(url).expect("Content-type", /text/));
+});
+
+describe("GET /user/:userId not admin", () => {
+  var url = "/user/asdfasdfq";
+  var email = "email@taken.com";
+  var password = email;
+
+  beforeAll(() => loginUser(server, email, password));
+
+  it(`-> HTTP 403`, () => server.get(url).expect(403));
+
+  it("-> Content HTML", () => server.get(url).expect("Content-type", /text/));
+
+  afterAll(() => server.get("/user/logout"));
+});
+
+describe("GET /user/:userId Bad User ID", () => {
+  //ID is for email@taken.com and may need to be updated if changed
+  var url = "/user/ffea1494-397";
+  var email = "admin@admin.admin";
+  var password = email;
+
+  beforeAll(() => loginUser(server, email, password));
+
+  it(`-> HTTP 404`, () => server.get(url).expect(404));
+
+  it("-> Content HTML", () => server.get(url).expect("Content-type", /text/));
+
+  afterAll(() => server.get("/user/logout"));
+});
+
+describe("GET /user/:userId HTML as admin", () => {
+  //ID is for email@taken.com and may need to be updated if changed
+  var url = "/user/ffea1494-397f-45ca-b17c-0106f1dc38dd";
+  var email = "admin@admin.admin";
+  var password = email;
+
+  beforeAll(() => loginUser(server, email, password));
+
+  it(`-> HTTP 200`, () => server.get(url).expect(200));
+
+  it("-> Content HTML", () => server.get(url).expect("Content-type", /text/));
+
+  afterAll(() => server.get("/user/logout"));
+});
+
+describe("GET /user/:userId JSON as admin", () => {
+  //ID is for email@taken.com and may need to be updated if changed
+  var url = "/user/ffea1494-397f-45ca-b17c-0106f1dc38dd";
+  var email = "admin@admin.admin";
+  var password = email;
+
+  beforeAll(() => loginUser(server, email, password));
+
+  it(`-> HTTP 200`, () =>
+    server.get(url).set("Accept", "application/json").expect(200));
+
+  it("-> Content JSON", () =>
+    server
+      .get(url)
+      .set("Accept", "application/json")
+      .expect("Content-type", /json/));
+
+  var expectedFields = expect.objectContaining({
+    dob: expect.any(String),
+    email: expect.any(String),
+    postcode: expect.any(String),
+    emergency: {
+      phone: expect.any(String),
+      name: expect.any(String),
+    },
+    name: {
+      first: expect.any(String),
+      last: expect.any(String),
+    },
+  });
+
+  it("-> Expect correct fields", () =>
+    server
+      .get(url)
+      .set("Accept", "application/json")
+      .then(({ body }) => expect(body).toEqual(expectedFields)));
+
+  afterAll(() => server.get("/user/logout"));
+});
+
+describe("GET /user/:userId HTML as admin", () => {
+  //ID is for email@taken.com and may need to be updated if changed
+  var url = "/user/ffea1494-397f-45ca-b17c-0106f1dc38dd";
+  var email = "admin@admin.admin";
+  var password = email;
+
+  beforeAll(() => loginUser(server, email, password));
+
+  it(`-> HTTP 200`, () => server.get(url).expect(200));
+
+  it("-> Content HTML", () => server.get(url).expect("Content-type", /text/));
+
+  afterAll(() => server.get("/user/logout"));
+});
 
 describe("GET /user admin@admin.admin", () =>
   signInAndGetUser("admin@admin.admin", "admin@admin.admin"));

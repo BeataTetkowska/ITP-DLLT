@@ -140,15 +140,11 @@ function registerUserForEventById(req, res, next) {
 function parseModifySessionRequest(req, res, next) {
   var { epochStart, start, end, location } = req.body;
 
-  //FIXME this does not actually catch a malformed request
-  try {
-    res.locals.startDate = new Date(epochStart);
-  } catch {
+  epochStart = parseInt(epochStart) || null;
+  if (!epochStart || !start || !end || !location)
     return res.status(400).send("Malformed Request");
-  }
 
-  //TODO add checks for if the required fields are empty
-  //and send 400 if that is the case.
+  res.locals.startDate = new Date(epochStart);
 
   var { startDate } = res.locals;
 
