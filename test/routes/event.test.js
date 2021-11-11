@@ -250,177 +250,166 @@ describe("/session as admin", () => {
   });
 });
 
-describe("/session/1/attendance no auth", () => {
+describe("DELETE /session/:sessionId/attendance/:userId no auth", () => {
   var eventId;
+  var userId = "4d9d01cd-e1e5-4faa-9fda-84f8fcd34c47";
   beforeAll(async () => {
     eventId = getEventId();
   });
 
-  it("GET /session/1/attendance -> HTTP 401", async () => {
-    return server
-      .get(`/session/${eventId}/attendance`)
+  it("-> HTTP 401", async () => {
+    return request(app)
+      .delete(`/session/${eventId}/attendance/${userId}`)
       .set("Accept", "application/json")
       .expect(401);
   });
 
-  it("GET /session/1/attendance -> content json", async () => {
-    return server
-      .get(`/session/${eventId}/attendance`)
+  it("-> content HTML", async () => {
+    return request(app)
+      .delete(`/session/${eventId}/attendance/${userId}`)
       .set("Accept", "application/json")
       .expect("Content-type", /text\/html/);
   });
 });
 
-describe("POST /session: no auth", () => {
-  var url = "/session";
-  it("-> HTTP 401", () => request(app).post(url).expect(401));
-  it("-> Content Type HTML", () =>
-    request(app).post(url).expect("Content-type", /text/));
-});
-
-describe("POST /session: standard user", () => {
-  var url = "/session";
+describe("DELETE /session/:sessionId/attendance/:userId: standard User", () => {
+  var eventId;
+  var userId = "4d9d01cd-e1e5-4faa-9fda-84f8fcd34c47";
   var email = "random@email.com";
   var password = email;
 
-  beforeAll(() => loginUser(server, email, password));
+  beforeAll(async () => {
+    eventId = await getEventId();
+    await loginUser(server, email, password);
+  });
 
-  it("-> HTTP 403", () => server.post(url).expect(403));
-  it("-> Content Type HTML", () =>
-    server.post(url).expect("Content-type", /text/));
+  it("-> HTTP 403", async () => {
+    return server
+      .delete(`/session/${eventId}/attendance/${userId}`)
+      .set("Accept", "application/json")
+      .expect(403);
+  });
 
-  afterAll(() => server.get("/user/logout"));
+  it("-> content HTML", async () => {
+    return server
+      .delete(`/session/${eventId}/attendance/${userId}`)
+      .set("Accept", "application/json")
+      .expect("Content-type", /text\/html/);
+  });
+
+  afterAll(async () => server.get("/user/logout"));
 });
 
-describe("POST /session: Malformed epoch", () => {
-  var url = "/session";
+describe("DELETE /session/:sessionId/attendance/:userId as admin: event not found", () => {
+  var eventId;
+  var userId = "4d9d01cd-e1e5-4faa-9fda-84f8fcd34c47";
   var email = "admin@admin.admin";
   var password = email;
 
-  var sessionBody = {
-    epochStart: "wooo",
-    start: {
-      hours: 1,
-      minutes: 1,
-    },
-    end: {
-      hours: 1,
-      minutes: 1,
-    },
-    location: "test",
-  };
+  beforeAll(async () => {
+    eventId = "Woooo";
+    await loginUser(server, email, password);
+  });
 
-  beforeAll(() => loginUser(server, email, password));
+  it("-> HTTP 404", async () => {
+    return server
+      .delete(`/session/${eventId}/attendance/${userId}`)
+      .set("Accept", "application/json")
+      .expect(404);
+  });
 
-  it("-> HTTP 403", () => server.post(url).send(sessionBody).expect(400));
-  it("-> Content Type HTML", () =>
-    server.post(url).expect("Content-type", /text/));
+  it("-> content HTML", async () => {
+    return server
+      .delete(`/session/${eventId}/attendance/${userId}`)
+      .set("Accept", "application/json")
+      .expect("Content-type", /text\/html/);
+  });
 
-  afterAll(() => server.get("/user/logout"));
+  afterAll(async () => server.get("/user/logout"));
 });
 
-describe("POST /session: Missing fields", () => {
-  var url = "/session";
+describe("DELETE /session/:sessionId/attendance/:userId as admin: user not registered", () => {
+  var eventId;
+  var userId = "4d9d01cd-e1e5-4faa-9fda-84f8fcd34c47";
   var email = "admin@admin.admin";
   var password = email;
 
-  var sessionBody = {
-    epochStart: 7777777,
-    start: {
-      hours: 1,
-      minutes: 1,
-    },
-    end: {
-      hours: 1,
-      minutes: 1,
-    },
-    location: "test",
-  };
+  beforeAll(async () => {
+    eventId = await getEventId();
+    await loginUser(server, email, password);
+  });
 
-  var { epochStart, ...missingEpoch } = sessionBody;
-  var { start, ...missingStart } = sessionBody;
-  var { end, ...missingEnd } = sessionBody;
-  var { location, ...missingLocation } = sessionBody;
+  it("-> HTTP 401", async () => {
+    return server
+      .delete(`/session/${eventId}/attendance/${userId}`)
+      .set("Accept", "application/json")
+      .expect(404);
+  });
 
-  beforeAll(() => loginUser(server, email, password));
+  it("-> content HTML", async () => {
+    return server
+      .delete(`/session/${eventId}/attendance`)
+      .set("Accept", "application/json")
+      .expect("Content-type", /text\/html/);
+  });
 
-  it("-> Missing Epoch: 403", () =>
-    server.post(url).send(missingEpoch).expect(400));
-  it("-> Missing Start: 403", () =>
-    server.post(url).send(missingStart).expect(400));
-  it("-> Missing End: 403", () =>
-    server.post(url).send(missingEnd).expect(400));
-  it("-> Missing Location: 403", () =>
-    server.post(url).send(missingLocation).expect(400));
-
-  afterAll(() => server.get("/user/logout"));
+  afterAll(async () => server.get("/user/logout"));
 });
 
-describe("POST /session: Session created but not added to schedule", () => {
-  var url = "/session";
+describe("DELETE /session/:sessionId/attendance/:userId as admin: Successful deregister", () => {
+  var eventId;
   var email = "admin@admin.admin";
   var password = email;
 
-  var sessionBody = {
-    epochStart: 1636579019187,
-    start: {
-      hours: 1,
-      minutes: 1,
-    },
-    end: {
-      hours: 1,
-      minutes: 1,
-    },
-    location: "jlklklklklklklklklklklklkl",
-  };
+  var userIdToRegister = "e350c510-c102-40d3-b65e-e9325b2a01f9";
+  var userToRegister = "random@email.com";
+  var passwordToRegister = userToRegister;
 
-  beforeAll(() => loginUser(server, email, password));
+  beforeAll(async () => {
+    eventId = await loginAndRegisterUser(userToRegister, passwordToRegister);
+    await loginUser(server, email, password);
+  });
 
-  it("-> HTTP 200", () => server.post(url).send(sessionBody).expect(200));
+  it("-> User has registered", async () =>
+    server
+      .get(`/session/${eventId}/attendance`)
+      .then(({ body }) => expect(body[0]._id).toEqual(userIdToRegister)));
 
-  it("-> Session not in event schedule", () =>
-    expect(
-      eventSchedule.findIndex(
-        (event) => event.location === sessionBody.location
-      ) > 0
-    ).toBe(false));
+  it("-> HTTP 200", async () =>
+    server
+      .delete(`/session/${eventId}/attendance/${userIdToRegister}`)
+      .set("Accept", "application/json")
+      .expect(200));
 
-  afterAll(() => server.get("/user/logout"));
+  it("-> Second attempt HTTP 404", async () =>
+    server
+      .delete(`/session/${eventId}/attendance/${userIdToRegister}`)
+      .set("Accept", "application/json")
+      .expect(404));
+
+  it("-> User has deregistered", async () =>
+    server.get(`/session/${eventId}/attendance`).expect(404));
+
+  afterAll(async () => server.get("/user/logout"));
 });
 
-describe("POST /session: Session created and added to schedule", () => {
-  var url = "/session?addToSchedule=true";
-  var email = "admin@admin.admin";
-  var password = email;
+describe("/session/1/attendance no auth", () => {
+  var eventId;
+  beforeAll(async () => (eventId = await getEventId()));
 
-  var sessionBody = {
-    epochStart: 1636579019187,
-    start: {
-      hours: 1,
-      minutes: 1,
-    },
-    end: {
-      hours: 1,
-      minutes: 1,
-    },
-    location: "fasdfasdfasdfasdfasfasdfasdf",
-  };
+  it("GET /session/1/attendance -> HTTP 401", async () =>
+    server
+      .get(`/session/${eventId}/attendance/`)
+      .set("Accept", "application/json")
+      .expect(401));
 
-  beforeAll(() => loginUser(server, email, password));
-
-  it("-> HTTP 200", () => server.post(url).send(sessionBody).expect(200));
-
-  it("-> Session is in event schedule", () =>
-    expect(
-      eventSchedule.findIndex(
-        (event) => event.location === sessionBody.location
-      ) > 0
-    ).toBe(true));
-
-  afterAll(() => server.get("/user/logout"));
+  it("GET /session/1/attendance -> content json", async () => {
+    return server
+      .get(`/session/${eventId}/attendance/`)
+      .set("Accept", "application/json")
+      .expect("Content-type", /text\/html/);
+  });
 });
-
-//TODO check for session being added to uniqueSessions
 
 describe("/session/1/attendance standard user", () => {
   var email = "email@taken.com";
@@ -817,3 +806,154 @@ describe("/session Functions", () => {
     expect(result.end.hours).toBe(17);
   });
 });
+
+describe("POST /session: no auth", () => {
+  var url = "/session";
+  it("-> HTTP 401", () => request(app).post(url).expect(401));
+  it("-> Content Type HTML", () =>
+    request(app).post(url).expect("Content-type", /text/));
+});
+
+describe("POST /session: standard user", () => {
+  var url = "/session";
+  var email = "random@email.com";
+  var password = email;
+
+  beforeAll(() => loginUser(server, email, password));
+
+  it("-> HTTP 403", () => server.post(url).expect(403));
+  it("-> Content Type HTML", () =>
+    server.post(url).expect("Content-type", /text/));
+
+  afterAll(() => server.get("/user/logout"));
+});
+
+describe("POST /session: Malformed epoch", () => {
+  var url = "/session";
+  var email = "admin@admin.admin";
+  var password = email;
+
+  var sessionBody = {
+    epochStart: "wooo",
+    start: {
+      hours: 1,
+      minutes: 1,
+    },
+    end: {
+      hours: 1,
+      minutes: 1,
+    },
+    location: "test",
+  };
+
+  beforeAll(() => loginUser(server, email, password));
+
+  it("-> HTTP 403", () => server.post(url).send(sessionBody).expect(400));
+  it("-> Content Type HTML", () =>
+    server.post(url).expect("Content-type", /text/));
+
+  afterAll(() => server.get("/user/logout"));
+});
+
+describe("POST /session: Missing fields", () => {
+  var url = "/session";
+  var email = "admin@admin.admin";
+  var password = email;
+
+  var sessionBody = {
+    epochStart: 7777777,
+    start: {
+      hours: 1,
+      minutes: 1,
+    },
+    end: {
+      hours: 1,
+      minutes: 1,
+    },
+    location: "test",
+  };
+
+  var { epochStart, ...missingEpoch } = sessionBody;
+  var { start, ...missingStart } = sessionBody;
+  var { end, ...missingEnd } = sessionBody;
+  var { location, ...missingLocation } = sessionBody;
+
+  beforeAll(() => loginUser(server, email, password));
+
+  it("-> Missing Epoch: 403", () =>
+    server.post(url).send(missingEpoch).expect(400));
+  it("-> Missing Start: 403", () =>
+    server.post(url).send(missingStart).expect(400));
+  it("-> Missing End: 403", () =>
+    server.post(url).send(missingEnd).expect(400));
+  it("-> Missing Location: 403", () =>
+    server.post(url).send(missingLocation).expect(400));
+
+  afterAll(() => server.get("/user/logout"));
+});
+
+describe("POST /session: Session created but not added to schedule", () => {
+  var url = "/session";
+  var email = "admin@admin.admin";
+  var password = email;
+
+  var sessionBody = {
+    epochStart: 1636579019187,
+    start: {
+      hours: 1,
+      minutes: 1,
+    },
+    end: {
+      hours: 1,
+      minutes: 1,
+    },
+    location: "jlklklklklklklklklklklklkl",
+  };
+
+  beforeAll(() => loginUser(server, email, password));
+
+  it("-> HTTP 200", () => server.post(url).send(sessionBody).expect(200));
+
+  it("-> Session not in event schedule", () =>
+    expect(
+      eventSchedule.findIndex(
+        (event) => event.location === sessionBody.location
+      ) > 0
+    ).toBe(false));
+
+  afterAll(() => server.get("/user/logout"));
+});
+
+describe("POST /session: Session created and added to schedule", () => {
+  var url = "/session?addToSchedule=true";
+  var email = "admin@admin.admin";
+  var password = email;
+
+  var sessionBody = {
+    epochStart: 1636579019187,
+    start: {
+      hours: 1,
+      minutes: 1,
+    },
+    end: {
+      hours: 1,
+      minutes: 1,
+    },
+    location: "fasdfasdfasdfasdfasfasdfasdf",
+  };
+
+  beforeAll(() => loginUser(server, email, password));
+
+  it("-> HTTP 200", () => server.post(url).send(sessionBody).expect(200));
+
+  it("-> Session is in event schedule", () =>
+    expect(
+      eventSchedule.findIndex(
+        (event) => event.location === sessionBody.location
+      ) > 0
+    ).toBe(true));
+
+  afterAll(() => server.get("/user/logout"));
+});
+
+//TODO check for session being added to uniqueSessions collection
