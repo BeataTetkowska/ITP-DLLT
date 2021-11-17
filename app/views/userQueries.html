@@ -4,33 +4,36 @@
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="/js/userDetails.js" type="module"></script>
+    <script src="/js/userQueries.js" type="module"></script>
     <style>
-      * {
-        box-sizing: border-box;
-      }
-
       body {
         margin: 0;
         font-family: Arial, Helvetica, sans-serif;
         line-height: 2;
       }
-
       html,
       body {
         height: 100%;
         width: 100%;
       }
-
-      h4 {
-        margin-bottom: 0;
-        color: #545454;
+      button,
+      input {
+        background: none;
+        color: #333;
+        border: 1px solid #333;
+        border-radius: 6px;
+        font-size: 16px;
+        text-decoration: none;
+        cursor: pointer;
       }
 
-      p {
-        margin-top: 0;
+      input {
+        padding: 10px;
       }
-
+      button {
+        cursor: pointer;
+        padding: 15px 30px;
+      }
       .content {
         position: absolute;
         top: 10%;
@@ -43,26 +46,16 @@
       }
     </style>
   </head>
-
   <body>
     <div class="content">
       <h3>StreetSport</h3>
-      <h1>User Details</h1>
+      <h1>User Queries</h1>
 
-      <h4 for="email">Email</h4>
-      <p id="email"></p>
-      <h4 for="firstName">First Name</h4>
-      <p id="firstName"></p>
-      <h4 for="lastName">Last Name</h4>
-      <p id="lastName"></p>
-      <h4 for="dateOfBirth">Date of Birth</h4>
-      <p id="dateOfBirth"></p>
-      <h4 for="postcode">Postcode</h4>
-      <p id="postcode"></p>
-      <h4 for="emergencyName">Emergency Contact Name</h4>
-      <p id="emergencyName"></p>
-      <h4 for="phoneNumber">Phonenumber</h4>
-      <p id="phoneNumber"></p>
+      <label> Please enter your querie here:</label>
+      <br /><br />
+      <textarea id="querieArea"> </textarea>
+      <br /><br />
+      <input type="submit" value="Submit" />
     </div>
   </body>
 </html>
